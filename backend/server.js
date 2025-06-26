@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 5000;  // ✅ Use dynamic port on Render
 
 const allowedOrigins = [
   "http://localhost:3000",             // local dev
-  "https://your-frontend.vercel.app"   // your deployed frontend domain
+  "https://guitar-pro.vercel.app"   // your deployed frontend domain
 ];
 
 app.use(cors({
