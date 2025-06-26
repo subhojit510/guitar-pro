@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/alphatab/:file*",
+      "source": "/alphatab/(.*)",
       "headers": [
         {
           "key": "Content-Type",
