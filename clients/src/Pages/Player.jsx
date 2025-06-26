@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { db } from '../Firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { FaPlay, FaPause, FaStop, FaLoop, FaPrint } from "react-icons/fa6";
+import { FaPlay, FaPause, FaStop, FaLoop, FaPrint, FaVolumeHigh } from "react-icons/fa6";
 import { MdLoop } from "react-icons/md"
 
 const PlayerWrapper = styled.div`
@@ -296,17 +296,36 @@ export default function Player() {
   </div>
 
   {/* Scroll container */}
-  <div className="at-viewport" style={{ height: '500px', overflow: 'auto', flexGrow: 1 }}>
-    <div
-      ref={alphaTabRef}
-      style={{
-        border: '1px solid #444',
-        background: '#1e1e1e',
-        width: '100%',
-        // ✅ Removed height and overflow here
-      }}
-    />
+<div className="at-viewport" style={{ position: 'relative', height: '500px', overflow: 'auto', flexGrow: 1 }}>
+  {/* Watermark Overlay */}
+  <div style={{
+    position: 'absolute',
+    top: '70%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(-30deg)',
+    fontSize: '3rem',
+    color: 'rgba(255, 255, 255, 0.08)',
+    pointerEvents: 'none',
+    zIndex: 10,
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
+  }}>
+   Designed by NDMedia
   </div>
+
+  {/* AlphaTab Canvas Container */}
+  <div
+    ref={alphaTabRef}
+    style={{
+      border: '1px solid #444',
+      background: '#1e1e1e',
+      width: '100%',
+      position: 'relative',
+      zIndex: 1, // Behind watermark
+    }}
+  />
+</div>
+
 </div>
 
       <TimeDisplay>{timeDisplay}</TimeDisplay>
@@ -366,7 +385,7 @@ export default function Player() {
 
   {/* 🎚️ Master Volume */}
   <label>
-    Volume:
+    <FaVolumeHigh/>
     <input
       type="range"
       min="0"
