@@ -5,16 +5,7 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5000;  // ✅ Use dynamic port on Render
 
-const allowedOrigins = [
-  "http://localhost:3000",             // local dev
-  "https://guitar-pro.vercel.app"   // your deployed frontend domain
-];
-
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST"],
-  credentials: true
-}));
+app.use(cors());
 
 app.get("/api/file", async (req, res) => {  
   const fileId = req.query.id;
