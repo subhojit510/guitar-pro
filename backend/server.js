@@ -10,7 +10,6 @@ const allowedOrigins = [
   "https://guitar-pro.vercel.app"   // your deployed frontend domain
 ];
 
-
 app.use(cors({
   origin: allowedOrigins,
   methods: ["GET", "POST"],
