@@ -149,7 +149,7 @@ export default function Player() {
 
         api = new window.alphaTab.AlphaTabApi(alphaTabRef.current, {
           core: {
-            workerUrl: "/alphatab/alphaTab.worker.mjs"
+            workerUrl: `${window.location.origin}/alphatab/alphaTab.worker.mjs`
           },
           player: {
             enablePlayer: true,
@@ -157,7 +157,7 @@ export default function Player() {
             enableCursor: true,
             enableMetronome: true,
             enableLooping: true,
-            soundFont: "/alphatab/soundfont/sonivox.sf2",
+            soundFont: `${window.location.origin}/alphatab/soundfont/sonivox.sf2`,
           },
           display: {
             layoutMode: 'page',
@@ -171,7 +171,7 @@ export default function Player() {
           fonts: [
             {
               name: "alphaTab",
-              url: "/alphatab/font/Bravura.woff2"
+              url: `${window.location.origin}/alphatab/font/Bravura.woff2`
             }
           ]
         });
