@@ -72,7 +72,8 @@ const lightTheme = {
   heading: darkTeal,
   buttonBg: darkTeal,
   buttonText: '#fff',
-  buttonHover: '#455A64'
+  buttonHover: '#455A64',
+  watermark:'#37474fa3'
 };
 
 const darkTheme = {
@@ -86,5 +87,6 @@ const darkTheme = {
   heading: '#fff',
   buttonBg: darkTeal,
   buttonText: '#fff',
-  buttonHover: '#546E7A'
+  buttonHover: '#546E7A',
+  watermark: '#37474fa3'
 };

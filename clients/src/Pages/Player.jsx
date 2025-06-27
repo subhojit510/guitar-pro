@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { db } from '../Firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { FaPlay, FaPause,FaGuitar, FaStop, FaPrint, FaVolumeHigh } from "react-icons/fa6";
-import {IoMoon, IoSunny } from "react-icons/io5";
+import { FaPlay, FaPause, FaGuitar, FaStop, FaPrint, FaVolumeHigh } from "react-icons/fa6";
+import { IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
 
 /// === STYLED COMPONENTS === ///
@@ -19,7 +19,7 @@ const FullPageSpinner = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #1e1e1e;
+  background: ${({ theme }) => theme.background};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,8 +28,8 @@ const FullPageSpinner = styled.div`
   .spinner {
     width: 60px;
     height: 60px;
-    border: 5px solid #fff;
-    border-top: 5px solid ${({ theme }) => theme.buttonBg};
+    border: 5px solid ${({ theme }) => theme.heading};
+    border-top: 5px solid ${({ theme }) => theme.background};
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -53,30 +53,6 @@ const PlayerWrapper = styled.div`
     position: relative;
   }
 
-//////
-
-.at-cursor-bar {
-        /* Defines the color of the bar background when a bar is played */
-        background: rgba(255, 242, 0, 0.25);
-      }
-
-      .at-selection div {
-        /* Defines the color of the selection background */
-        background: rgba(64, 64, 255, 0.1);
-      }
-
-      .at-cursor-beat {
-        /* Defines the beat cursor */
-        background: rgba(64, 64, 255, 0.75);
-        width: 3px;
-      }
-
-      .at-highlight * {
-        /* Defines the color of the music symbols when they are being played (svg) */
-        fill: #0078ff;
-        stroke: #0078ff;
-      }
-//////
 
   .at-track.active {
     background: ${({ theme }) => theme.buttonHover};
@@ -110,6 +86,19 @@ const ResponsiveLayout = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
   }
+`;
+
+const Watermark = styled.div`
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 3rem;
+  color: ${({ theme }) => theme.watermark};
+  pointer-events: none;
+  z-index: 10;
+  user-select: none;
+  white-space: nowrap;
 `;
 const AlphaTabContainer = styled.div`
   border: 1px solid #444;
@@ -186,7 +175,7 @@ const TimeDisplay = styled.div`
   text-align: center;
 `;
 
-export default function Player({themeMode, toggleTheme}) {
+export default function Player({ themeMode, toggleTheme }) {
   const { id } = useParams();
   const alphaTabRef = useRef(null);
   const apiRef = useRef(null);
@@ -382,45 +371,34 @@ export default function Player({themeMode, toggleTheme}) {
           Loading..
         </FullPageSpinner>
       )}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '10px 0' }}>
-  <button
-    onClick={toggleTheme}
-    style={{
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      color: 'inherit',
-      fontSize: '1.5rem'
-    }}
-    aria-label="Toggle Theme"
-  >
-    {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
-  </button>
-</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0' }}>
+        <h1><FaGuitar /> Guitar Tab Player</h1>
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'inherit',
+            fontSize: '1.5rem'
+          }}
+          aria-label="Toggle Theme"
+        >
+          {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
+        </button>
 
-      <h1><FaGuitar/> Guitar Tab Player</h1>
-    
+      </div>
+
+
+
       <ResponsiveLayout>
         {/* Scroll container */}
         <div className="at-viewport" style={{ position: 'relative', height: '500px', overflow: 'auto', flexGrow: 1 }}>
           {/* Watermark Overlay */}
-          <div style={{
-            position: 'absolute',
-            top: '70%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) rotate(-30deg)',
-            fontSize: '3rem',
-            color: 'rgba(255, 255, 255, 0.08)',
-            pointerEvents: 'none',
-            zIndex: 10,
-            userSelect: 'none',
-            whiteSpace: 'nowrap',
-          }}>
-            Designed by NDMedia
-          </div>
+          <Watermark>Designed by NDMedia</Watermark>
 
           {/* AlphaTab Canvas Container */}
-       <AlphaTabContainer ref={alphaTabRef} />
+          <AlphaTabContainer ref={alphaTabRef} />
 
         </div>
 
