@@ -3,58 +3,141 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { db } from '../Firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { FaPlay, FaPause, FaStop, FaLoop, FaPrint, FaVolumeHigh } from "react-icons/fa6";
+import { FaPlay, FaPause,FaGuitar, FaStop, FaPrint, FaVolumeHigh } from "react-icons/fa6";
+import {IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
+
+/// === STYLED COMPONENTS === ///
+
+/// SPINNER ANIMATION
+
+const FullPageSpinner = styled.div`
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #1e1e1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #fff;
+    border-top: 5px solid ${({ theme }) => theme.buttonBg};
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`;
+
 
 const PlayerWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  color: white;
+  color: ${({ theme }) => theme.text};
   width: 90vw;
 
   .at-viewport {
-    background-color: #2a2a2a;
-  height: 500px;
-  overflow-y: auto;
-  position: relative;
-}
+    background-color: ${({ theme }) => theme.cardBg};
+    height: 500px;
+    overflow-y: auto;
+    position: relative;
+  }
 
-  .at-sidebar {
-  width: 200px;
-  background: #2a2a2a;
-  border-right: 1px solid #444;
-  overflow-y: auto;
-}
+//////
 
-.at-sidebar-content {
-  padding: 10px;
-}
+.at-cursor-bar {
+        /* Defines the color of the bar background when a bar is played */
+        background: rgba(255, 242, 0, 0.25);
+      }
 
-.at-track.active {
-  background: #fff;
-  color: black;
-}
+      .at-selection div {
+        /* Defines the color of the selection background */
+        background: rgba(64, 64, 255, 0.1);
+      }
 
+      .at-cursor-beat {
+        /* Defines the beat cursor */
+        background: rgba(64, 64, 255, 0.75);
+        width: 3px;
+      }
 
-.at-track {
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
+      .at-highlight * {
+        /* Defines the color of the music symbols when they are being played (svg) */
+        fill: #0078ff;
+        stroke: #0078ff;
+      }
+//////
 
-.at-track:hover {
-  background: #444;
-}
+  .at-track.active {
+    background: ${({ theme }) => theme.buttonHover};
+    color: ${({ theme }) => theme.background};
+  }
 
-.at-track-icon {
-  margin-right: 10px;
-  color: #00d1b2;
-}
+  .at-track {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    color: ${({ theme }) => theme.text};
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+
+  .at-track:hover {
+    background: ${({ theme }) => theme.buttonHover};
+  }
+
+  .at-track-icon {
+    margin-right: 10px;
+    color: ${({ theme }) => theme.heading};
+  }
 `;
+
+const ResponsiveLayout = styled.div`
+  display: flex;
+  flex-direction: row;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+const AlphaTabContainer = styled.div`
+  border: 1px solid #444;
+  background: ${({ theme }) => theme.background};  // or theme.background
+  width: 100%;
+  position: relative;
+  z-index: 1;
+`;
+
+const Sidebar = styled.div`
+  width: 200px;
+  background: ${({ theme }) => theme.cardBg};
+  margin-left: 1em;
+  overflow-y: auto;
+  border-radius: 15px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    border-right: none;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top: 1px solid ${({ theme }) => theme.cardBorder};
+  }
+`;
+
+
+
 
 const Controls = styled.div`
   margin-top: 20px;
@@ -65,14 +148,13 @@ const Controls = styled.div`
 
   button {
     padding: 10px 20px;
-    background: #00d1b2;
-    color: white;
+    background: ${({ theme }) => theme.buttonBg};
+    color: ${({ theme }) => theme.buttonText};
     border: none;
-    border-radius: 6px;
     cursor: pointer;
 
     &:hover {
-      background: #00b89c;
+      background: ${({ theme }) => theme.buttonHover};
     }
   }
 
@@ -80,29 +162,35 @@ const Controls = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #ccc;
+    color: ${({ theme }) => theme.text};
   }
 
   select {
     padding: 8px;
-    background: #333;
-    color: white;
+    background: ${({ theme }) => theme.inputBg};
+    color: ${({ theme }) => theme.text};
     border-radius: 4px;
-    border: 1px solid #666;
+    border: 1px solid ${({ theme }) => theme.cardBorder};
+  }
+
+  input[type="range"] {
+    accent-color: ${({ theme }) => theme.buttonBg};
   }
 `;
+
 
 const TimeDisplay = styled.div`
   margin: 10px 0;
   font-size: 14px;
-  color: #aaa;
+  color: ${({ theme }) => theme.placeholder};
   text-align: center;
 `;
 
-export default function Player() {
+export default function Player({themeMode, toggleTheme}) {
   const { id } = useParams();
   const alphaTabRef = useRef(null);
   const apiRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(100);
   const [timeDisplay, setTimeDisplay] = useState('00:00 / 00:00');
   const [tracks, setTracks] = useState([]);
@@ -110,10 +198,10 @@ export default function Player() {
   useEffect(() => {
     let api; // store local reference
     console.log("Useeffect triggered");
-    
+
     const fetchAndInit = async () => {
       console.log("Alphatab initialising");
-      
+
       try {
         if (!window.alphaTab || !window.alphaTab.AlphaTabApi) {
           alert("AlphaTab failed to load.");
@@ -157,7 +245,7 @@ export default function Player() {
             enableCursor: true,
             enableMetronome: true,
             enableLooping: true,
-           soundFont: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/soundfont/sonivox.sf2"
+            soundFont: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/soundfont/sonivox.sf2"
           },
           display: {
             layoutMode: 'page',
@@ -171,7 +259,7 @@ export default function Player() {
           fonts: [
             {
               name: "alphaTab",
-               url: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/font/Bravura.woff2"
+              url: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/font/Bravura.woff2"
             }
           ]
         });
@@ -186,6 +274,7 @@ export default function Player() {
         api.scoreLoaded?.on(() => {
           const scoreTracks = api.score.tracks;
           setTracks(scoreTracks);
+          setIsLoading(false);  /// disabling spinner after score loading
         });
 
         api.playerReady?.on(() => {
@@ -285,122 +374,138 @@ export default function Player() {
 
 
   return (
+
     <PlayerWrapper>
-      <h2>🎸 Guitar Tab Player</h2>
-     <div style={{ display: 'flex' }}>
-  {/* Sidebar */}
-  <div className="at-sidebar">
-    <div className="at-sidebar-content">
-      <div className="at-track-list"></div>
-    </div>
-  </div>
-
-  {/* Scroll container */}
-<div className="at-viewport" style={{ position: 'relative', height: '500px', overflow: 'auto', flexGrow: 1 }}>
-  {/* Watermark Overlay */}
-  <div style={{
-    position: 'absolute',
-    top: '70%',
-    left: '50%',
-    transform: 'translate(-50%, -50%) rotate(-30deg)',
-    fontSize: '3rem',
-    color: 'rgba(255, 255, 255, 0.08)',
-    pointerEvents: 'none',
-    zIndex: 10,
-    userSelect: 'none',
-    whiteSpace: 'nowrap',
-  }}>
-   Designed by NDMedia
-  </div>
-
-  {/* AlphaTab Canvas Container */}
-  <div
-    ref={alphaTabRef}
+      {isLoading && (
+        <FullPageSpinner>
+          <div className="spinner" />
+          Loading..
+        </FullPageSpinner>
+      )}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '10px 0' }}>
+  <button
+    onClick={toggleTheme}
     style={{
-      border: '1px solid #444',
-      background: '#1e1e1e',
-      width: '100%',
-      position: 'relative',
-      zIndex: 1, // Behind watermark
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      color: 'inherit',
+      fontSize: '1.5rem'
     }}
-  />
+    aria-label="Toggle Theme"
+  >
+    {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
+  </button>
 </div>
 
-</div>
+      <h1><FaGuitar/> Guitar Tab Player</h1>
+    
+      <ResponsiveLayout>
+        {/* Scroll container */}
+        <div className="at-viewport" style={{ position: 'relative', height: '500px', overflow: 'auto', flexGrow: 1 }}>
+          {/* Watermark Overlay */}
+          <div style={{
+            position: 'absolute',
+            top: '70%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(-30deg)',
+            fontSize: '3rem',
+            color: 'rgba(255, 255, 255, 0.08)',
+            pointerEvents: 'none',
+            zIndex: 10,
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
+          }}>
+            Designed by NDMedia
+          </div>
+
+          {/* AlphaTab Canvas Container */}
+       <AlphaTabContainer ref={alphaTabRef} />
+
+        </div>
+
+        {/* Sidebar (moves below on mobile) */}
+        <Sidebar>
+          <div className="at-sidebar-content">
+            <div className="at-track-list"></div>
+          </div>
+        </Sidebar>
+      </ResponsiveLayout>
+
 
       <TimeDisplay>{timeDisplay}</TimeDisplay>
-     <Controls>
-  <button onClick={() => apiRef.current?.player?.play()}><FaPlay /> Play</button>
-  <button onClick={() => apiRef.current?.player?.pause()}><FaPause /> Pause</button>
-  <button onClick={() => apiRef.current?.player?.stop()}><FaStop /> Stop</button>
-  <button onClick={() => apiRef.current?.print()}>
-<FaPrint/> Print
-</button>
+      <Controls>
+        <button onClick={() => apiRef.current?.player?.play()}><FaPlay /> Play</button>
+        <button onClick={() => apiRef.current?.player?.pause()}><FaPause /> Pause</button>
+        <button onClick={() => apiRef.current?.player?.stop()}><FaStop /> Stop</button>
+        <button onClick={() => apiRef.current?.print()}>
+          <FaPrint /> Print
+        </button>
 
 
-<label>
-  Tempo: {playbackSpeed}%
-  <input
-    type="range"
-    min="50"
-    max="200"
-    value={playbackSpeed}
-    onInput={(e) => {
-      const speed = parseInt(e.target.value);
-      setPlaybackSpeed(speed); // update UI
-      if (apiRef.current?.player) {
-        apiRef.current.player.playbackSpeed = speed / 100;
-      }
-    }}
-  />
-</label>
+        <label>
+          Tempo: {playbackSpeed}%
+          <input
+            type="range"
+            min="50"
+            max="200"
+            value={playbackSpeed}
+            onInput={(e) => {
+              const speed = parseInt(e.target.value);
+              setPlaybackSpeed(speed); // update UI
+              if (apiRef.current?.player) {
+                apiRef.current.player.playbackSpeed = speed / 100;
+              }
+            }}
+          />
+        </label>
 
-  <label>
-    <input
-      type="checkbox"
-      onChange={(e) => {
-        if (apiRef.current?.player) {
-          apiRef.current.player.isLooping = e.target.checked;
-        }
-      }}
-    />
-    <MdLoop />
-    Loop
-  </label>
+        <label>
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              if (apiRef.current?.player) {
+                apiRef.current.player.isLooping = e.target.checked;
+              }
+            }}
+          />
+          <MdLoop />
+          Loop
+        </label>
 
-  <label>
-    <input
-      type="checkbox"
-      onChange={(e) => {
-        const enabled = e.target.checked;
-        if (apiRef.current?.player) {
-          apiRef.current.player.enableMetronome = enabled;
-          apiRef.current.player.metronomeVolume = enabled ? 1 : 0;
-          apiRef.current.updateSettings();
-        }
-      }}
-    />
-    Metronome
-  </label>
+        <label>
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              const enabled = e.target.checked;
+              if (apiRef.current?.player) {
+                apiRef.current.player.enableMetronome = enabled;
+                apiRef.current.player.metronomeVolume = enabled ? 1 : 0;
+                apiRef.current.updateSettings();
+              }
+            }}
+          />
+          Metronome
+        </label>
 
-  {/* 🎚️ Master Volume */}
-  <label>
-    <FaVolumeHigh/>
-    <input
-      type="range"
-      min="0"
-      max="1"
-      step="0.01"
-      defaultValue="1"
-      onInput={(e) => {
-        const volume = parseFloat(e.target.value);
-        if (apiRef.current?.player) {
-          apiRef.current.player.masterVolume = volume;
-        }
-      }}
-    />
-  </label>
-</Controls>
+        {/* 🎚️ Master Volume */}
+        <label>
+          <FaVolumeHigh />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            defaultValue="1"
+            onInput={(e) => {
+              const volume = parseFloat(e.target.value);
+              if (apiRef.current?.player) {
+                apiRef.current.player.masterVolume = volume;
+              }
+            }}
+          />
+        </label>
+      </Controls>
 
     </PlayerWrapper>
   );

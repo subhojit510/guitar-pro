@@ -4,35 +4,31 @@ import { db } from '../Firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { FaUserShield } from 'react-icons/fa';
-
-// const Wrapper = styled.div`
-//   min-height: 100vh;
-//   background: #111;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   padding: 40px 20px;
-// `;
+import { GiGuitar } from "react-icons/gi";
+import {IoMoon, IoSunny } from "react-icons/io5";
 
 const Container = styled.div`
-  width: 80vw;
-  background: #1e1e1e;
+  width: 91vw;
+  background: ${({ theme }) => theme.background};
   padding: 30px;
+  height: 88vh;
+  overflow: auto;
   border-radius: 16px;
-  color: #f4f4f4;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  color: ${({ theme }) => theme.text};
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 `;
 
 const TopSection = styled.div`
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 2em;
-`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2em;
+  flex-wrap: wrap;
+`;
 
 const Heading = styled.h2`
   text-align: center;
-  color: #00d1b2;
+  color: ${({ theme }) => theme.heading};
   margin-bottom: 25px;
 `;
 
@@ -41,8 +37,8 @@ const Button = styled.button`
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  background-color: #007bff;
-  color: white;
+  background-color: ${({ theme }) => theme.buttonBg};
+  color: ${({ theme }) => theme.buttonText};
   font-weight: 600;
   border: none;
   border-radius: 8px;
@@ -52,7 +48,7 @@ const Button = styled.button`
   font-size: 16px;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: ${({ theme }) => theme.buttonHover};
     transform: scale(1.02);
   }
 
@@ -62,14 +58,18 @@ const Button = styled.button`
 `;
 
 const SearchInput = styled.input`
-  width: 97%;
+  width: 40%;
   padding: 12px;
-  border-radius: 8px;
-  border: none;
+  border-radius: 20px;
+  border: solid 1px #37474F;
   margin-bottom: 20px;
-  background: #2a2a2a;
-  color: #fff;
+  background: ${({ theme }) => theme.inputBg};
+  color: ${({ theme }) => theme.text};
   font-size: 16px;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.placeholder};
+  }
 `;
 
 const SongList = styled.ul`
@@ -79,18 +79,21 @@ const SongList = styled.ul`
 `;
 
 const SongItem = styled.li`
-  background: #2a2a2a;
+  background: ${({ theme }) => theme.cardBg};
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  color: ${({ theme }) => theme.heading};
   padding: 15px 20px;
   border-radius: 10px;
   margin-bottom: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 16px;
+  border: 1px solid ${({ theme }) => theme.cardBorder};
 
   &:hover {
-    background: #00d1b2;
-    color: #000;
-    transform: scale(1.02);
+    background: ${({ theme }) => theme.buttonBg};
+    color: ${({ theme }) => theme.buttonText};
+    transform: scale(1.01);
   }
 `;
 
@@ -101,7 +104,7 @@ const Loading = styled.div`
   margin-top: 30px;
 `;
 
-export default function Home() {
+export default function Home({ toggleTheme, themeMode }) {
   const [songs, setSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -140,41 +143,42 @@ export default function Home() {
   };
 
   const handleSelect = (song) => {
-    console.log(song.url);
-    
-    navigate(`/player/${song.id}`); // You can use this ID in player page to fetch song
+    navigate(`/player/${song.id}`);
   };
 
   return (
-  
-      <Container>
-        <TopSection>
- <Heading>🎶 Available Songs</Heading>
-        <Button onClick={()=>{navigate('/admin')}}>
-      <FaUserShield />
-      Admin
-    </Button>
-        </TopSection>
-       
-        <SearchInput
-          type="text"
-          placeholder="Search song..."
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-        {loading ? (
-          <Loading>Loading songs...</Loading>
-        ) : (
-          <SongList>
-            {filteredSongs.length === 0 && <p>No songs found.</p>}
-            {filteredSongs.map(song => (
-              <SongItem key={song.id} onClick={() => handleSelect(song)}>
-                {song.name}
-              </SongItem>
-            ))}
-          </SongList>
-        )}
-      </Container>
-    
+    <Container>
+      <TopSection>
+        <Heading><GiGuitar /> Available Songs</Heading>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <Button onClick={() => navigate('/admin')}>
+            <FaUserShield /> Admin
+          </Button>
+          <Button onClick={toggleTheme}>
+            {themeMode === 'dark' ? <><IoSunny/>Light Mode</> : <><IoMoon/>Dark Mode</>}
+          </Button>
+        </div>
+      </TopSection>
+
+      <SearchInput
+        type="text"
+        placeholder="Search song..."
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+
+      {loading ? (
+        <Loading>Loading songs...</Loading>
+      ) : (
+        <SongList>
+          {filteredSongs.length === 0 && <p>No songs found.</p>}
+          {filteredSongs.map(song => (
+            <SongItem key={song.id} onClick={() => handleSelect(song)}>
+              {song.name}
+            </SongItem>
+          ))}
+        </SongList>
+      )}
+    </Container>
   );
 }

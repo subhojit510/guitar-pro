@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { db } from '../Firebase/firebase';
-import { IoHome, IoLogOut } from "react-icons/io5";
+import { IoHome, IoLogOut, IoMoon, IoSunny } from "react-icons/io5";
 import {
   collection,
   getDocs,
@@ -15,13 +15,15 @@ import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
-  width: 850px;
+  width: 92vw;
+  height: 90vh;
   margin: 40px auto;
   padding: 20px;
-  background: #1e1e1e;
+  background: ${props => props.theme.cardBg};
   border-radius: 12px;
-  color: #f4f4f4;
-  font-family: 'Segoe UI', sans-serif;
+  color: ${props => props.theme.text};
+  font-family: Inter;
+  overflow: auto;
 `;
 
 const HeadingRow = styled.div`
@@ -32,7 +34,13 @@ const HeadingRow = styled.div`
 `;
 
 const Heading = styled.h2`
-  color: #00d1b2;
+  color: ${props => props.theme.heading};
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const LogoutButton = styled.button`
@@ -49,18 +57,29 @@ const LogoutButton = styled.button`
 `;
 
 const HomeButton = styled.button`
-    padding: 8px 16px;
-  background: #00d1b2;
-  color: white;
+  padding: 8px 16px;
+  background: ${props => props.theme.buttonBg};
+  color: ${props => props.theme.buttonText};
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  margin-left: 5px;
 
   &:hover {
-    background: #00d1b2ce;
+    background: ${props => props.theme.buttonHover};
   }
-`
+`;
+
+const ToggleButton = styled.button`
+  background: transparent;
+  border: none;
+  color: ${props => props.theme.text};
+  font-size: 20px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
 
 const InputRow = styled.div`
   display: flex;
@@ -70,26 +89,29 @@ const InputRow = styled.div`
   input {
     flex: 1;
     padding: 10px;
+    background: ${props => props.theme.inputBg};
+    color: #fff;
     border: none;
     border-radius: 6px;
+     border: solid 1px ${props => props.theme.text};
   }
 
   button {
     padding: 10px 16px;
-    background: #00d1b2;
+    background: ${props => props.theme.buttonBg};
     border: none;
     border-radius: 6px;
-    color: #fff;
+    color: ${props => props.theme.buttonText};
     cursor: pointer;
 
     &:hover {
-      background: #00b89c;
+      background: ${props => props.theme.buttonHover};
     }
   }
 `;
 
 const ListItem = styled.div`
-  background: #2c2c2c;
+  background: ${props => props.theme.cardBg === '#fff8e1' ? '#f5f5f5' : '#2c2c2c'};
   padding: 10px 15px;
   margin-bottom: 10px;
   border-radius: 6px;
@@ -107,10 +129,10 @@ const ListItem = styled.div`
   }
 
   button {
-    background: #00b89c;
+    background: ${props => props.theme.buttonBg};
     border: none;
     padding: 6px 12px;
-    color: white;
+    color: ${props => props.theme.buttonText};
     border-radius: 4px;
     cursor: pointer;
 
@@ -120,7 +142,7 @@ const ListItem = styled.div`
   }
 `;
 
-export default function Admin() {
+export default function Admin({ toggleTheme, themeMode }) {
   const [links, setLinks] = useState([]);
   const [newLink, setNewLink] = useState('');
   const [newName, setNewName] = useState('');
@@ -185,12 +207,13 @@ export default function Admin() {
     <Container>
       <HeadingRow>
         <Heading>🎛️ Admin Panel – Manage Guitar Pro Links</Heading>
-        <div>
-          <LogoutButton onClick={handleLogout}><IoLogOut />Logout</LogoutButton>
-          <HomeButton onClick={() => { navigate('/') }}><IoHome />
-            Home</HomeButton>
-        </div>
-
+        <ButtonGroup>
+          <ToggleButton onClick={toggleTheme}>
+            {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
+          </ToggleButton>
+          <LogoutButton onClick={handleLogout}><IoLogOut /> Logout</LogoutButton>
+          <HomeButton onClick={() => { navigate('/') }}><IoHome /> Home</HomeButton>
+        </ButtonGroup>
       </HeadingRow>
 
       <InputRow>
