@@ -11,7 +11,7 @@ const Container = styled.div`
   width: 91vw;
   background: ${({ theme }) => theme.background};
   padding: 30px;
-  height: 88vh;
+  height: 70vh;
   overflow: auto;
   border-radius: 16px;
   color: ${({ theme }) => theme.text};

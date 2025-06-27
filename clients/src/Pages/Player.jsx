@@ -87,6 +87,45 @@ const ResponsiveLayout = styled.div`
     flex-direction: column;
   }
 `;
+const TopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 10px 0;
+
+  h1 {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: ${({ theme }) => theme.heading};
+  }
+
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: ${({ theme }) => theme.text};
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    align-items: flex-start;
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    button {
+      align-self: flex-end;
+    }
+  }
+`;
+
 
 const Watermark = styled.div`
   position: absolute;
@@ -371,23 +410,12 @@ export default function Player({ themeMode, toggleTheme }) {
           Loading..
         </FullPageSpinner>
       )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0' }}>
-        <h1><FaGuitar /> Guitar Tab Player</h1>
-        <button
-          onClick={toggleTheme}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'inherit',
-            fontSize: '1.5rem'
-          }}
-          aria-label="Toggle Theme"
-        >
-          {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
-        </button>
-
-      </div>
+   <TopBar>
+  <h1><FaGuitar /> Guitar Tab Player</h1>
+  <button onClick={toggleTheme} aria-label="Toggle Theme">
+    {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
+  </button>
+</TopBar>
 
 
 

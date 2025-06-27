@@ -31,7 +31,7 @@ const Input = styled.input`
   border: none;
   border-radius: 6px;
   background: #ffff;
-  color: ${props => props.theme.text};
+  color: black;
 
   &::placeholder {
     color: ${props => props.theme.placeholder};
