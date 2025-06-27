@@ -12,7 +12,7 @@ const Container = styled.div`
   max-width: 400px;
   margin: 80px auto;
   padding: 40px;
-  background: ${props => props.theme.cardBg};
+  background: ${props => props.theme.loginBg};
   color: ${props => props.theme.text};
   border-radius: 12px;
   text-align: center;
@@ -25,12 +25,12 @@ const Title = styled.h2`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 94%;
   padding: 12px;
   margin-bottom: 15px;
   border: none;
   border-radius: 6px;
-  background: ${props => props.theme.inputBg};
+  background: #ffff;
   color: ${props => props.theme.text};
 
   &::placeholder {

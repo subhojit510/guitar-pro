@@ -64,6 +64,7 @@ const accent = '#FFCA28';        // Optional secondary (e.g., for highlights or 
 const lightTheme = {
   background: '#ffffff',
   text: '#222',
+  loginBg: '#8e989d',
   cardBg: '#f5f5f5',
   cardBorder: darkTeal,
   inputBg: '#f9f9f9',
@@ -75,6 +76,7 @@ const lightTheme = {
 };
 
 const darkTheme = {
+  loginBg: '#1e1e1e',
   background: '#121212',
   text: '#fff',
   cardBg: '#1e1e1e',
