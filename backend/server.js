@@ -1,13 +1,15 @@
 const express = require("express");
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cors = require("cors");
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;  // ✅ Use dynamic port on Render
 
 const allowedOrigins = [
-  "http://localhost:3000",             // local dev
-  "https://guitar-pro.vercel.app"   // your deployed frontend domain
+  "http://localhost:3000",
+  process.env.VERCEL_URL
 ];
 
 app.use(cors({

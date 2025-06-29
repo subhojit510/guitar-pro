@@ -246,7 +246,7 @@ export default function Player({ themeMode, toggleTheme }) {
           return;
         }
 
-        const res = await fetch(`https://guitar-pro.onrender.com/api/file?id=${fileId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/file?id=${fileId}`);
         console.log("📥 File fetch response:", res);
         if (!res.ok) {
           const errorText = await res.text();
