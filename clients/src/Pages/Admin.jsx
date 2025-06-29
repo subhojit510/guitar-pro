@@ -90,7 +90,7 @@ const InputRow = styled.div`
     flex: 1;
     padding: 10px;
     background: ${props => props.theme.inputBg};
-    color: #fff;
+    color: ${props => props.theme.heading};
     border: none;
     border-radius: 6px;
      border: solid 1px ${props => props.theme.text};
@@ -212,7 +212,7 @@ export default function Admin({ toggleTheme, themeMode }) {
             {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
           </ToggleButton>
           <LogoutButton onClick={handleLogout}><IoLogOut /> Logout</LogoutButton>
-          <HomeButton onClick={() => { navigate('/') }}><IoHome /> Home</HomeButton>
+          <HomeButton onClick={() => { navigate('/home') }}><IoHome /> Home</HomeButton>
         </ButtonGroup>
       </HeadingRow>
 

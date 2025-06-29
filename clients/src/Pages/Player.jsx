@@ -6,6 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { FaPlay, FaPause, FaGuitar, FaStop, FaPrint, FaVolumeHigh } from "react-icons/fa6";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
+import { toast } from 'react-toastify';
 
 /// === STYLED COMPONENTS === ///
 
@@ -251,7 +252,8 @@ export default function Player({ themeMode, toggleTheme }) {
         if (!res.ok) {
           const errorText = await res.text();
           console.error("❌ Fetch failed:", errorText);
-          alert("Error fetching file.");
+          toast.error("Invalid google drive link by admin")
+          alert("Error fetching file from google drive.");
           return;
         }
 
@@ -376,7 +378,7 @@ export default function Player({ themeMode, toggleTheme }) {
 
       } catch (err) {
         console.error("Unexpected error:", err);
-        alert("Something went wrong.");
+        alert("Invalid google drive link by admin");
       }
     };
 

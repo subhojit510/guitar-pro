@@ -25,12 +25,12 @@ function App() {
         <ToastContainer />
         <Router>
           <Routes>
-            <Route path="/" element={<Home toggleTheme={toggleTheme} themeMode={themeMode} />} />
-           <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/home" element={<ProtectedRoute><Home toggleTheme={toggleTheme} themeMode={themeMode} /></ProtectedRoute>} />
+            <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route
-              path="/admin"
+              path="/"
               element={
                 <ProtectedRoute>
                   <Admin toggleTheme={toggleTheme} themeMode={themeMode} />
@@ -60,7 +60,7 @@ const Container = styled.div`
 
 // Define themes
 const darkTeal = '#37474F';      // New primary color
-const accent = '#FFCA28';        // Optional secondary (e.g., for highlights or hover)
+const accent = '#FFCA28';        /// Optional secondary (e.g., for highlights or hover)
 
 const lightTheme = {
   background: '#ffffff',
@@ -74,7 +74,7 @@ const lightTheme = {
   buttonBg: darkTeal,
   buttonText: '#fff',
   buttonHover: '#455A64',
-  watermark:'#37474fa3'
+  watermark: '#37474fa3'
 };
 
 const darkTheme = {

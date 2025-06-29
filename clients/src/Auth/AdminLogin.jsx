@@ -62,7 +62,7 @@ export default function AdminLogin() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Login successful");
-      navigate('/admin');
+      navigate('/');
     } catch (error) {
       toast.error("Login failed: " + error.message);
     }
@@ -84,7 +84,7 @@ export default function AdminLogin() {
         onChange={e => setPassword(e.target.value)}
       />
       <Button onClick={handleLogin}><IoLogIn /> Login</Button>
-      <Button onClick={() => { navigate('/') }}><IoHome /> Home</Button>
+      {/* <Button onClick={() => { navigate('/') }}><IoHome /> Home</Button> */}
     </Container>
   );
 }

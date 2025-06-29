@@ -151,7 +151,7 @@ export default function Home({ toggleTheme, themeMode }) {
       <TopSection>
         <Heading><GiGuitar /> Available Songs</Heading>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <Button onClick={() => navigate('/admin')}>
+          <Button onClick={() => navigate('/')}>
             <FaUserShield /> Admin
           </Button>
           <Button onClick={toggleTheme}>
