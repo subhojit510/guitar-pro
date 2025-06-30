@@ -425,7 +425,7 @@ export default function Player({ themeMode, toggleTheme }) {
         {/* Scroll container */}
         <div className="at-viewport" style={{ position: 'relative', height: '500px', overflow: 'auto', flexGrow: 1 }}>
           {/* Watermark Overlay */}
-          <Watermark>Designed by NDMedia</Watermark>
+          <Watermark>Watermark </Watermark>
 
           {/* AlphaTab Canvas Container */}
           <AlphaTabContainer ref={alphaTabRef} />
