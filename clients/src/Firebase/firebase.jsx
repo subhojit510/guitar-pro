@@ -4,13 +4,13 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBccRH5AgVdSZcteyGda3BOvKm8V1WFkZY",
-  authDomain: "guitar-pro-admin.firebaseapp.com",
-  projectId: "guitar-pro-admin",
-  storageBucket: "guitar-pro-admin.appspot.com",
-  messagingSenderId: "790379804327",
-  appId: "1:790379804327:web:7e7258afac02c7101b8d82",
-  measurementId: "G-EWLBQTSYL3",
+apiKey: "AIzaSyBK96lKTo76ph8l568gXs9iOqorIDyyw8k",
+authDomain: "guitar-pro-player.firebaseapp.com",
+projectId: "guitar-pro-player",
+storageBucket: "guitar-pro-player.firebasestorage.app",
+messagingSenderId: "717841901750",
+appId: "1:717841901750:web:43f8ca2131a50b9d505e17",
+measurementId: "G-32W56KHS3C"
 };
 
 const app = initializeApp(firebaseConfig);
