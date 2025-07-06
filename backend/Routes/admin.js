@@ -3,7 +3,7 @@ const {login,register,addPageLink, getPageLinks, updatePageLink,deletePageLink, 
 const router = require('express').Router();
 
 router.post("/login", login);
-router.post('/register', register);
+//router.post('/register', register);
 router.post('/add-link', addPageLink)
 router.get('/get-links', getPageLinks)
 router.post('/update-links', updatePageLink)

@@ -1,20 +1,44 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { adminLoginRoute, adminRegisterRoute } from '../Utils/APIRoutes';
+import { adminLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
-import { toast } from 'react-toastify'
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { PiStudentFill } from "react-icons/pi";
 
 /// === STYLED COMPONENTS === ///
 const AuthWrapper = styled.div`
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ theme }) => theme.background};
   font-family: 'Inter', sans-serif;
   padding: 2rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/auth-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);
+    z-index: 0;
+  }
+
+  // Layer above the blurred background
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
 `;
+
 
 const AuthCard = styled.div`
   background: ${({ theme }) => theme.loginBg};
@@ -62,100 +86,87 @@ const Button = styled.button`
     background-color: ${({ theme }) => theme.buttonHover};
   }
 `;
-
-const ToggleText = styled.p`
+const OutlineButton = styled.button`
+display: flex;
+align-items: center;
+justify-content: center;
+  width: 100%;
   margin-top: 1rem;
-  font-size: 0.9rem;
+  padding: 0.9rem;
+  font-size: 1rem;
+  background-color: transparent;
   color: ${({ theme }) => theme.text};
+  border: 2px solid ${({ theme }) => theme.text};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
 
-  span {
-    color: ${({ theme }) => theme.heading};
-    cursor: pointer;
-    font-weight: 500;
+  &:hover {
+    background-color: ${({ theme }) => theme.text};
+    color: ${({ theme }) => theme.background};
   }
 `;
 
-const AuthPage = ({ toggleTheme, themeMode }) => {
-  /// === STATES === ///
-  const navigate = useNavigate()
-  const [isLogin, setIsLogin] = useState(true);
+
+const AuthPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: ''
   });
-  const [user, setUser] = useState(null)
+
+  const [user, setUser] = useState(null);
 
   const login = (adminData) => {
-    localStorage.setItem('guitar-app-admin', JSON.stringify(adminData))
+    localStorage.setItem('guitar-app-admin', JSON.stringify(adminData));
     setUser(adminData);
   };
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /// === HANDLING USER LOGIN SUBMISSION === ///
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLogin) { /// Here login works
-      const res = await axios.post(adminLoginRoute, { formData })    
-      login(res.data.adminfilter)
-      if (res.data.status) {
-        setFormData({
-          name: '',
-          email: '',
-          password: ''
-        })
-        toast.success("Login succesfull")
-        navigate('/admin')
-      } else {
-        console.log(res);
-        toast.error(res.data.msg)
-      }
+    try {
+      const res = await axios.post(adminLoginRoute, { formData });
+      login(res.data.adminfilter);
 
-    } else { /// Here registration works
-      const res = await axios.post(adminRegisterRoute, { formData })
-      login(res.data.adminfilter)
       if (res.data.status) {
-        setFormData({
-          name: '',
-          email: '',
-          password: ''
-        })
-        toast.success("Registration succesfull")
-        navigate('/')
+        setFormData({ email: '', password: '' });
+        toast.success("Login successful");
+        navigate('/admin');
       } else {
         toast.error(res.data.msg);
       }
-
+    } catch (err) {
+      toast.error("Login failed");
     }
-
-
-
-  }
-
+  };
 
   return (
     <AuthWrapper>
       <AuthCard>
-        <Title>{isLogin ? 'Welcome Back' : 'Create an Account'}</Title>
-        {!isLogin && <Input name='name' value={formData.name} onChange={handleChange} type="text" placeholder="Full Name" />}
-        <Input name="email"
+        <Title>Welcome Back</Title>
+        <Input
+          name="email"
           value={formData.email}
-          onChange={handleChange} type="email" placeholder="Email" />
-        <Input name="password"
+          onChange={handleChange}
+          type="email"
+          placeholder="Email"
+        />
+        <Input
+          name="password"
           value={formData.password}
-          onChange={handleChange} type="password" placeholder="Password" />
-        <Button onClick={handleSubmit}>{isLogin ? 'Login' : 'Register'}</Button>
-        <ToggleText>
-          {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-          <span onClick={() => setIsLogin((prev) => !prev)}>
-            {isLogin ? 'Register' : 'Login'}
-          </span>
-        </ToggleText>
+          onChange={handleChange}
+          type="password"
+          placeholder="Password"
+        />
+        <Button onClick={handleSubmit}>Login</Button>
+        <OutlineButton onClick={() => navigate('/')}><PiStudentFill/>
+Go to students page
+</OutlineButton>
       </AuthCard>
     </AuthWrapper>
   );

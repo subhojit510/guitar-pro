@@ -7,14 +7,37 @@ import { useNavigate } from 'react-router-dom';
 
 /// === STYLED COMPONENTS === ///
 const AuthWrapper = styled.div`
+width: 100vw;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ theme }) => theme.background};
   font-family: 'Inter', sans-serif;
   padding: 2rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/auth-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);
+    z-index: 0;
+  }
+
+  // Layer above the blurred background
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
 `;
+
 
 const AuthCard = styled.div`
   background: ${({ theme }) => theme.loginBg};
