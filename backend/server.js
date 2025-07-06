@@ -1,41 +1,48 @@
 const express = require("express");
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cors = require("cors");
+const mongoose = require("mongoose");
+const userRoute = require("./Routes/user"); 
+const adminRoute = require("./Routes/admin")
+const playerRoute = require("./Routes/player")
+const bodyParser = require("body-parser");
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config();;
 
 const app = express();
-const PORT = process.env.PORT || 5000;  // ✅ Use dynamic port on Render
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.VERCEL_URL
-];
-
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST"],
-  credentials: true
+  origin: process.env.VERCEL_URL,
+  credentials: true,
 }));
+app.use(express.json());
 
-app.get("/api/file", async (req, res) => {  
-  const fileId = req.query.id;
-  if (!fileId) return res.status(400).send("Missing file ID");
 
+// Environment variables
+const uri = process.env.MONGO_URL
+const PORT = process.env.PORT
+
+// MongoDB connection and server start
+const startServer = async () => {
   try {
-    const driveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    const response = await fetch(driveUrl);
-    if (!response.ok) throw new Error("Failed to fetch file from Google Drive");
+    await mongoose.connect(uri);
+    console.log("DB Connection Successful");
 
-    const buffer = await response.arrayBuffer();
-    res.setHeader("Content-Type", "application/octet-stream");
-    res.send(Buffer.from(buffer));
-  } catch (error) {
-    console.error("Fetch error:", error);
-    res.status(500).send("Failed to fetch file");
+    // Routes
+   
+    app.use("/api/admin", adminRoute)
+     app.use("/api/auth", userRoute);
+     app.use("/api/player", playerRoute)
+
+    // Start listening AFTER DB connects
+    app.listen(PORT, () => {
+      console.log(`Server started on port ${PORT}`);
+    });
+
+  } catch (err) {
+    console.error("Mongo connection failed:", err.message);
   }
-});
+};
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+startServer();

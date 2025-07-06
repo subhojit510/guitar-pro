@@ -1,184 +1,161 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { db } from '../Firebase/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaUserShield } from 'react-icons/fa';
-import { GiGuitar } from "react-icons/gi";
-import {IoMoon, IoSunny } from "react-icons/io5";
+import { getUserPagesRoute } from '../Utils/APIRoutes'; // e.g. `${host}/api/pages/user-pages/:userId`
+import UserNavbar from '../Components/UserNavbar';
 
 const Container = styled.div`
-  width: 91vw;
-  background: ${({ theme }) => theme.background};
-  padding: 30px;
-  height: 70vh;
+  width: 100vw;
+  min-height: 100vh;
   overflow: auto;
-  border-radius: 16px;
+  background: ${({ theme }) => theme.cardBg};
   color: ${({ theme }) => theme.text};
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Inter', sans-serif;
 `;
 
-const TopSection = styled.div`
+/// === SPINNER ANIMATION === //
+const SpinnerWrapper = styled.div`
+  min-height: 80vh;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 2em;
-  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const Spinner = styled.div`
+  width: 40px;
+  height: 40px;
+  border: 4px solid ${({ theme }) => theme.buttonBg};
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 const Heading = styled.h2`
   text-align: center;
   color: ${({ theme }) => theme.heading};
-  margin-bottom: 25px;
+  font-size: 2rem;
+  margin-bottom: 2rem;
 `;
 
-const Button = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
-  background-color: ${({ theme }) => theme.buttonBg};
-  color: ${({ theme }) => theme.buttonText};
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.buttonHover};
-    transform: scale(1.02);
-  }
-
-  svg {
-    font-size: 18px;
-  }
+const PageGrid = styled.div`
+  display: grid;
+  padding: 1em;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 `;
 
-const SearchInput = styled.input`
-  width: 40%;
-  padding: 12px;
-  border-radius: 20px;
-  border: solid 1px #37474F;
-  margin-bottom: 20px;
-  background: ${({ theme }) => theme.inputBg};
-  color: ${({ theme }) => theme.text};
-  font-size: 16px;
-
-  &::placeholder {
-    color: ${({ theme }) => theme.placeholder};
-  }
-`;
-
-const SongList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const SongItem = styled.li`
-  background: ${({ theme }) => theme.cardBg};
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  color: ${({ theme }) => theme.heading};
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
+const PageCard = styled.div`
+  background: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.cardBorder};
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: 0.3s ease;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   &:hover {
-    background: ${({ theme }) => theme.buttonBg};
-    color: ${({ theme }) => theme.buttonText};
     transform: scale(1.01);
+    border-color: ${({ theme }) => theme.buttonBg};
   }
 `;
 
-const Loading = styled.div`
-  text-align: center;
-  font-size: 18px;
-  color: #888;
-  margin-top: 30px;
+const PageName = styled.h4`
+  color: ${({ theme }) => theme.heading};
+  font-size: 16px;
+  margin: 0 0 12px;
 `;
 
-export default function Home({ toggleTheme, themeMode }) {
-  const [songs, setSongs] = useState([]);
-  const [filteredSongs, setFilteredSongs] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+const CardFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const ViewButton = styled.button`
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: ${({ theme }) => theme.buttonBg};
+  color: ${({ theme }) => theme.buttonText};
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.buttonHover};
+  }
+`;
+
+
+const WelcomeText = styled.p`
+  font-size: 16px;
+  text-align: center;
+  color: ${({ theme }) => theme.text};
+  margin-bottom: 1rem;
+`;
+
+export default function UserHome({ themeMode, toggleTheme }) {
   const [loading, setLoading] = useState(true);
+  const [pages, setPages] = useState([]);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSongs = async () => {
+    const userData = JSON.parse(localStorage.getItem('guitar-app-user'));
+    if (!userData) {
+      navigate('/user-login'); // redirect if not logged in
+      return;
+    }
+    setUser(userData);
+
+    const fetchPages = async () => {
       try {
-        const snapshot = await getDocs(collection(db, 'files'));
-        const items = snapshot.docs.map(doc => ({
-          id: doc.id,
-          name: doc.data().name || 'Untitled Song',
-          url: doc.data().url
-        }));
-        setSongs(items);
-        setFilteredSongs(items);
+        console.log(userData.userId);
+
+        const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`);
+        setPages(res.data.pages);
       } catch (err) {
-        console.error("Failed to fetch songs", err);
+        console.error('Failed to fetch user pages', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSongs();
-  }, []);
+    fetchPages();
+  }, [navigate]);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    setFilteredSongs(
-      songs.filter(song =>
-        song.name.toLowerCase().includes(value.toLowerCase())
-      )
-    );
-  };
+return (
+  <Container>
+    <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
+    <Heading>🎸 Welcome to Guitarature pages</Heading>
+    {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
 
-  const handleSelect = (song) => {
-    navigate(`/player/${song.id}`);
-  };
+    {loading ? (
+      <SpinnerWrapper>
+        <Spinner />
+      </SpinnerWrapper>
+    ) : (
+      <PageGrid>
+        {pages.map((page) => (
+          <PageCard key={page._id}>
+            <PageName>{page.name}</PageName>
+            <CardFooter>
+              <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
+            </CardFooter>
+          </PageCard>
+        ))}
+      </PageGrid>
+    )}
+  </Container>
+);
 
-  return (
-    <Container>
-      <TopSection>
-        <Heading><GiGuitar /> Available Songs</Heading>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <Button onClick={() => navigate('/')}>
-            <FaUserShield /> Admin
-          </Button>
-          <Button onClick={toggleTheme}>
-            {themeMode === 'dark' ? <><IoSunny/>Light Mode</> : <><IoMoon/>Dark Mode</>}
-          </Button>
-        </div>
-      </TopSection>
-
-      <SearchInput
-        type="text"
-        placeholder="Search song..."
-        value={searchTerm}
-        onChange={handleSearch}
-      />
-
-      {loading ? (
-        <Loading>Loading songs...</Loading>
-      ) : (
-        <SongList>
-          {filteredSongs.length === 0 && <p>No songs found.</p>}
-          {filteredSongs.map(song => (
-            <SongItem key={song.id} onClick={() => handleSelect(song)}>
-              {song.name}
-            </SongItem>
-          ))}
-        </SongList>
-      )}
-    </Container>
-  );
 }

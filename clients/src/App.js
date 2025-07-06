@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AdminLogin from './Auth/AdminLogin';
-import Admin from './Pages/Admin';
-import ProtectedRoute from './Auth/protectedRoute';
+import AuthPage from './Auth/AdminLogin';
+import LinksPage from './Pages/Admin/LinksPage';
+import AdminUserAccess from './Pages/Admin/AdminUserAccessPage';
+import ViewPages from './Pages/Admin/viewPages';
+import UserLoginPage from './Auth/UserLogin';
+import UserHome from './Pages/Home';
+import Player from './Pages/Player';
 import { ToastContainer } from 'react-toastify';
 import styled, { ThemeProvider } from 'styled-components';
-import Home from './Pages/Home';
-import Player from './Pages/Player';
+
 
 function App() {
   const [themeMode, setThemeMode] = useState(localStorage.getItem('theme') || 'light');
@@ -25,18 +28,16 @@ function App() {
         <ToastContainer />
         <Router>
           <Routes>
-            <Route path="/home" element={<ProtectedRoute><Home toggleTheme={toggleTheme} themeMode={themeMode} /></ProtectedRoute>} />
-            <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
-
-            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin" element={<ViewPages toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/admin-login" element={<AuthPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Admin toggleTheme={toggleTheme} themeMode={themeMode} />
-                </ProtectedRoute>
-              }
+              path="/admin/view-links"
+              element={<LinksPage toggleTheme={toggleTheme} themeMode={themeMode} />}
             />
+            <Route path="/admin/all-users/:pageId" element={<AdminUserAccess toggleTheme={toggleTheme} themeMode={themeMode} />} />
+             <Route path="/" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/user-login" element={<UserLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
           </Routes>
         </Router>
@@ -52,42 +53,48 @@ const Container = styled.div`
   overflow: auto;
   width: 100vw;
   min-height: 100vh;
+  font-family: Inter;
   background-color: ${({ theme }) => theme.background};
   align-items: center;
   padding: 0em 0em;
   justify-content: center;
 `;
-
-// Define themes
-const darkTeal = '#37474F';      // New primary color
-const accent = '#FFCA28';        /// Optional secondary (e.g., for highlights or hover)
+const primary = '#9c27b0';   // Purple
+const highlight = '#fcaf36'; // Orange-Yellow
+const muted = '#ada360';     // Olive
+const white = '#ffffff';
+const black = '#000000';
 
 const lightTheme = {
-  background: '#ffffff',
-  text: '#222',
-  loginBg: '#8e989d',
-  cardBg: '#f5f5f5',
-  cardBorder: darkTeal,
+  background: white,
+  text: black,
+  loginBg: '#e8cfeb',
+  cardBg: '#fff7ec',
+  cardBorder: muted,
   inputBg: '#f9f9f9',
-  placeholder: '#888',
-  heading: darkTeal,
-  buttonBg: darkTeal,
-  buttonText: '#fff',
-  buttonHover: '#455A64',
-  watermark: '#37474fa3'
+  placeholder: muted,
+  heading: primary,
+  buttonBg: primary,
+  buttonText: white,
+  buttonHover: '#ab47bc', // slightly lighter purple
+  watermark: '#00000033',
+  sidebarBg: '#e8cfeb',
+  playerBg: '#fff7ec',
 };
 
 const darkTheme = {
-  loginBg: '#1e1e1e',
   background: '#121212',
-  text: '#fff',
-  cardBg: '#1e1e1e',
-  cardBorder: darkTeal,
+  text: white,
+  loginBg: '#1e1e1e',
+  cardBg: '#1f1f1f',
+  cardBorder: muted,
   inputBg: '#2a2a2a',
-  placeholder: '#aaa',
-  heading: '#fff',
-  buttonBg: darkTeal,
-  buttonText: '#fff',
-  buttonHover: '#546E7A',
-  watermark: '#37474fa3'
+  placeholder: '#bbbbbb',
+  heading: highlight,
+  buttonBg: primary,
+  buttonText: white,
+  buttonHover: '#ab47bc',
+  watermark: '#ffffff1f',
+ sidebarBg: '#4444443b',
+ playerBg: '#2f2f2f'
 };

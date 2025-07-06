@@ -1,90 +1,164 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../Firebase/firebase';
+import { adminLoginRoute, adminRegisterRoute } from '../Utils/APIRoutes';
+import axios from 'axios';
+import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { IoHome, IoLogIn } from "react-icons/io5";
-import { GrUserAdmin } from "react-icons/gr";
 
-// Styled Components
-const Container = styled.div`
+/// === STYLED COMPONENTS === ///
+const AuthWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.background};
+  font-family: 'Inter', sans-serif;
+  padding: 2rem;
+`;
+
+const AuthCard = styled.div`
+  background: ${({ theme }) => theme.loginBg};
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  width: 100%;
   max-width: 400px;
-  margin: 80px auto;
-  padding: 40px;
-  background: ${props => props.theme.loginBg};
-  color: ${props => props.theme.text};
-  border-radius: 12px;
   text-align: center;
-  font-family: 'Segoe UI', sans-serif;
+  position: relative;
 `;
 
 const Title = styled.h2`
-  color: ${props => props.theme.heading};
-  margin-bottom: 30px;
+  color: ${({ theme }) => theme.heading};
+  margin-bottom: 1.5rem;
 `;
 
 const Input = styled.input`
-  width: 94%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 6px;
-  background: #ffff;
-  color: black;
+  width: 100%;
+  padding: 0.8rem 0rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
 
-  &::placeholder {
-    color: ${props => props.theme.placeholder};
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.heading};
   }
 `;
 
 const Button = styled.button`
-  margin-top: 1em;
   width: 100%;
-  padding: 12px;
-  background: ${props => props.theme.buttonBg};
-  color: ${props => props.theme.buttonText};
+  margin-top: 1.5rem;
+  padding: 0.9rem;
+  font-size: 1rem;
+  background-color: ${({ theme }) => theme.buttonBg};
+  color: ${({ theme }) => theme.buttonText};
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
+  transition: background-color 0.3s;
 
   &:hover {
-    background: ${props => props.theme.buttonHover};
+    background-color: ${({ theme }) => theme.buttonHover};
   }
 `;
 
-export default function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+const ToggleText = styled.p`
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.text};
 
-  const handleLogin = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Login successful");
-      navigate('/');
-    } catch (error) {
-      toast.error("Login failed: " + error.message);
-    }
+  span {
+    color: ${({ theme }) => theme.heading};
+    cursor: pointer;
+    font-weight: 500;
+  }
+`;
+
+const AuthPage = ({ toggleTheme, themeMode }) => {
+  /// === STATES === ///
+  const navigate = useNavigate()
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+  const [user, setUser] = useState(null)
+
+  const login = (adminData) => {
+    localStorage.setItem('guitar-app-admin', JSON.stringify(adminData))
+    setUser(adminData);
   };
 
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  /// === HANDLING USER LOGIN SUBMISSION === ///
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isLogin) { /// Here login works
+      const res = await axios.post(adminLoginRoute, { formData })    
+      login(res.data.adminfilter)
+      if (res.data.status) {
+        setFormData({
+          name: '',
+          email: '',
+          password: ''
+        })
+        toast.success("Login succesfull")
+        navigate('/admin')
+      } else {
+        console.log(res);
+        toast.error(res.data.msg)
+      }
+
+    } else { /// Here registration works
+      const res = await axios.post(adminRegisterRoute, { formData })
+      login(res.data.adminfilter)
+      if (res.data.status) {
+        setFormData({
+          name: '',
+          email: '',
+          password: ''
+        })
+        toast.success("Registration succesfull")
+        navigate('/')
+      } else {
+        toast.error(res.data.msg);
+      }
+
+    }
+
+
+
+  }
+
+
   return (
-    <Container>
-      <Title><GrUserAdmin/> Admin Login </Title>
-      <Input
-        type="email"
-        placeholder="Admin Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-      />
-      <Button onClick={handleLogin}><IoLogIn /> Login</Button>
-      {/* <Button onClick={() => { navigate('/') }}><IoHome /> Home</Button> */}
-    </Container>
+    <AuthWrapper>
+      <AuthCard>
+        <Title>{isLogin ? 'Welcome Back' : 'Create an Account'}</Title>
+        {!isLogin && <Input name='name' value={formData.name} onChange={handleChange} type="text" placeholder="Full Name" />}
+        <Input name="email"
+          value={formData.email}
+          onChange={handleChange} type="email" placeholder="Email" />
+        <Input name="password"
+          value={formData.password}
+          onChange={handleChange} type="password" placeholder="Password" />
+        <Button onClick={handleSubmit}>{isLogin ? 'Login' : 'Register'}</Button>
+        <ToggleText>
+          {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+          <span onClick={() => setIsLogin((prev) => !prev)}>
+            {isLogin ? 'Register' : 'Login'}
+          </span>
+        </ToggleText>
+      </AuthCard>
+    </AuthWrapper>
   );
-}
+};
+
+export default AuthPage;
