@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { getUserPagesRoute } from '../Utils/APIRoutes'; // e.g. `${host}/api/pages/user-pages/:userId`
+import { getUserPagesRoute } from '../Utils/APIRoutes';
 import UserNavbar from '../Components/UserNavbar';
 
 const Container = styled.div`
