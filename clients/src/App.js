@@ -7,6 +7,7 @@ import ViewPages from './Pages/Admin/viewPages';
 import UserLoginPage from './Auth/UserLogin';
 import UserHome from './Pages/Home';
 import Player from './Pages/Player';
+import ChordPage from './Pages/ChordPage';
 import { ToastContainer } from 'react-toastify';
 import styled, { ThemeProvider } from 'styled-components';
 
@@ -38,6 +39,7 @@ function App() {
              <Route path="/" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/user-login" element={<UserLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
+             <Route path="/chords" element={<ChordPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
           </Routes>
         </Router>
