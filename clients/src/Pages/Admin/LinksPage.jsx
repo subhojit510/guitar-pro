@@ -276,7 +276,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       setNewName('')
       fetchLinks();
     } else {
-      toast.error("Failed to add link")
+      toast.error(res.data.msg || "Failed to add link")
     }
   };
 

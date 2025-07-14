@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { chordData } from '../data/chordData';
 import Fretboard from '../Components/Chords/Fretboard';
 import Controls from '../Components/Chords/Controls';
@@ -9,11 +9,6 @@ import { LuListMusic } from "react-icons/lu";
 const ChordPage = ({ themeMode, toggleTheme }) => {
   const [selectedChord, setSelectedChord] = useState("C Major");
   const [voicingIndex, setVoicingIndex] = useState(0);
-  
-
-  useEffect(() => {
-    setVoicingIndex(0);
-  }, [selectedChord]);
 
   return (
     <Container>
@@ -30,6 +25,7 @@ const ChordPage = ({ themeMode, toggleTheme }) => {
         />
 
         <Fretboard chordNotes={chordData[selectedChord]?.[voicingIndex] || []} />
+
       </ContentWrapper>
     </Container>
   );
@@ -62,3 +58,4 @@ gap: 2px;
   margin-bottom: 20px;
   font-weight: 600;
 `;
+

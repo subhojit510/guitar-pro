@@ -46,9 +46,14 @@ module.exports.register = async (req, res, next) => {
 
 module.exports.addPageLink = async (req, res, next) => {
     try {
+        const googleLink = req.body.newLink
+        const linkExist = await Pages.findOne({googleLink})
+        if(linkExist){
+            return res.json({status: false, msg: "Link already exist"})
+        }
           const page = await Pages.create({
             name: req.body.newName,
-            googleLink: req.body.newLink
+            googleLink
         });
 
         return res.json({status:true, page})
@@ -141,7 +146,6 @@ module.exports.getAllUsers = async (req, res, next) => {
 
 module.exports.getSinglePage = async (req, res, next) => {
    try { 
-    console.log("Call here", req.params.id);
     const page = await Pages.findById(req.params.id);
     if (!page) return res.status(404).json({ msg: "Page not found" });
 
