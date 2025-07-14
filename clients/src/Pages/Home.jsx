@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { getUserPagesRoute } from '../Utils/APIRoutes';
 import UserNavbar from '../Components/UserNavbar';
+import { LuListMusic } from "react-icons/lu";
 
 const Container = styled.div`
   width: 100vw;
@@ -102,6 +103,30 @@ const WelcomeText = styled.p`
   color: ${({ theme }) => theme.text};
   margin-bottom: 1rem;
 `;
+const TopRightActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 2rem 0 0;
+`;
+
+const ChordButton = styled.button`
+display: flex;
+gap: 3px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: ${({ theme }) => theme.buttonBg};
+  color: ${({ theme }) => theme.buttonText};
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: ${({ theme }) => theme.buttonHover};
+  }
+`;
+
 
 export default function UserHome({ themeMode, toggleTheme }) {
   const [loading, setLoading] = useState(true);
@@ -119,8 +144,6 @@ export default function UserHome({ themeMode, toggleTheme }) {
 
     const fetchPages = async () => {
       try {
-        console.log(userData.userId);
-
         const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`);
         setPages(res.data.pages);
       } catch (err) {
@@ -133,29 +156,35 @@ export default function UserHome({ themeMode, toggleTheme }) {
     fetchPages();
   }, [navigate]);
 
-return (
-  <Container>
-    <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
-    <Heading>🎸 Welcome to Guitarature pages</Heading>
-    {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
+  return (
+    <Container>
+      <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
 
-    {loading ? (
-      <SpinnerWrapper>
-        <Spinner />
-      </SpinnerWrapper>
-    ) : (
-      <PageGrid>
-        {pages.map((page) => (
-          <PageCard key={page._id}>
-            <PageName>{page.name}</PageName>
-            <CardFooter>
-              <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
-            </CardFooter>
-          </PageCard>
-        ))}
-      </PageGrid>
-    )}
-  </Container>
-);
+      <TopRightActions>
+        <ChordButton onClick={() => navigate('/chords')}><LuListMusic/> Guitar Chords</ChordButton>
+      </TopRightActions>
+
+      <Heading>🎸 Welcome to Guitarature pages</Heading>
+      {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
+
+      {loading ? (
+        <SpinnerWrapper>
+          <Spinner />
+        </SpinnerWrapper>
+      ) : (
+        <PageGrid>
+          {pages.map((page) => (
+            <PageCard key={page._id}>
+              <PageName>{page.name}</PageName>
+              <CardFooter>
+                <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
+              </CardFooter>
+            </PageCard>
+          ))}
+        </PageGrid>
+      )}
+    </Container>
+  );
+
 
 }

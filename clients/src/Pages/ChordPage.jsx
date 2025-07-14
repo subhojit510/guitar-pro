@@ -4,10 +4,12 @@ import Fretboard from '../Components/Chords/Fretboard';
 import Controls from '../Components/Chords/Controls';
 import UserNavbar from '../Components/UserNavbar';
 import styled from 'styled-components';
+import { LuListMusic } from "react-icons/lu";
 
 const ChordPage = ({ themeMode, toggleTheme }) => {
   const [selectedChord, setSelectedChord] = useState("C Major");
   const [voicingIndex, setVoicingIndex] = useState(0);
+  
 
   useEffect(() => {
     setVoicingIndex(0);
@@ -17,7 +19,7 @@ const ChordPage = ({ themeMode, toggleTheme }) => {
     <Container>
       <UserNavbar themeMode={themeMode} toggleTheme={toggleTheme} />
       <ContentWrapper>
-        <Title>🎵 Chord Visualizer</Title>
+        <Title><LuListMusic /> Chord Visualizer</Title>
 
         <Controls
           selectedChord={selectedChord}
@@ -52,6 +54,9 @@ const ContentWrapper = styled.div`
 `;
 
 const Title = styled.h2`
+display: flex;
+align-items: center;
+gap: 2px;
   font-size: 26px;
   color: ${({ theme }) => theme.heading};
   margin-bottom: 20px;
