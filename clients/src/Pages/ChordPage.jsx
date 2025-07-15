@@ -38,6 +38,7 @@ const Container = styled.div`
   flex-direction: column;
   width: 100vw;
   height: 100vh;
+ overflow: auto;
   align-items: center;
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};

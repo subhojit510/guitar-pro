@@ -5,6 +5,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   font-family: 'Inter', sans-serif;
+  
 `;
 
 const FretboardContainer = styled.div`

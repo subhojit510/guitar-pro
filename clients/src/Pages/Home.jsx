@@ -164,7 +164,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic/> Guitar Chords</ChordButton>
       </TopRightActions>
 
-      <Heading>🎸 Welcome to Guitarature pages</Heading>
+      <Heading>Welcome to Guitarature pages</Heading>
       {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
 
       {loading ? (
