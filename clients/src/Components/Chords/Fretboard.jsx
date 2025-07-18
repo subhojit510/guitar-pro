@@ -33,7 +33,12 @@ const FretLabels = styled.div`
   display: flex;
   margin-left: 18px;
   height: 24px;
+
+  & > div:first-child {
+    width: 28px; /* Match half width of first fret */
+  }
 `;
+
 
 const FretLabel = styled.div`
   width: 56px;
@@ -43,16 +48,31 @@ const FretLabel = styled.div`
   color: ${({ theme }) => theme.heading};
 `;
 
-
 const FretboardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(16, 55px); // wider frets
-  grid-template-rows: repeat(6, 37px); // more vertical spacing
-  background-color: #1f1f1f; // dark wood tone
+  grid-template-columns: 33px repeat(15, 55px); /* First fret = half-width */
+  grid-template-rows: repeat(6, 37px);
+  background-color: #1f1f1f;
   position: relative;
   border: 4px solid #000;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+
+  /* Watermark */
+  &::before {
+    content: 'Guitarature'; /* Replace with your brand or watermark text */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 48px;
+    color: rgba(255, 255, 255, 0.05); /* subtle watermark */
+    white-space: nowrap;
+    pointer-events: none; /* prevent interaction */
+    z-index: 0;
+  }
 `;
+
+
 
 const Fret = styled.div`
   position: relative;

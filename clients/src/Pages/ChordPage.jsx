@@ -1,32 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { chordData } from '../data/chordData';
+import { useReactToPrint } from "react-to-print";
 import Fretboard from '../Components/Chords/Fretboard';
 import Controls from '../Components/Chords/Controls';
 import UserNavbar from '../Components/UserNavbar';
 import styled from 'styled-components';
 import { LuListMusic } from "react-icons/lu";
+import { HiPrinter } from "react-icons/hi2";
 
 const ChordPage = ({ themeMode, toggleTheme }) => {
   const [selectedChord, setSelectedChord] = useState("C Major");
   const [voicingIndex, setVoicingIndex] = useState(0);
 
+  const contentRef = useRef(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
+
   return (
     <Container>
       <UserNavbar themeMode={themeMode} toggleTheme={toggleTheme} />
-      <ContentWrapper>
-        <Title><LuListMusic /> Chord Visualizer</Title>
+      <div style={{width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center' }} ref={contentRef}>
+        <ContentWrapper>
+          <Title><LuListMusic /> Chord Visualizer</Title>
 
-        <Controls
-          selectedChord={selectedChord}
-          setSelectedChord={setSelectedChord}
-          chordData={chordData}
-          voicingIndex={voicingIndex}
-          setVoicingIndex={setVoicingIndex}
-        />
+          <Controls
+            selectedChord={selectedChord}
+            setSelectedChord={setSelectedChord}
+            chordData={chordData}
+            voicingIndex={voicingIndex}
+            setVoicingIndex={setVoicingIndex}
+          />
 
-        <Fretboard chordNotes={chordData[selectedChord]?.[voicingIndex] || []} />
+          <Fretboard chordNotes={chordData[selectedChord]?.[voicingIndex] || []} />
 
-      </ContentWrapper>
+        </ContentWrapper>
+      </div>
+
+      <PrintButton onClick={reactToPrintFn}><HiPrinter/>Print page</PrintButton>
     </Container>
   );
 };
@@ -58,5 +67,20 @@ gap: 2px;
   color: ${({ theme }) => theme.heading};
   margin-bottom: 20px;
   font-weight: 600;
+`;
+const PrintButton = styled.button`
+display: flex;
+gap: 3px;
+  margin: 20px;
+  padding: 10px 20px;
+  background-color: ${({ theme }) => theme.buttonBg};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  &:hover {
+    background-color: ${({ theme }) => theme.buttonHover};
+  }
 `;
 
