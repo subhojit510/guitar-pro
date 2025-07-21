@@ -43,7 +43,7 @@ const NavButtons = styled.div`
   flex-wrap: wrap; /* This is key to prevent overflow */
 
   @media (max-width: 700px) {
-    display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
+    display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
     position: absolute;
     top: 81px;
     left: 0;
@@ -107,7 +107,7 @@ export default function UserNavbar({ toggleTheme, themeMode }) {
         {menuOpen ? <IoClose /> : <IoMenu />}
       </MenuButton>
 
-      <NavButtons isOpen={menuOpen}>
+      <NavButtons $isOpen={menuOpen}>
         <NavButton onClick={() => navigate('/')}><IoHome/>Home</NavButton>  
         <NavButton onClick={() => navigate('#')}><MdOutlineContactSupport />Contact</NavButton>
         <NavButton onClick={() => navigate('#')}><FcAbout/>About</NavButton>

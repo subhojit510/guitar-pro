@@ -36,10 +36,10 @@ function App() {
               element={<LinksPage toggleTheme={toggleTheme} themeMode={themeMode} />}
             />
             <Route path="/admin/all-users/:pageId" element={<AdminUserAccess toggleTheme={toggleTheme} themeMode={themeMode} />} />
-             <Route path="/" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/user-login" element={<UserLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
-             <Route path="/chords" element={<ChordPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/chords" element={<ChordPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
           </Routes>
         </Router>
@@ -54,7 +54,6 @@ const Container = styled.div`
   display: flex;
   overflow: auto;
   width: 100vw;
-  min-height: 100vh;
   font-family: Inter;
   background-color: ${({ theme }) => theme.background};
   align-items: center;
@@ -97,6 +96,6 @@ const darkTheme = {
   buttonText: white,
   buttonHover: '#ab47bc',
   watermark: '#ffffff1f',
- sidebarBg: '#4444443b',
- playerBg: '#2f2f2f'
+  sidebarBg: '#4444443b',
+  playerBg: '#2f2f2f'
 };
