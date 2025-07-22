@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { IoSunny, IoMoon, IoMenu, IoClose,IoHome, IoLogOut } from 'react-icons/io5';
 import { MdOutlineContactSupport } from "react-icons/md";
 import { GrUserAdmin } from "react-icons/gr";
-import { FcAbout } from "react-icons/fc";
+import { RiToolsFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = styled.nav`
@@ -110,7 +110,7 @@ export default function UserNavbar({ toggleTheme, themeMode }) {
       <NavButtons $isOpen={menuOpen}>
         <NavButton onClick={() => navigate('/')}><IoHome/>Home</NavButton>  
         <NavButton onClick={() => navigate('#')}><MdOutlineContactSupport />Contact</NavButton>
-        <NavButton onClick={() => navigate('#')}><FcAbout/>About</NavButton>
+        <NavButton  onClick={() => window.location.href = 'https://guitarature.rf.gd'}><RiToolsFill/>Tools</NavButton>
         <NavButton onClick={() => navigate('/admin')}><GrUserAdmin/>Admin</NavButton>
         <NavButton onClick={handleLogout}><IoLogOut/>Logout</NavButton>
         <NavButton onClick={toggleTheme}>
