@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaPlay, FaPause, FaGuitar, FaStop, FaPrint, FaVolumeHigh, FaWhatsapp } from "react-icons/fa6";
-import { IoMoon, IoSunny } from "react-icons/io5";
+import { IoHome, IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
-import { getDriveFileRoute, getPageDetailsRoute, getSinglePageRoute } from '../Utils/APIRoutes';
+import { getDriveFileRoute, getPageDetailsRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
-import UserNavbar from '../Components/UserNavbar';
 
 /// === STYLED COMPONENTS === ///
 
@@ -103,10 +102,10 @@ const TopBar = styled.div`
 
   button {
     background: none;
+    color: ${({ theme }) => theme.buttonBg};
     border: none;
     cursor: pointer;
-    color: ${({ theme }) => theme.text};
-    font-size: 1.8rem;
+    font-size: 20px;
     flex-shrink: 0;
   }
 
@@ -123,6 +122,10 @@ const TopBar = styled.div`
   }
 `;
 
+const TopButtonSection = styled.div`
+  display: flex;
+`
+
 
 const Watermark = styled.div`
   position: absolute;
@@ -137,7 +140,6 @@ const Watermark = styled.div`
   white-space: nowrap;
 `;
 const AlphaTabContainer = styled.div`
-  border: 1px solid #444;
   background: ${({ theme }) => theme.playerBg};
   width: 100%;
   position: relative;
@@ -152,12 +154,11 @@ const Sidebar = styled.div`
   border-radius: 15px;
 
   @media (max-width: 768px) {
-    width: 100%;
-    border-right: none;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 15px;
-    border-bottom-left-radius: 15px;
-    border-top: 1px solid ${({ theme }) => theme.cardBorder};
+   width: 100%;
+   padding: 10px 10px;
+   border-right: none;
+   margin: auto;
+   border-radius: 15px;
   }
 `;
 
@@ -166,17 +167,37 @@ const Controls = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 10px;
+  padding: 10px;
+ 
+  z-index: 99;
+
+  @media (max-width: 768px) {
+    background: ${({ theme }) => theme.playerBg};
+    position: sticky;
+    bottom: 0;
+    padding: 8px 20px;
+    gap: 8px;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  }
 
   button {
-    padding: 10px 20px;
+    padding: 13px 13px;
+    border-radius: 25px;
     background: ${({ theme }) => theme.buttonBg};
     color: ${({ theme }) => theme.buttonText};
     border: none;
     cursor: pointer;
+    font-size: 1.2rem;
 
     &:hover {
       background: ${({ theme }) => theme.buttonHover};
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
     }
   }
 
@@ -185,18 +206,38 @@ const Controls = styled.div`
     align-items: center;
     gap: 8px;
     color: ${({ theme }) => theme.text};
+
+    /* @media (max-width: 768px) {
+      width: 100%;
+    } */
   }
 
-  select {
-    padding: 8px;
-    background: ${({ theme }) => theme.inputBg};
-    color: ${({ theme }) => theme.text};
-    border-radius: 4px;
-    border: 1px solid ${({ theme }) => theme.cardBorder};
+  select,
+  input[type="range"],
+  input[type="checkbox"] {
+    flex-shrink: 1;
   }
 
   input[type="range"] {
     accent-color: ${({ theme }) => theme.buttonBg};
+  }
+`;
+
+
+const ButtonsSection = styled.div`
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+
+    button {
+      flex: 1;
+    }
   }
 `;
 
@@ -233,8 +274,11 @@ const WhatsAppButton = styled.a`
   }
 
   @media (max-width: 768px) {
-    padding: 10px 14px;
-    font-size: 14px;
+    padding: 10px 10px;
+    font-size: 0;
+    &:hover{
+      font-size: 14px;
+    }
   }
 `;
 
@@ -296,212 +340,226 @@ export default function Player({ themeMode, toggleTheme }) {
   const [tracks, setTracks] = useState([]);
   const [page, setPage] = useState([]);
   const [showInstructions, setShowInstructions] = useState(false);
-  
-const [ user, setUser] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const navigate = useNavigate();
 
   /// === WHATSAPP MESSAGE SETUP === ///
 
   const adminNumber = '918388951121'; // Replace with your admin number
 
-const pageName = page.name || 'Unknown page'; // `id` comes from URL params
-const username = user?.username || 'Unknown User';
-const userId = user?.userId;
+  const pageName = page.name || 'Unknown page'; // `id` comes from URL params
+  const username = user?.username || 'Unknown User';
+  const userId = user?.userId;
 
-const whatsappMessage = `Hi, I'm ${username} and I'm having an issue with the chapter: ${pageName}
+  const whatsappMessage = `Hi, I'm ${username} and I'm having an issue with the chapter: ${pageName}
 UserId :${userId} `;
-const encodedMessage = encodeURIComponent(whatsappMessage);
+  const encodedMessage = encodeURIComponent(whatsappMessage);
 
-const whatsAppLink = `https://wa.me/${adminNumber}?text=${encodedMessage}`;
+  const whatsAppLink = `https://wa.me/${adminNumber}?text=${encodedMessage}`;
 
-useEffect(() => {
-   const storedUser = localStorage.getItem('guitar-app-user');
-  if (storedUser) {
-    setUser(JSON.parse(storedUser));
-  }
-  let api;
-  console.log("Useeffect triggered");
+  useEffect(() => {
+    const storedUser = localStorage.getItem('guitar-app-user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    let api;
+    const fetchAndInit = async () => {
 
-  const fetchAndInit = async () => {
-    console.log("Alphatab initialising");
+      try {
+        if (!window.alphaTab || !window.alphaTab.AlphaTabApi) {
+          alert("AlphaTab failed to load.");
+          return;
+        }
+        if (!id) {
+          alert("No file found for this song.");
+          return;
+        }
+        const res = await axios.post(getDriveFileRoute, { id }, { responseType: "arraybuffer" });
+        const buffer = res.data;
+        if (alphaTabRef.current) {
+          alphaTabRef.current.innerHTML = '';
+        }
 
-    try {
-      if (!window.alphaTab || !window.alphaTab.AlphaTabApi) {
-        alert("AlphaTab failed to load.");
-        return;
+        api = new window.alphaTab.AlphaTabApi(alphaTabRef.current, {
+          core: {
+            workerUrl: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/alphaTab.worker.mjs"
+          },
+          player: {
+            enablePlayer: true,
+            scrollElement: document.querySelector(".at-viewport"),
+            enableCursor: true,
+            enableMetronome: true,
+            enableLooping: true,
+            soundFont: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/soundfont/sonivox.sf2"
+          },
+          display: {
+            layoutMode: 'page',
+            stretchToMargin: true,
+            renderSingleTrack: false,
+            autoScroll: true,
+            followPlayback: true,
+            showCursor: true,
+            scale: 1.0
+          },
+          fonts: [
+            {
+              name: "alphaTab",
+              url: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/font/Bravura.woff2"
+            }
+          ]
+        });
+
+        apiRef.current = api;
+
+        api.scoreError?.on(err => {
+          console.error("AlphaTab error:", err);
+          alert("Could not load score: " + err.message);
+        });
+
+        api.scoreLoaded?.on(() => {
+          const scoreTracks = api.score.tracks;
+          setTracks(scoreTracks);
+          setIsLoading(false);
+        });
+
+        api.playerReady?.on(() => {
+          if (api.player) {
+            api.player.metronomeVolume = 0;
+            api.updateSettings();
+          }
+        });
+
+        api.playerPositionChanged?.on(e => {
+          const format = ms => {
+            const min = String(Math.floor(ms / 60000)).padStart(2, '0');
+            const sec = String(Math.floor((ms % 60000) / 1000)).padStart(2, '0');
+            return `${min}:${sec}`;
+          };
+          setTimeDisplay(`${format(e.currentTime)} / ${format(e.endTime)}`);
+        });
+
+        const trackList = document.querySelector(".at-track-list");
+        api.scoreLoaded.on(score => {
+          if (!trackList) return;
+          trackList.innerHTML = "";
+          score.tracks.forEach(track => {
+            const item = createTrackItem(track);
+            if (item) trackList.appendChild(item);
+          });
+        });
+
+        api.load(buffer);
+
+        function createTrackItem(track) {
+          const template = document.querySelector("#at-track-template");
+          if (!template) return null;
+          const trackItem = template.content.cloneNode(true).firstElementChild;
+          trackItem.querySelector(".at-track-name").innerText = track.name;
+          trackItem.track = track;
+          trackItem.onclick = (e) => {
+            e.stopPropagation();
+            api.renderTracks([track]);
+          };
+          return trackItem;
+        }
+
+        api.renderStarted.on(() => {
+          if (!trackList) return;
+          const rendered = new Map();
+          api.tracks.forEach(t => rendered.set(t.index, t));
+
+          const items = trackList.querySelectorAll(".at-track");
+          items.forEach(item => {
+            if (rendered.has(item.track.index)) {
+              item.classList.add("active");
+            } else {
+              item.classList.remove("active");
+            }
+          });
+        });
+
+      } catch (err) {
+        console.error("Unexpected error:", err);
+        alert("Invalid google drive link by admin");
       }
+    };
 
-      if (!id) {
-        alert("No file found for this song.");
-        return;
+    fetchAndInit();
+
+    return () => {
+      if (apiRef.current) {
+        try {
+          apiRef.current.player?.stop();
+          apiRef.current.destroy?.();
+          apiRef.current = null;
+        } catch (e) {
+          console.warn("Error while cleaning up AlphaTab:", e);
+        }
       }
-
-      // ✅ Proper axios usage for binary data
-      const res = await axios.post(getDriveFileRoute, { id }, { responseType: "arraybuffer" });
-      console.log("📥 File fetch response:", res);
-
-      const buffer = res.data;
-      console.log("📦 Buffer loaded. Size:", buffer.byteLength);
 
       if (alphaTabRef.current) {
         alphaTabRef.current.innerHTML = '';
       }
+    };
 
-      api = new window.alphaTab.AlphaTabApi(alphaTabRef.current, {
-        core: {
-          workerUrl: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/alphaTab.worker.mjs"
-        },
-        player: {
-          enablePlayer: true,
-          scrollElement: document.querySelector(".at-viewport"),
-          enableCursor: true,
-          enableMetronome: true,
-          enableLooping: true,
-          soundFont: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/soundfont/sonivox.sf2"
-        },
-        display: {
-          layoutMode: 'page',
-          stretchToMargin: true,
-          renderSingleTrack: false,
-          autoScroll: true,
-          followPlayback: true,
-          showCursor: true,
-          scale: 1.0
-        },
-        fonts: [
-          {
-            name: "alphaTab",
-            url: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.5.0/dist/font/Bravura.woff2"
-          }
-        ]
-      });
+  }, [id]);
 
-      apiRef.current = api;
-
-      api.scoreError?.on(err => {
-        console.error("AlphaTab error:", err);
-        alert("Could not load score: " + err.message);
-      });
-
-      api.scoreLoaded?.on(() => {
-        const scoreTracks = api.score.tracks;
-        setTracks(scoreTracks);
-        setIsLoading(false);
-      });
-
-      api.playerReady?.on(() => {
-        if (api.player) {
-          api.player.metronomeVolume = 0;
-          api.updateSettings();
-        }
-      });
-
-      api.playerPositionChanged?.on(e => {
-        const format = ms => {
-          const min = String(Math.floor(ms / 60000)).padStart(2, '0');
-          const sec = String(Math.floor((ms % 60000) / 1000)).padStart(2, '0');
-          return `${min}:${sec}`;
-        };
-        setTimeDisplay(`${format(e.currentTime)} / ${format(e.endTime)}`);
-      });
-
-      const trackList = document.querySelector(".at-track-list");
-      api.scoreLoaded.on(score => {
-        console.log("✅ scoreLoaded triggered:", score);
-        if (!trackList) return;
-        trackList.innerHTML = "";
-        score.tracks.forEach(track => {
-          const item = createTrackItem(track);
-          if (item) trackList.appendChild(item);
-        });
-      });
-
-      api.load(buffer);
-      console.log("📤 Buffer passed to AlphaTab API");
-
-      function createTrackItem(track) {
-        const template = document.querySelector("#at-track-template");
-        if (!template) return null;
-        const trackItem = template.content.cloneNode(true).firstElementChild;
-        trackItem.querySelector(".at-track-name").innerText = track.name;
-        trackItem.track = track;
-        trackItem.onclick = (e) => {
-          e.stopPropagation();
-          api.renderTracks([track]);
-        };
-        return trackItem;
-      }
-
-      api.renderStarted.on(() => {
-        if (!trackList) return;
-        const rendered = new Map();
-        api.tracks.forEach(t => rendered.set(t.index, t));
-
-        const items = trackList.querySelectorAll(".at-track");
-        items.forEach(item => {
-          if (rendered.has(item.track.index)) {
-            item.classList.add("active");
-          } else {
-            item.classList.remove("active");
-          }
-        });
-      });
-
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      alert("Invalid google drive link by admin");
-    }
-  };
-
-  fetchAndInit();
-
-  return () => {
-    if (apiRef.current) {
+  useEffect(() => {
+    const getPageDetails = async () => {
       try {
-        apiRef.current.player?.stop();
-        apiRef.current.destroy?.();
-        apiRef.current = null;
-      } catch (e) {
-        console.warn("Error while cleaning up AlphaTab:", e);
+        const res = await axios.get(`${getPageDetailsRoute}/${id}`);
+        setPage(res.data.page)
+      } catch (err) {
+        console.log("Error in fetching page details");
       }
     }
+    getPageDetails();
+  }, [])
 
-    if (alphaTabRef.current) {
-      alphaTabRef.current.innerHTML = '';
+
+  /// === PLAY/PAUSE HANDLER === ///
+  const handleToggle = () => {
+    const player = apiRef.current?.player;
+    if (!player) return;
+
+    if (isPlaying) {
+      player.pause();
+    } else {
+      player.play();
     }
+
+    setIsPlaying(!isPlaying);
   };
 
-}, [id]);
+  const handleStop = () => {
+    setIsPlaying(false);
+    const player = apiRef.current?.player;
+    if (!player) return;
+    player.stop();
 
-useEffect(()=>{
-  const getPageDetails =async ()=>{
-    try{
-const res = await axios.get(`${getPageDetailsRoute}/${id}`);
- setPage(res.data.page)
-    }catch(err){
-      console.log("Error in fetching page details");
-    }
   }
- getPageDetails();
-},[])
-
-
 
   return (
 
     <PlayerWrapper>
-      <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode}/>
       {isLoading && (
         <FullPageSpinner>
           <div className="spinner" />
           Loading..
         </FullPageSpinner>
       )}
-   <TopBar>
-  <h1><FaGuitar /> Guitar Tab Player</h1>
-  <button onClick={toggleTheme} aria-label="Toggle Theme">
-    {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
-  </button>
-</TopBar>
+      <TopBar>
+        <h1><FaGuitar /> Guitar Tab Player</h1>
+        <TopButtonSection> <button onClick={toggleTheme} aria-label="Toggle Theme">
+          {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
+        </button>
+          <button onClick={() => { navigate('/') }}>
+            <IoHome />
+          </button></TopButtonSection>
+
+      </TopBar>
 
 
 
@@ -524,34 +582,36 @@ const res = await axios.get(`${getPageDetailsRoute}/${id}`);
         </Sidebar>
       </ResponsiveLayout>
 
+      <div style={{ textAlign: 'center' }}>
+        <p>Need help? <button
+          style={{
+            padding: '10px 20px',
+            background: 'transparent',
+            textDecoration: 'underline',
+            backgroundColor: '#fcb036',
+            color: '#121212',
+            border: 'none',
+            borderRadius: '20px',
+            cursor: 'pointer'
+          }}
+          onClick={() => setShowInstructions(true)}
+        >
+          View Instructions
+        </button></p>
 
-      <TimeDisplay>{timeDisplay}</TimeDisplay>
+      </div>
+
       <Controls>
-        <button onClick={() => apiRef.current?.player?.play()}><FaPlay /> Play</button>
-        <button onClick={() => apiRef.current?.player?.pause()}><FaPause /> Pause</button>
-        <button onClick={() => apiRef.current?.player?.stop()}><FaStop /> Stop</button>
-        <button onClick={() => apiRef.current?.print()}>
-          <FaPrint /> Print
-        </button>
-
-
-        <label>
-          Tempo: {playbackSpeed}%
-          <input
-            type="range"
-            min="50"
-            max="200"
-            value={playbackSpeed}
-            onInput={(e) => {
-              const speed = parseInt(e.target.value);
-              setPlaybackSpeed(speed); // update UI
-              if (apiRef.current?.player) {
-                apiRef.current.player.playbackSpeed = speed / 100;
-              }
-            }}
-          />
-        </label>
-
+        <TimeDisplay>{timeDisplay}</TimeDisplay>
+        <ButtonsSection>
+          <button onClick={handleToggle}>
+            {isPlaying ? <FaPause /> : <FaPlay />}
+          </button>
+          <button onClick={handleStop}><FaStop /></button>
+          <button onClick={() => apiRef.current?.print()}>
+            <FaPrint />
+          </button>
+        </ButtonsSection>
         <label>
           <input
             type="checkbox"
@@ -597,103 +657,103 @@ const res = await axios.get(`${getPageDetailsRoute}/${id}`);
             }}
           />
         </label>
+        <label>
+          Tempo: {playbackSpeed}%
+          <input
+            type="range"
+            min="50"
+            max="200"
+            value={playbackSpeed}
+            onInput={(e) => {
+              const speed = parseInt(e.target.value);
+              setPlaybackSpeed(speed); // update UI
+              if (apiRef.current?.player) {
+                apiRef.current.player.playbackSpeed = speed / 100;
+              }
+            }}
+          />
+        </label>
+
       </Controls>
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-  <p>Need help? <button
-    style={{
-      padding: '10px 20px',
-      background: 'transparent',
-      textDecoration:'underline',
-      backgroundColor: '#fcb036',
-      color: '#121212',
-      border: 'none',
-      borderRadius: '20px',
-      cursor: 'pointer'
-    }}
-    onClick={() => setShowInstructions(true)}
-  >
-    View Instructions
-  </button></p>
- 
-</div>
 
-<WhatsAppButton
-  href={whatsAppLink}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  <FaWhatsapp />
-  Chat with Admin
-</WhatsAppButton>
-{showInstructions && (
-  <InstructionOverlay>
-    <div className="instruction-box">
-      <button className="close-btn" onClick={() => setShowInstructions(false)}>×</button>
-     <h2>How to Read and Practice Guitar Tabs</h2>
-<ol>
-  <li>
-    <strong>Understand the Tab Layout:</strong><br />
-    Tabs have six horizontal lines, each representing a guitar string.
-    <ul>
-      <li>Bottom line = 6th string (low E)</li>
-      <li>Top line = 1st string (high E)</li>
-      <li>Numbers = frets to press (e.g., 3 on 2nd line = 3rd fret on B string)</li>
-    </ul>
-  </li>
 
-  <li>
-    <strong>Read Left to Right:</strong><br />
-    Play notes in order. Notes stacked vertically are played together like chords.
-  </li>
+      <WhatsAppButton
+        href={whatsAppLink}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <FaWhatsapp />
+        Chat with Admin
+      </WhatsAppButton>
+      {showInstructions && (
+        <InstructionOverlay>
+          <div className="instruction-box">
+            <button className="close-btn" onClick={() => setShowInstructions(false)}>×</button>
+            <h2>How to Read and Practice Guitar Tabs</h2>
+            <ol>
+              <li>
+                <strong>Understand the Tab Layout:</strong><br />
+                Tabs have six horizontal lines, each representing a guitar string.
+                <ul>
+                  <li>Bottom line = 6th string (low E)</li>
+                  <li>Top line = 1st string (high E)</li>
+                  <li>Numbers = frets to press (e.g., 3 on 2nd line = 3rd fret on B string)</li>
+                </ul>
+              </li>
 
-  <li>
-    <strong>Keep Fingers Close to Frets:</strong><br />
-    Press just behind the fret wire for a clean tone and less buzzing.
-  </li>
+              <li>
+                <strong>Read Left to Right:</strong><br />
+                Play notes in order. Notes stacked vertically are played together like chords.
+              </li>
 
-  <li>
-    <strong>Use Correct Fingering:</strong><br />
-    Use all four fingers (1-index, 2-middle, 3-ring, 4-pinky) efficiently across the fretboard.
-  </li>
+              <li>
+                <strong>Keep Fingers Close to Frets:</strong><br />
+                Press just behind the fret wire for a clean tone and less buzzing.
+              </li>
 
-  <li>
-    <strong>Follow the Rhythm (if shown):</strong><br />
-    Tabs may not always show timing — listen to the original song to get the feel.
-  </li>
+              <li>
+                <strong>Use Correct Fingering:</strong><br />
+                Use all four fingers (1-index, 2-middle, 3-ring, 4-pinky) efficiently across the fretboard.
+              </li>
 
-  <li>
-    <strong>Practice Slowly First:</strong><br />
-    Go note by note. Speed will improve with time and repetition.
-  </li>
+              <li>
+                <strong>Follow the Rhythm (if shown):</strong><br />
+                Tabs may not always show timing — listen to the original song to get the feel.
+              </li>
 
-  <li>
-    <strong>Watch for Symbols:</strong><br />
-    <ul>
-      <li><code>h</code> = hammer-on (e.g., 5h7)</li>
-      <li><code>p</code> = pull-off (e.g., 7p5)</li>
-      <li><code>/</code> = slide up (e.g., 5/7)</li>
-      <li><code>\</code> = slide down (e.g., 7\5)</li>
-      <li><code>b</code> = bend</li>
-      <li><code>~</code> = vibrato</li>
-    </ul>
-  </li>
+              <li>
+                <strong>Practice Slowly First:</strong><br />
+                Go note by note. Speed will improve with time and repetition.
+              </li>
 
-  <li>
-    <strong>Use Alternate Picking:</strong><br />
-    Down-up strokes improve speed and accuracy — practice them on simple riffs.
-  </li>
+              <li>
+                <strong>Watch for Symbols:</strong><br />
+                <ul>
+                  <li><code>h</code> = hammer-on (e.g., 5h7)</li>
+                  <li><code>p</code> = pull-off (e.g., 7p5)</li>
+                  <li><code>/</code> = slide up (e.g., 5/7)</li>
+                  <li><code>\</code> = slide down (e.g., 7\5)</li>
+                  <li><code>b</code> = bend</li>
+                  <li><code>~</code> = vibrato</li>
+                </ul>
+              </li>
 
-  <li>
-    <strong>Use a Metronome:</strong><br />
-    Start slow, increase tempo gradually — it helps develop solid timing.
-  </li>
-</ol>
+              <li>
+                <strong>Use Alternate Picking:</strong><br />
+                Down-up strokes improve speed and accuracy — practice them on simple riffs.
+              </li>
 
-    </div>
-  </InstructionOverlay>
-)}
+              <li>
+                <strong>Use a Metronome:</strong><br />
+                Start slow, increase tempo gradually — it helps develop solid timing.
+              </li>
+            </ol>
+
+          </div>
+        </InstructionOverlay>
+      )}
 
     </PlayerWrapper>
-    
+
   );
 }
