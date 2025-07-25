@@ -1,5 +1,18 @@
 
-const {login,register,addPageLink, getPageLinks, updatePageLink,deletePageLink, getAllPages, addNewUser, getAllUsers, getSinglePage, authorizeUser, removerUserAccess} = require('../Controllers/adminController')
+const { login,
+    register,
+    addPageLink,
+    getPageLinks,
+    updatePageLink,
+    deletePageLink,
+    getAllPages,
+    addNewUser,
+    addNewTeacher,
+    getAllUsers,
+    getSinglePage,
+    authorizeUser,
+    removerUserAccess
+} = require('../Controllers/adminController')
 const router = require('express').Router();
 
 router.post("/login", login);
@@ -10,6 +23,7 @@ router.post('/update-links', updatePageLink)
 router.post('/delete-link', deletePageLink)
 router.get('/get-pages', getAllPages)
 router.post('/add-user', addNewUser)
+router.post('/add-teacher', addNewTeacher)
 router.get('/get-users', getAllUsers)
 router.get('/get-single-page/:id', getSinglePage)
 router.post('/authorize', authorizeUser)

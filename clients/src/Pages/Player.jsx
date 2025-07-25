@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { FaPlay, FaPause, FaGuitar, FaStop, FaPrint, FaVolumeHigh, FaWhatsapp } from "react-icons/fa6";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
-import { getDriveFileRoute, getPageDetailsRoute, getSinglePageRoute } from '../Utils/APIRoutes';
+import { getDriveFileRoute, getPageDetailsRoute} from '../Utils/APIRoutes';
 import axios from 'axios';
 import UserNavbar from '../Components/UserNavbar';
 

@@ -5,7 +5,7 @@ import AdminNavbar from '../../Components/AdminNavbar';
 import { GiGuitar } from "react-icons/gi";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { addLinkRoute, addUserRoute, deleteLinkRoute, getLinksRoute, updateLinkRoute } from '../../Utils/APIRoutes';
+import { addLinkRoute, addTeacherRoute, addUserRoute, deleteLinkRoute, getLinksRoute, updateLinkRoute } from '../../Utils/APIRoutes';
 import { IoAdd, IoClose } from 'react-icons/io5';
 
 const Container = styled.div`
@@ -34,6 +34,12 @@ const HeadingRow = styled.div`
   align-items: center;
   margin-bottom: 20px;
 `;
+
+const ButtonSection = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+`
 
 const Heading = styled.h2`
   color: ${props => props.theme.heading};
@@ -239,10 +245,15 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   const [newName, setNewName] = useState('');
   const [editMap, setEditMap] = useState({});
   const [showAddUserForm, setShowAddUserForm] = useState(false);
-   const [userId, setUserId] = useState('');
-  const [username, setUsername] = useState(''); 
+  const [showAddTeacherForm, setShowAddTeacherForm] = useState(false);
+  const [userId, setUserId] = useState('');
+  const [username, setUsername] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
+  const [teacherId, setTeacherId] = useState('');
+  const [teacherName, setTeachername] = useState('');
+  const [newTeacherEmail, setNewTeacherEmail] = useState('');
+  const [newTeacherPassword, setNewTeacherPassword] = useState('');
 
   const navigate = useNavigate();
 
@@ -321,6 +332,17 @@ export default function LinksPage({ toggleTheme, themeMode }) {
     }
   };
 
+  //// ==== FUNCTION TO HANDLE CONTAINER TOGGLE === ///
+
+  const handleTeacherClick = () =>{
+    setShowAddTeacherForm(!showAddTeacherForm)
+    setShowAddUserForm(false)
+  }
+  const handleUserClick = () =>{
+    setShowAddUserForm(!showAddUserForm)
+    setShowAddTeacherForm(false)
+  }
+
   /// === FUNCTION TO HANDLE ADDING USER === ///
 
   const handleAddUser = async () => {
@@ -328,7 +350,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       toast.warning("User, Email and password are required.");
       return;
     }
-    if(userId.length != 6){
+    if (userId.length != 6) {
       toast.info("Length of userId should be 6");
       return
     }
@@ -343,7 +365,6 @@ export default function LinksPage({ toggleTheme, themeMode }) {
 
       if (res.data.status) {
         toast.success("User added successfully!");
-        setShowAddUserForm(false);
         setNewUserEmail('');
         setNewUserPassword('');
         setUserId('');
@@ -354,10 +375,50 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       }
     } catch (err) {
       toast.error("Error adding user.");
-       setNewUserEmail('');
-        setNewUserPassword('');
-        setUserId('');
-        setUsername('');
+      setNewUserEmail('');
+      setNewUserPassword('');
+      setUserId('');
+      setUsername('');
+      console.error(err);
+    }
+  };
+
+  /// === FUNCTION TO HANDLE ADDING TEACHER === ///
+
+  const handleAddTeacher = async () => {
+    if (!newTeacherEmail || !newTeacherPassword || !teacherName || !teacherId) {
+      toast.warning("Teacher's Id, Email and password are required.");
+      return;
+    }
+    if (teacherId.length != 6) {
+      toast.info("Length of Teacher's Id should be 6");
+      return
+    }
+
+    try {
+      const res = await axios.post(addTeacherRoute, {
+        teacherId: teacherId,
+        teacherName: teacherName,
+        email: newTeacherEmail,
+        password: newTeacherPassword
+      });
+
+      if (res.data.status) {
+        toast.success("Teacher added successfully!");
+        setNewTeacherEmail('');
+        setNewTeacherPassword('');
+        setTeacherId('');
+        setTeachername('');
+        setShowAddTeacherForm(false)
+      } else {
+        toast.error(res.data.msg || "Failed to add teacher.");
+      }
+    } catch (err) {
+      toast.error("Error adding teacher.");
+      setNewTeacherEmail('');
+      setNewTeacherPassword('');
+      setTeacherId('');
+      setTeachername('');
       console.error(err);
     }
   };
@@ -373,95 +434,133 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   }, []);
 
   return (
-    
+
     <Container>
-      <AdminNavbar toggleTheme={toggleTheme} themeMode={themeMode}/>
-      <Section> <HeadingRow>
-        <Heading><GiGuitar/>Manage Guitar Pro Links</Heading>
-         <AddUserButton onClick={() => setShowAddUserForm(true)}>
-    <IoAdd/> Add User
-  </AddUserButton>
-      </HeadingRow>
+      <AdminNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
+      <Section>
+        <HeadingRow>
+          <Heading><GiGuitar />Manage Guitar Pro Links</Heading>
+          <ButtonSection>
+            <AddUserButton onClick={handleUserClick}>
+              <IoAdd /> Add User
+            </AddUserButton>
+            <AddUserButton onClick={handleTeacherClick}>
+              <IoAdd /> Add Teacher
+            </AddUserButton></ButtonSection>
 
-      <InputRow>
-        <input
-          type="text"
-          value={newLink}
-          placeholder="Enter Google Drive File ID"
-          onChange={e => setNewLink(e.target.value)}
-        />
-        <input
-          type="text"
-          value={newName}
-          placeholder="Enter Page Name"
-          onChange={e => setNewName(e.target.value)}
-        />
-        <button onClick={handleAdd}>Add</button>
-      </InputRow>
+        </HeadingRow>
 
-<ListSection> {links.map((item) => (
-        <ListItem key={item._id}>
+        <InputRow>
           <input
-            value={editMap[item._id]?.googleLink || ''}
-            onChange={(e) =>
-              setEditMap({
-                ...editMap,
-                [item._id]: {
-                  ...editMap[item._id],
-                  googleLink: e.target.value,
-                }
-              })
-            }
-          />
-          <input
-            value={editMap[item._id]?.name || ''}
-            onChange={(e) =>
-              setEditMap({
-                ...editMap,
-                [item._id]: {
-                  ...editMap[item._id],
-                  name: e.target.value,
-                }
-              })
-            }
-          />
-          <button onClick={() => handleUpdate(item._id)}>Update</button>
-          <button className="delete" onClick={() => handleDelete(item._id)}>Delete</button>
-        </ListItem>
-      ))}</ListSection>
-     
-      {showAddUserForm && (
-        <UserFormPopup>
-          <button className="close" onClick={() => setShowAddUserForm(false)}><IoClose/></button>
-          <h3>Create New User</h3>
-           <input
             type="text"
-            placeholder="UserId"
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
+            value={newLink}
+            placeholder="Enter Google Drive File ID"
+            onChange={e => setNewLink(e.target.value)}
           />
           <input
             type="text"
-            placeholder="Username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
+            value={newName}
+            placeholder="Enter Page Name"
+            onChange={e => setNewName(e.target.value)}
           />
-          <input
-            type="email"
-            placeholder="Email"
-            value={newUserEmail}
-            onChange={e => setNewUserEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={newUserPassword}
-            onChange={e => setNewUserPassword(e.target.value)}
-          />
-          <button onClick={handleAddUser}>Add</button>
-        </UserFormPopup>
-      )}</Section>
-     
+          <button onClick={handleAdd}>Add</button>
+        </InputRow>
+
+        <ListSection> {links.map((item) => (
+          <ListItem key={item._id}>
+            <input
+              value={editMap[item._id]?.googleLink || ''}
+              onChange={(e) =>
+                setEditMap({
+                  ...editMap,
+                  [item._id]: {
+                    ...editMap[item._id],
+                    googleLink: e.target.value,
+                  }
+                })
+              }
+            />
+            <input
+              value={editMap[item._id]?.name || ''}
+              onChange={(e) =>
+                setEditMap({
+                  ...editMap,
+                  [item._id]: {
+                    ...editMap[item._id],
+                    name: e.target.value,
+                  }
+                })
+              }
+            />
+            <button onClick={() => handleUpdate(item._id)}>Update</button>
+            <button className="delete" onClick={() => handleDelete(item._id)}>Delete</button>
+          </ListItem>
+        ))}</ListSection>
+
+        {showAddUserForm && (
+          <UserFormPopup>
+            <button className="close" onClick={()=>{setShowAddUserForm(false)}}><IoClose /></button>
+            <h3>Create New User</h3>
+            <input
+              type="text"
+              placeholder="UserId"
+              value={userId}
+              onChange={e => setUserId(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={newUserEmail}
+              onChange={e => setNewUserEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={newUserPassword}
+              onChange={e => setNewUserPassword(e.target.value)}
+            />
+            <button onClick={handleAddUser}>Add</button>
+          </UserFormPopup>
+        )}
+        {showAddTeacherForm && (
+          <UserFormPopup>
+            <button className="close" onClick={() => setShowAddTeacherForm(false)}><IoClose /></button>
+            <h3>Create New Teacher</h3>
+            <input
+              type="text"
+              placeholder="TeacherId"
+              value={teacherId}
+              onChange={e => setTeacherId(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Teacher Name"
+              value={teacherName}
+              onChange={e => setTeachername(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={newTeacherEmail}
+              onChange={e => setNewTeacherEmail(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={newTeacherPassword}
+              onChange={e => setNewTeacherPassword(e.target.value)}
+            />
+            <button onClick={handleAddTeacher}>Add</button>
+          </UserFormPopup>
+        )}
+      </Section>
+
 
 
     </Container>
