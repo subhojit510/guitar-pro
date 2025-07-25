@@ -4,6 +4,7 @@ import AuthPage from './Auth/AdminLogin';
 import LinksPage from './Pages/Admin/LinksPage';
 import AdminUserAccess from './Pages/Admin/AdminUserAccessPage';
 import ViewPages from './Pages/Admin/viewPages';
+import AllUsers from './Pages/Admin/AllUsers';
 import UserLoginPage from './Auth/UserLogin';
 import UserHome from './Pages/Home';
 import Player from './Pages/Player';
@@ -34,6 +35,10 @@ function App() {
             <Route
               path="/admin/view-links"
               element={<LinksPage toggleTheme={toggleTheme} themeMode={themeMode} />}
+            />
+            <Route
+              path="/admin/all-users"
+              element={<AllUsers toggleTheme={toggleTheme} themeMode={themeMode} />}
             />
             <Route path="/admin/all-users/:pageId" element={<AdminUserAccess toggleTheme={toggleTheme} themeMode={themeMode} />} />
              <Route path="/" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
