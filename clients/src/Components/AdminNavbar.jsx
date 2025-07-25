@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { IoLogOut, IoMoon, IoSunny, IoClose, IoMenu } from "react-icons/io5";
 import { CiViewList } from "react-icons/ci";
+import { FaPeopleGroup } from "react-icons/fa6"
 import { PiStudentFill } from "react-icons/pi";
 import { FaPlus } from "react-icons/fa";
 
@@ -116,6 +117,9 @@ export default function UserNavbar({ toggleTheme, themeMode }) {
         </NavButton>
         <NavButton onClick={() => navigate('/admin')}>
           <CiViewList /> View Pages
+        </NavButton>
+        <NavButton onClick={() => navigate('/admin/all-users')}>
+          <FaPeopleGroup /> All Students
         </NavButton>
         <NavButton onClick={() => navigate('/admin/view-links')}>
           <FaPlus /> Add Page
