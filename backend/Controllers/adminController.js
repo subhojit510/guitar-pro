@@ -2,6 +2,7 @@
 const Admin = require('../Models/adminModel')
 const Pages = require('../Models/pageModel')
 const Users = require('../Models/userModel')
+const Teachers = require('../Models/teacherModel')
 const bcrypt = require('bcrypt');
 
 
@@ -132,6 +133,33 @@ module.exports.addNewUser= async (req, res, next) => {
         return res.json({ status: true, userfilter })
     } catch (err) {
         console.log("An error occured in user register", err);
+    }
+}
+
+module.exports.addNewTeacher = async (req, res, next) => {
+     try {
+        const email = req.body.email
+        const teacherId = req.body.teacherId
+        const name = req.body.teacherName
+        const password = req.body.password
+        const teacherIdCheck = await Teachers.findOne({ teacherId });
+        if (teacherIdCheck)
+            return res.json({ msg: "Teacher already exist", status: false });
+        const emailCheck = await Users.findOne({email})
+        if(emailCheck)
+            return res.json({ msg: "Email already exist", status: false });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const teacher = await Teachers.create({
+            teacherId,
+            name,
+            email,
+            password: hashedPassword
+        });
+        const teacherFilter = await Teachers.findOne({ teacherId }).select("teacherId name email ");
+        delete teacher.password;
+        return res.json({ status: true, teacherFilter })
+    } catch (err) {
+        console.log("An error occured in teacher register", err);
     }
 }
 
