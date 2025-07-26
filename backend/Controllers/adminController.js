@@ -172,6 +172,16 @@ module.exports.getAllUsers = async (req, res, next) => {
     }
 }
 
+module.exports.getAllTeachers = async (req, res, next) => {
+     try {
+        const teachers = await Teachers.find();
+        return res.json({status:true, teachers})
+    } catch (err) {
+        console.log("An error occured in user register", err);
+    }
+}
+
+
 module.exports.getSinglePage = async (req, res, next) => {
    try { 
     const page = await Pages.findById(req.params.id);

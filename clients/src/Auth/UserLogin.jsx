@@ -171,7 +171,7 @@ const UserLoginPage = () => {
         />
         <Button onClick={handleSubmit}>Login</Button>
         <TextLink onClick={()=>{navigate('/admin-login')}}>
-          Are you the admin? <a>Go to Admin Login</a>
+          Are you the admin? <span>Go to Admin Login</span>
         </TextLink>
       </AuthCard>
     </AuthWrapper>

@@ -39,41 +39,6 @@ const Heading = styled.h2`
   font-size: 1.8rem;
 `;
 
-const Button = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background-color: ${({ theme }) => theme.buttonBg};
-  color: ${({ theme }) => theme.buttonText};
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s ease;
-  font-size: 14px;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.buttonHover};
-    transform: scale(1.02);
-  }
-
-  svg {
-    font-size: 16px;
-  }
-
-  @media (max-width: 600px) {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-`;
-
 const SearchInput = styled.input`
   width: 100%;
   max-width: 400px;
@@ -185,7 +150,7 @@ export default function ViewPages({ toggleTheme, themeMode }) {
     };
 
     fetchSongs();
-  }, []);
+  }, [navigate]);
 
   const handleSearch = (e) => {
     const value = e.target.value;

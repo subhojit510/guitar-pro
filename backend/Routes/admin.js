@@ -11,7 +11,8 @@ const { login,
     getAllUsers,
     getSinglePage,
     authorizeUser,
-    removerUserAccess
+    removerUserAccess,
+    getAllTeachers
 } = require('../Controllers/adminController')
 const router = require('express').Router();
 
@@ -25,6 +26,7 @@ router.get('/get-pages', getAllPages)
 router.post('/add-user', addNewUser)
 router.post('/add-teacher', addNewTeacher)
 router.get('/get-users', getAllUsers)
+router.get('/get-teachers', getAllTeachers)
 router.get('/get-single-page/:id', getSinglePage)
 router.post('/authorize', authorizeUser)
 router.post('/remove-user-access', removerUserAccess)

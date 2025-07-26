@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import {FaCheckCircle, FaUser, FaUsers } from "react-icons/fa";
+import {FaCheckCircle, FaUsers } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";

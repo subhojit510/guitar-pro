@@ -350,7 +350,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       toast.warning("User, Email and password are required.");
       return;
     }
-    if (userId.length != 6) {
+    if (userId.length !== 6) {
       toast.info("Length of userId should be 6");
       return
     }
@@ -390,7 +390,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       toast.warning("Teacher's Id, Email and password are required.");
       return;
     }
-    if (teacherId.length != 6) {
+    if (teacherId.length !== 6) {
       toast.info("Length of Teacher's Id should be 6");
       return
     }
@@ -431,7 +431,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       navigate('/admin-login')
     }
 
-  }, []);
+  }, [navigate]);
 
   return (
 

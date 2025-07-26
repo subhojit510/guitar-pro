@@ -2,17 +2,14 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { FaUser, FaUsers, FaTrash } from "react-icons/fa";
+import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher } from "react-icons/fa";
+import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
-import {
-  getUsersRoute,
-  getSinglePageRoute,
-  authorizeUserRoute,
-  removeUserAccessRoute,
-} from "../../Utils/APIRoutes";
+import { getUsersRoute, getPagesRoute, authorizeUserRoute, removeUserAccessRoute, getTeachersRoute } from "../../Utils/APIRoutes";
 
+// Styled Components
 const Container = styled.div`
   width: 100vw;
   font-family: 'Inter', sans-serif;
@@ -48,7 +45,7 @@ const UserCard = styled.div`
   position: relative;
 
   &:hover {
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
     border-color: ${({ theme }) => theme.buttonBg};
   }
 `;
@@ -90,23 +87,55 @@ const ActionBtn = styled.button`
   }
 `;
 
-const Dropdown = styled.select`
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.buttonText};
+// Lesson Assignment Styles
+const DropdownWrapper = styled.div`
+  position: relative;
+`;
+
+const ToggleBtn = styled(ActionBtn)`
+display: flex;
+gap: 3px;
   background: ${({ theme }) => theme.buttonBg};
-  appearance: none;
+`;
+
+const LessonList = styled.div`
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.cardBorder || "#ccc"};
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  z-index: 9999;
+  min-width: 180px;
+  
+`;
+
+const LessonItem = styled.button`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border: none;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.text};
+  cursor: pointer;
 
   &:hover {
-    opacity: 0.9;
+    transform: scale(1.01);
   }
 `;
 
+// Component
 export default function AllUsers({ themeMode, toggleTheme }) {
   const [users, setUsers] = useState([]);
+  const [pages, setPages] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [openDropdown, setOpenDropdown] = useState({ type: null, index: null });
+  const [trigger, setTrigger] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -116,31 +145,73 @@ export default function AllUsers({ themeMode, toggleTheme }) {
       return;
     }
 
-    const fetchData = async () => {
+    const fetchUsers = async () => {
       try {
         const userRes = await axios.get(getUsersRoute);
         setUsers(userRes.data.users);
       } catch (err) {
-        toast.error("Error loading data");
+        toast.error("Error loading users");
         console.error(err);
       }
     };
 
-    fetchData();
-  }, [navigate]);
+    const fetchPages = async () => {
+      try {
+        const res = await axios.get(getPagesRoute);
+        setPages(res.data.pages);
+      } catch (err) {
+        toast.error("Error loading pages");
+        console.error(err);
+      }
+    };
+
+    const fetchTeachers = async () => {
+      try {
+        const res = await axios.get(getTeachersRoute)
+        setTeachers(res.data.teachers);
+      } catch (err) {
+        console.log("Error loading teachers", err);
+
+      }
+    }
+
+    fetchUsers();
+    fetchPages();
+    fetchTeachers();
+  }, [navigate, trigger]);
 
   const handleDeleteUser = async (userId) => {
     try {
-      
+      // delete logic here
     } catch (err) {
       toast.error("Error deleting user");
     }
   };
 
+  const toggleUserOnPage = async (pageId, userId, hasAccess) => {
+    console.log(hasAccess);
+    if (hasAccess) {
+      const res = await axios.post(removeUserAccessRoute, {
+        pageId,
+        userId
+      })
+      setTrigger(!trigger)
+      toast.success(res.data.msg);
+    } else {
+      const res = await axios.post(authorizeUserRoute, {
+        pageId,
+        userId
+      })
+      setTrigger(!trigger)
+      toast.success(res.data.msg);
+    }
+
+  };
+
   return (
     <Container>
       <AdminNavbar themeMode={themeMode} toggleTheme={toggleTheme} />
-      <Title><FaUsers /> Manage Users</Title>
+      <Title><FaUsers /> Manage Students</Title>
       <CardGrid>
         {users.map((user, idx) => (
           <UserCard key={user._id}>
@@ -150,21 +221,72 @@ export default function AllUsers({ themeMode, toggleTheme }) {
             <Info><Label>Email:</Label><Value>{user.email}</Value></Info>
             <Info><Label>Role:</Label><Value>{user.role || "user"}</Value></Info>
             <ButtonRow>
+              {/* Lesson Dropdown */}
+              <DropdownWrapper>
+                <ToggleBtn
+                  onClick={() =>
+                    setOpenDropdown(prev =>
+                      prev.type === 'lesson' && prev.index === idx
+                        ? { type: null, index: null }
+                        : { type: 'lesson', index: idx }
+                    )
+                  }
+                >
+                  <MdOutlinePlayLesson /> Assign Lessons
+                </ToggleBtn>
+
+                {openDropdown.type === 'lesson' && openDropdown.index === idx && (
+                  <LessonList>
+                    {pages.map(page => {
+                      const hasAccess = page.userAccess.includes(user.userId);
+                      return (
+                        <LessonItem
+                          key={page._id}
+                          onClick={() => toggleUserOnPage(page._id, user.userId, hasAccess)}
+                        >
+                          <span>{page.name}</span>
+                          {hasAccess ? <FaCheck color="green" /> : <FaPlus color="gray" />}
+                        </LessonItem>
+                      );
+                    })}
+                  </LessonList>
+                )}
+              </DropdownWrapper>
+
+              <DropdownWrapper>
+                <ToggleBtn
+                  onClick={() =>
+                    setOpenDropdown(prev =>
+                      prev.type === 'teacher' && prev.index === idx
+                        ? { type: null, index: null }
+                        : { type: 'teacher', index: idx }
+                    )
+                  }
+                >
+                  <FaChalkboardTeacher /> Assign Teachers
+                </ToggleBtn>
+
+                {openDropdown.type === 'teacher' && openDropdown.index === idx && (
+                  <LessonList>
+                    {teachers.map(teacher => {
+                      const hasAccess = teacher.students.includes(user.userId);
+                      return (
+                        <LessonItem
+                          key={teacher._id}
+                          onClick={() => toggleUserOnPage(teacher._id, user.userId, hasAccess)}
+                        >
+                          <span>{teacher.name}</span>
+                          {hasAccess ? <FaCheck color="green" /> : <FaPlus color="gray" />}
+                        </LessonItem>
+                      );
+                    })}
+                  </LessonList>
+                )}
+              </DropdownWrapper>
+
               <ActionBtn bg="#ef4444" onClick={() => handleDeleteUser(user.userId)}>
                 <FaTrash style={{ marginRight: "5px" }} /> Delete
               </ActionBtn>
-              <Dropdown>
-                <option value="">Select Role</option>
-                <option value="admin">Admin</option>
-                <option value="instructor">Instructor</option>
-                <option value="user">User</option>
-              </Dropdown>
-              <Dropdown>
-                <option value="">Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="blocked">Blocked</option>
-              </Dropdown>
             </ButtonRow>
           </UserCard>
         ))}
