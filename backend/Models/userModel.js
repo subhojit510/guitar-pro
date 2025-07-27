@@ -28,6 +28,11 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     default: "User" 
 },
+teacher:{
+    type: String,
+    default: null,
+    required: false
+},
 createdAt: {
     type: Date, 
     default: Date.now 

@@ -20,6 +20,8 @@ export const getUsersRoute = `${host}/api/admin/get-users`;
 export const getSinglePageRoute = `${host}/api/admin/get-single-page`;
 export const authorizeUserRoute = `${host}/api/admin/authorize`;
 export const removeUserAccessRoute = `${host}/api/admin/remove-user-access`;
+export const assignTeacherRoute = `${host}/api/admin/assign-teacher`;
+export const unAssignTeacherRoute = `${host}/api/admin/unassign-teacher`;
 
 
 // === GOOGLE DRIVE FETCH ROUTE === ///

@@ -12,7 +12,9 @@ const { login,
     getSinglePage,
     authorizeUser,
     removerUserAccess,
-    getAllTeachers
+    getAllTeachers,
+    authorizeTeacher,
+    unAssignTeacher
 } = require('../Controllers/adminController')
 const router = require('express').Router();
 
@@ -30,6 +32,8 @@ router.get('/get-teachers', getAllTeachers)
 router.get('/get-single-page/:id', getSinglePage)
 router.post('/authorize', authorizeUser)
 router.post('/remove-user-access', removerUserAccess)
+router.post('/assign-teacher', authorizeTeacher)
+router.post('/unassign-teacher', unAssignTeacher)
 
 
 module.exports = router;

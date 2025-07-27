@@ -27,10 +27,7 @@ const TeacherSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "Teacher"
-    }, students: [{
-        type: String,
-        match: /^[0-9]{6}$/, // 6-digit number strings only
-    }],
+    },
     createdAt: {
         type: Date,
         default: Date.now

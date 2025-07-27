@@ -7,7 +7,15 @@ import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
-import { getUsersRoute, getPagesRoute, authorizeUserRoute, removeUserAccessRoute, getTeachersRoute } from "../../Utils/APIRoutes";
+import {
+  getUsersRoute,
+  getPagesRoute,
+  authorizeUserRoute,
+  removeUserAccessRoute,
+  getTeachersRoute,
+  assignTeacherRoute,
+  unAssignTeacherRoute
+} from "../../Utils/APIRoutes";
 
 // Styled Components
 const Container = styled.div`
@@ -22,6 +30,9 @@ const Container = styled.div`
 `;
 
 const Title = styled.h2`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 2rem;
   color: ${({ theme }) => theme.heading};
   margin-bottom: 2rem;
@@ -80,7 +91,7 @@ const ActionBtn = styled.button`
   border-radius: 6px;
   cursor: pointer;
   color: ${({ theme }) => theme.buttonText};
-  background: ${({ bg }) => bg || "#333"};
+  background: #ef4444;
 
   &:hover {
     opacity: 0.9;
@@ -189,21 +200,35 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   };
 
   const toggleUserOnPage = async (pageId, userId, hasAccess) => {
-    console.log(hasAccess);
     if (hasAccess) {
       const res = await axios.post(removeUserAccessRoute, {
         pageId,
         userId
       })
       setTrigger(!trigger)
-      toast.success(res.data.msg);
     } else {
       const res = await axios.post(authorizeUserRoute, {
         pageId,
         userId
       })
       setTrigger(!trigger)
-      toast.success(res.data.msg);
+    }
+
+  };
+
+  const toggleUserOnTeacher = async (teacherId, userId, hasAccess) => {
+    if (hasAccess) {
+      const res = await axios.post(unAssignTeacherRoute, {
+        teacherId,
+        userId
+      })
+      setTrigger(!trigger)
+    } else {
+      const res = await axios.post(assignTeacherRoute, {
+        teacherId,
+        userId
+      })
+      setTrigger(!trigger)
     }
 
   };
@@ -269,11 +294,11 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                 {openDropdown.type === 'teacher' && openDropdown.index === idx && (
                   <LessonList>
                     {teachers.map(teacher => {
-                      const hasAccess = teacher.students.includes(user.userId);
+                      const hasAccess = user.teacher === teacher.teacherId;
                       return (
                         <LessonItem
                           key={teacher._id}
-                          onClick={() => toggleUserOnPage(teacher._id, user.userId, hasAccess)}
+                          onClick={() => toggleUserOnTeacher(teacher.teacherId, user.userId, hasAccess)}
                         >
                           <span>{teacher.name}</span>
                           {hasAccess ? <FaCheck color="green" /> : <FaPlus color="gray" />}
@@ -284,7 +309,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                 )}
               </DropdownWrapper>
 
-              <ActionBtn bg="#ef4444" onClick={() => handleDeleteUser(user.userId)}>
+              <ActionBtn onClick={() => handleDeleteUser(user.userId)}>
                 <FaTrash style={{ marginRight: "5px" }} /> Delete
               </ActionBtn>
             </ButtonRow>

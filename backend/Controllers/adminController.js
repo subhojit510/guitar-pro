@@ -8,16 +8,16 @@ const bcrypt = require('bcrypt');
 
 module.exports.login = async (req, res, next) => {
     try {
-        
+
         const { email, password } = req.body.formData;
-        const admin = await Admin.findOne({email });
+        const admin = await Admin.findOne({ email });
         if (!admin)
             return res.json({ msg: "Invalid Email", status: false });
         const isPasswordValid = await bcrypt.compare(password, admin.password)
         if (!isPasswordValid)
             return res.json({ msg: "Invalid Password", status: false });
         const adminfilter = await Admin.findOne({ email }).select("email");
-        delete admin.password 
+        delete admin.password
         return res.json({ status: true, adminfilter })
     } catch (err) {
         console.log("An error occured in user login", err);
@@ -28,8 +28,8 @@ module.exports.register = async (req, res, next) => {
     try {
         const { name, email, password } = req.body.formData;
         console.log(name);
-        
-        const emailCheck = await Admin.findOne({ name,email });
+
+        const emailCheck = await Admin.findOne({ name, email });
         if (emailCheck)
             return res.json({ msg: "Email already exist", status: false });
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -48,16 +48,16 @@ module.exports.register = async (req, res, next) => {
 module.exports.addPageLink = async (req, res, next) => {
     try {
         const googleLink = req.body.newLink
-        const linkExist = await Pages.findOne({googleLink})
-        if(linkExist){
-            return res.json({status: false, msg: "Link already exist"})
+        const linkExist = await Pages.findOne({ googleLink })
+        if (linkExist) {
+            return res.json({ status: false, msg: "Link already exist" })
         }
-          const page = await Pages.create({
+        const page = await Pages.create({
             name: req.body.newName,
             googleLink
         });
 
-        return res.json({status:true, page})
+        return res.json({ status: true, page })
     } catch (err) {
         console.log("An error occured in adding new page/link", err);
     }
@@ -65,8 +65,8 @@ module.exports.addPageLink = async (req, res, next) => {
 
 module.exports.getPageLinks = async (req, res, next) => {
     try {
-        const pages =await Pages.find()
-        return res.json({status:true, pages})
+        const pages = await Pages.find()
+        return res.json({ status: true, pages })
     } catch (err) {
         console.log("An error occured in updating page/link", err);
     }
@@ -76,41 +76,41 @@ module.exports.updatePageLink = async (req, res, next) => {
     try {
         console.log(req.body.id)
         const updatedPage = await Pages.findByIdAndUpdate(
-      req.body.id,
-      {
-        name: req.body.name,
-        googleLink: req.body.googleLink
-      },
-      { new: true } // returns updated doc
-    );
+            req.body.id,
+            {
+                name: req.body.name,
+                googleLink: req.body.googleLink
+            },
+            { new: true } // returns updated doc
+        );
 
-    return res.json({status:true})
+        return res.json({ status: true })
     } catch (err) {
         console.log("An error occured in updating page/link", err);
     }
 }
 
-module.exports.deletePageLink= async (req, res, next) => {
+module.exports.deletePageLink = async (req, res, next) => {
     try {
         const updated = await Pages.findByIdAndDelete(req.body.id);
-        return res.json({status: true})
+        return res.json({ status: true })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
     }
 }
 
-module.exports.getAllPages= async (req, res, next) => {
+module.exports.getAllPages = async (req, res, next) => {
     try {
         const pages = await Pages.find()
-        return res.json({status: true, pages})
+        return res.json({ status: true, pages })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
     }
 }
 
 
-module.exports.addNewUser= async (req, res, next) => {
-     try {
+module.exports.addNewUser = async (req, res, next) => {
+    try {
         const email = req.body.email
         const userId = req.body.userId
         const username = req.body.username
@@ -118,8 +118,8 @@ module.exports.addNewUser= async (req, res, next) => {
         const userIdCheck = await Users.findOne({ userId });
         if (userIdCheck)
             return res.json({ msg: "User already exist", status: false });
-        const emailCheck = await Users.findOne({email})
-        if(emailCheck)
+        const emailCheck = await Users.findOne({ email })
+        if (emailCheck)
             return res.json({ msg: "Email already exist", status: false });
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await Users.create({
@@ -137,7 +137,7 @@ module.exports.addNewUser= async (req, res, next) => {
 }
 
 module.exports.addNewTeacher = async (req, res, next) => {
-     try {
+    try {
         const email = req.body.email
         const teacherId = req.body.teacherId
         const name = req.body.teacherName
@@ -145,8 +145,8 @@ module.exports.addNewTeacher = async (req, res, next) => {
         const teacherIdCheck = await Teachers.findOne({ teacherId });
         if (teacherIdCheck)
             return res.json({ msg: "Teacher already exist", status: false });
-        const emailCheck = await Users.findOne({email})
-        if(emailCheck)
+        const emailCheck = await Users.findOne({ email })
+        if (emailCheck)
             return res.json({ msg: "Email already exist", status: false });
         const hashedPassword = await bcrypt.hash(password, 10);
         const teacher = await Teachers.create({
@@ -164,18 +164,18 @@ module.exports.addNewTeacher = async (req, res, next) => {
 }
 
 module.exports.getAllUsers = async (req, res, next) => {
-     try {
+    try {
         const users = await Users.find();
-        return res.json({status:true, users})
+        return res.json({ status: true, users })
     } catch (err) {
         console.log("An error occured in user register", err);
     }
 }
 
 module.exports.getAllTeachers = async (req, res, next) => {
-     try {
+    try {
         const teachers = await Teachers.find();
-        return res.json({status:true, teachers})
+        return res.json({ status: true, teachers })
     } catch (err) {
         console.log("An error occured in user register", err);
     }
@@ -183,58 +183,104 @@ module.exports.getAllTeachers = async (req, res, next) => {
 
 
 module.exports.getSinglePage = async (req, res, next) => {
-   try { 
-    const page = await Pages.findById(req.params.id);
-    if (!page) return res.status(404).json({ msg: "Page not found" });
+    try {
+        const page = await Pages.findById(req.params.id);
+        if (!page) return res.status(404).json({ msg: "Page not found" });
 
-    res.json({ status: true, page });
-  } catch (err) {
-    res.status(500).json({ status: false, msg: "Server error" });
-  }
+        res.json({ status: true, page });
+    } catch (err) {
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
 }
 
 module.exports.authorizeUser = async (req, res, next) => {
-  const { pageId, userId } = req.body;
+    const { pageId, userId } = req.body;
 
-  if (!pageId || !userId) {
-    return res.status(400).json({ status: false, msg: "Missing parameters" });
-  }
-
-  try {
-    const page = await Pages.findById(pageId);
-    if (!page) return res.status(404).json({ status: false, msg: "Page not found" });
-
-    if (!page.userAccess.includes(userId)) {
-      page.userAccess.push(userId);
-      await page.save();
+    if (!pageId || !userId) {
+        return res.status(400).json({ status: false, msg: "Missing parameters" });
     }
 
-    res.json({ status: true, msg: "User authorized" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: false, msg: "Server error" });
-  }
+    try {
+        const page = await Pages.findById(pageId);
+        if (!page) return res.status(404).json({ status: false, msg: "Page not found" });
+
+        if (!page.userAccess.includes(userId)) {
+            page.userAccess.push(userId);
+            await page.save();
+        }
+
+        res.json({ status: true, msg: "User authorized" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
 }
 
 module.exports.removerUserAccess = async (req, res, next) => {
-  const { pageId, userId } = req.body;
+    const { pageId, userId } = req.body;
 
-  if (!pageId || !userId) {
-    return res.status(400).json({ status: false, msg: "Missing parameters" });
-  }
+    if (!pageId || !userId) {
+        return res.status(400).json({ status: false, msg: "Missing parameters" });
+    }
 
-  try {
-    const page = await Pages.findById(pageId);
-    if (!page) return res.status(404).json({ status: false, msg: "Page not found" });
+    try {
+        const page = await Pages.findById(pageId);
+        if (!page) return res.status(404).json({ status: false, msg: "Page not found" });
 
-    page.userAccess = page.userAccess.filter(id => id !== userId);
-    await page.save();
+        page.userAccess = page.userAccess.filter(id => id !== userId);
+        await page.save();
 
-    res.json({ status: true, msg: "Access removed" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: false, msg: "Server error" });
-  }
+        res.json({ status: true, msg: "Access removed" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
 }
 
+module.exports.authorizeTeacher = async (req, res, next) => {
+    const { teacherId, userId } = req.body;
 
+    if (!teacherId || !userId) {
+        return res.status(400).json({ status: false, msg: "Missing parameters" });
+    }
+    try {
+        const updatedStudent = await Users.findOneAndUpdate(
+            { userId: userId },
+            { teacher: teacherId },
+            { new: true, upsert: false }
+        );
+
+        if (!updatedStudent) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        res.json({ status: true, msg: "Teacher authorized" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
+
+module.exports.unAssignTeacher = async (req, res, next) => {
+    const { teacherId, userId } = req.body;
+
+    if (!teacherId || !userId) {
+        return res.status(400).json({ status: false, msg: "Missing parameters" });
+    }
+    try {
+        const updatedStudent = await Users.findOneAndUpdate(
+            { userId: userId },
+            { teacher: null },
+            { new: true, upsert: false }
+        );
+
+        if (!updatedStudent) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        res.json({ status: true, msg: "Teacher unassigned" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
