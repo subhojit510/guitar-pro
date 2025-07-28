@@ -201,13 +201,13 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
   const toggleUserOnPage = async (pageId, userId, hasAccess) => {
     if (hasAccess) {
-      const res = await axios.post(removeUserAccessRoute, {
+      await axios.post(removeUserAccessRoute, {
         pageId,
         userId
       })
       setTrigger(!trigger)
     } else {
-      const res = await axios.post(authorizeUserRoute, {
+      await axios.post(authorizeUserRoute, {
         pageId,
         userId
       })
@@ -218,13 +218,13 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
   const toggleUserOnTeacher = async (teacherId, userId, hasAccess) => {
     if (hasAccess) {
-      const res = await axios.post(unAssignTeacherRoute, {
+      await axios.post(unAssignTeacherRoute, {
         teacherId,
         userId
       })
       setTrigger(!trigger)
     } else {
-      const res = await axios.post(assignTeacherRoute, {
+      await axios.post(assignTeacherRoute, {
         teacherId,
         userId
       })
