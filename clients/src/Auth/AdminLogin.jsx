@@ -4,7 +4,8 @@ import { adminLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { PiStudentFill } from "react-icons/pi";
+import { PiStudentFill} from "react-icons/pi";
+import { FaChalkboardTeacher } from "react-icons/fa";
 
 /// === STYLED COMPONENTS === ///
 const AuthWrapper = styled.div`
@@ -87,9 +88,10 @@ const Button = styled.button`
   }
 `;
 const OutlineButton = styled.button`
-display: flex;
-align-items: center;
-justify-content: center;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   margin-top: 1rem;
   padding: 0.9rem;
@@ -115,11 +117,8 @@ const AuthPage = () => {
     password: ''
   });
 
-  const [user, setUser] = useState(null);
-
   const login = (adminData) => {
     localStorage.setItem('guitar-app-admin', JSON.stringify(adminData));
-    setUser(adminData);
   };
 
   const handleChange = (e) => {
@@ -166,6 +165,9 @@ const AuthPage = () => {
         <Button onClick={handleSubmit}>Login</Button>
         <OutlineButton onClick={() => navigate('/')}><PiStudentFill/>
 Go to students page
+</OutlineButton>
+<OutlineButton onClick={() => navigate('/')}><FaChalkboardTeacher/>
+Go to Teachers page
 </OutlineButton>
       </AuthCard>
     </AuthWrapper>

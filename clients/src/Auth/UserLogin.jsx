@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { userLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
@@ -110,11 +110,16 @@ const UserLoginPage = () => {
     password: '',
   });
 
-  const [user, setUser] = useState(null);
+  useEffect(()=>{
+    const user = localStorage.getItem("guitar-app-user");
+    if(user){
+      navigate('/');
+      return;
+    }
+  })
 
   const login = (userData) => {
     localStorage.setItem('guitar-app-user', JSON.stringify(userData));
-    setUser(userData);
   };
 
   const handleChange = (e) => {

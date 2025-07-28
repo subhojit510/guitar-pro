@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const userRoute = require("./Routes/user"); 
+const teacherRoute = require("./Routes/teacher"); 
 const adminRoute = require("./Routes/admin")
 const playerRoute = require("./Routes/player")
 const bodyParser = require("body-parser");
@@ -33,6 +34,7 @@ const startServer = async () => {
    
     app.use("/api/admin", adminRoute)
      app.use("/api/auth", userRoute);
+      app.use("/api/teacher", teacherRoute)
      app.use("/api/player", playerRoute)
 
     // Start listening AFTER DB connects

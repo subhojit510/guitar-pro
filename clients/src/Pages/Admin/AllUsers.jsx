@@ -31,6 +31,7 @@ const Container = styled.div`
 
 const Title = styled.h2`
   display: flex;
+  gap: 3px;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
@@ -85,6 +86,7 @@ const ButtonRow = styled.div`
 `;
 
 const ActionBtn = styled.button`
+display: flex;
   padding: 6px 12px;
   font-size: 0.85rem;
   border: none;
