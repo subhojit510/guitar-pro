@@ -551,7 +551,7 @@ UserId :${userId} `;
         </FullPageSpinner>
       )}
       <TopBar>
-        <h1><FaGuitar /> Guitar Tab Player</h1>
+        <h1><FaGuitar /> Live Lesson</h1>
         <TopButtonSection> <button onClick={toggleTheme} aria-label="Toggle Theme">
           {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
         </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { userLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
@@ -109,6 +109,13 @@ const UserLoginPage = () => {
     email: '',
     password: '',
   });
+
+  useEffect(()=>{
+    const user = localStorage.getItem('guitar-app-user');
+    if(user){
+      navigate('/');
+    }
+  })
 
   const [user, setUser] = useState(null);
 
