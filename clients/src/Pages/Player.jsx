@@ -349,7 +349,7 @@ export default function Player({ themeMode, toggleTheme }) {
 
   const adminNumber = '918388951121'; // Replace with your admin number
 
-  const pageName = page?.name || 'Unknown page'; // `id` comes from URL params
+  const pageName = page.name || 'Unknown page'; // `id` comes from URL params
   const username = user?.username || 'Unknown User';
   const userId = user?.userId;
 
