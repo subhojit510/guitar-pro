@@ -153,7 +153,7 @@ const TeacherLoginPage = () => {
             <AuthCard>
                 <Title>Teacher Login</Title>
                 <Input
-                    name="userId"
+                    name="teacherId"
                     value={formData.teacherId}
                     onChange={handleChange}
                     type="text"

@@ -166,7 +166,7 @@ const AuthPage = () => {
         <OutlineButton onClick={() => navigate('/')}><PiStudentFill/>
 Go to students page
 </OutlineButton>
-<OutlineButton onClick={() => navigate('/')}><FaChalkboardTeacher/>
+<OutlineButton onClick={() => navigate('/teacher')}><FaChalkboardTeacher/>
 Go to Teachers page
 </OutlineButton>
       </AuthCard>

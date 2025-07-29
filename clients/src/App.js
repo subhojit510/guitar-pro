@@ -12,6 +12,7 @@ import Player from './Pages/Player';
 import ChordPage from './Pages/ChordPage';
 import { ToastContainer } from 'react-toastify';
 import styled, { ThemeProvider } from 'styled-components';
+import TeacherHome from './Pages/Teacher/TeacherHome';
 
 
 function App() {
@@ -48,7 +49,7 @@ function App() {
             <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/chords" element={<ChordPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
-            <Route path="/teacher" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/teacher" element={<TeacherHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/teacher-login" element={<TeacherLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
           </Routes>

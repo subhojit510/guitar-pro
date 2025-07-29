@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { IoSunny, IoMoon, IoMenu, IoClose,IoHome, IoLogOut } from 'react-icons/io5';
+import { MdOutlineContactSupport } from "react-icons/md";
+import { GrUserAdmin } from "react-icons/gr";
+import { RiToolsFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
-import { IoLogOut, IoMoon, IoSunny, IoClose, IoMenu } from "react-icons/io5";
-import { CiViewList } from "react-icons/ci";
-import { FaPeopleGroup } from "react-icons/fa6"
-import { PiStudentFill } from "react-icons/pi";
-import { FaChalkboardTeacher, FaPlus } from "react-icons/fa";
 
 const Navbar = styled.nav`
   width: 98%;
@@ -90,48 +89,32 @@ const MenuButton = styled.button`
   }
 `;
 
-export default function UserNavbar({ toggleTheme, themeMode }) {
+export default function TeacherNavbar({ toggleTheme, themeMode }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const handleLogout = () => {
-    localStorage.removeItem('guitar-app-admin');
-    navigate('/admin-login');
+    localStorage.removeItem('guitar-app-teacher');
+    navigate('/teacher-login');
   };
-
   return (
     <Navbar>
-      <Logo>
-        <video src="/logo.mp4" autoPlay loop muted playsInline width="250" height="250" />
-      </Logo>
+      <Logo><video src="/logo.mp4" autoPlay loop muted playsInline width="250" height="250" /></Logo>
 
       <MenuButton onClick={toggleMenu}>
         {menuOpen ? <IoClose /> : <IoMenu />}
       </MenuButton>
 
       <NavButtons $isOpen={menuOpen}>
-        <NavButton onClick={() => navigate('/')}>
-          <PiStudentFill /> Students Page
-        </NavButton>
-        <NavButton onClick={() => navigate('/teacher')}>
-          <FaChalkboardTeacher /> Teachers Page
-        </NavButton>
-        <NavButton onClick={() => navigate('/admin')}>
-          <CiViewList /> View Pages
-        </NavButton>
-        <NavButton onClick={() => navigate('/admin/all-users')}>
-          <FaPeopleGroup /> All Students
-        </NavButton>
-        <NavButton onClick={() => navigate('/admin/view-links')}>
-          <FaPlus /> Add
-        </NavButton>
+        <NavButton onClick={() => navigate('/')}><IoHome/>Home</NavButton>  
+        <NavButton onClick={() => navigate('#')}><MdOutlineContactSupport />Contact</NavButton>
+        <NavButton  onClick={() => window.location.href = 'https://guitarature.rf.gd'}><RiToolsFill/>Tools</NavButton>
+        <NavButton onClick={() => navigate('/admin')}><GrUserAdmin/>Admin</NavButton>
+        <NavButton onClick={handleLogout}><IoLogOut/>Logout</NavButton>
         <NavButton onClick={toggleTheme}>
           {themeMode === 'dark' ? <><IoSunny /> Light</> : <><IoMoon /> Dark</>}
-        </NavButton>
-        <NavButton onClick={handleLogout}>
-          <IoLogOut /> Logout
         </NavButton>
       </NavButtons>
     </Navbar>
