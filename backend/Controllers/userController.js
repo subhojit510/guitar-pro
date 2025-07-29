@@ -35,11 +35,10 @@ module.exports.getPages = async (req, res, next) => {
 }
 
 module.exports.getPageDetails = async (req, res, next) => {
-    const driveLink = req.params.id
-    console.log(req.params.id);
+    const googleLink = req.params.id
     
   try {
-    const page = await Pages.findOne({driveLink});
+    const page = await Pages.findOne({googleLink});
     return res.status(200).json({ status: true, page });
   } catch (err) {
     console.error("Error fetching page details:", err);
