@@ -43,7 +43,6 @@ module.exports.login = async (req, res, next) => {
 module.exports.register = async (req, res, next) => {
     try {
         const { name, email, password } = req.body.formData;
-        console.log(name);
 
         const emailCheck = await Admin.findOne({ name, email });
         if (emailCheck)
@@ -99,7 +98,6 @@ module.exports.updatePageLink = async (req, res, next) => {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
-        console.log(req.body.id)
         const updatedPage = await Pages.findByIdAndUpdate(
             req.body.id,
             {

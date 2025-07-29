@@ -97,6 +97,7 @@ export default function TeacherNavbar({ toggleTheme, themeMode }) {
 
   const handleLogout = () => {
     localStorage.removeItem('guitar-app-teacher');
+    localStorage.removeItem('teacher-token')
     navigate('/teacher-login');
   };
   return (
