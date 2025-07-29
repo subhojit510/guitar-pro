@@ -363,6 +363,7 @@ UserId :${userId} `;
     const storedUser = localStorage.getItem('guitar-app-user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      
     }
     let api;
     const fetchAndInit = async () => {
@@ -376,7 +377,7 @@ UserId :${userId} `;
           alert("No file found for this song.");
           return;
         }
-        const res = await axios.post(getDriveFileRoute, { id }, { responseType: "arraybuffer" });
+        const res = await axios.post(getDriveFileRoute, { id}, { responseType: "arraybuffer" });
         const buffer = res.data;
         if (alphaTabRef.current) {
           alphaTabRef.current.innerHTML = '';
@@ -509,7 +510,7 @@ UserId :${userId} `;
   useEffect(() => {
     const getPageDetails = async () => {
       try {
-        const res = await axios.get(`${getPageDetailsRoute}/${id}`);
+        const res = await axios.post(getPageDetailsRoute,{driveLink : id, userId});
         setPage(res.data.page)
       } catch (err) {
         console.log("Error in fetching page details");

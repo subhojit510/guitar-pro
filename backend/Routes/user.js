@@ -4,6 +4,6 @@ const router = require('express').Router();
 
 router.post("/login", login);
 router.get('/get-pages/:id', getPages)
-router.get('/get-page-details/:id', getPageDetails)
+router.post('/get-page-details', getPageDetails)
 
 module.exports = router;
