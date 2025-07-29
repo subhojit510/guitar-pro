@@ -117,8 +117,9 @@ const AuthPage = () => {
     password: ''
   });
 
-  const login = (adminData) => {
+  const login = (adminData,token) => {
     localStorage.setItem('guitar-app-admin', JSON.stringify(adminData));
+    localStorage.setItem('admin-token', token);
   };
 
   const handleChange = (e) => {
@@ -130,9 +131,10 @@ const AuthPage = () => {
     e.preventDefault();
     try {
       const res = await axios.post(adminLoginRoute, { formData });
-      login(res.data.adminfilter);
 
       if (res.data.status) {
+        const {admin, token} = res.data;
+        login(admin, token);
         setFormData({ email: '', password: '' });
         toast.success("Login successful");
         navigate('/admin');

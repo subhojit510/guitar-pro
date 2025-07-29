@@ -3,22 +3,38 @@ const Admin = require('../Models/adminModel')
 const Pages = require('../Models/pageModel')
 const Users = require('../Models/userModel')
 const Teachers = require('../Models/teacherModel')
+const { authenticate } = require('../Middleware/authMiddleware')
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-
+const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; /// must be changed later
 module.exports.login = async (req, res, next) => {
     try {
 
         const { email, password } = req.body.formData;
+
         const admin = await Admin.findOne({ email });
         if (!admin)
             return res.json({ msg: "Invalid Email", status: false });
+
         const isPasswordValid = await bcrypt.compare(password, admin.password)
         if (!isPasswordValid)
             return res.json({ msg: "Invalid Password", status: false });
-        const adminfilter = await Admin.findOne({ email }).select("email");
+
+        const token = jwt.sign(
+            { id: admin._id, email: admin.email, role: 'admin' },
+            JWT_SECRET,
+            { expiresIn: '1d' }
+        )
+
+        const adminfilter = {
+            email: admin.email,
+            id: admin._id
+        }
+
         delete admin.password
-        return res.json({ status: true, adminfilter })
+
+        return res.json({ status: true, admin: adminfilter, token })
     } catch (err) {
         console.log("An error occured in user login", err);
     }
@@ -46,6 +62,9 @@ module.exports.register = async (req, res, next) => {
 }
 
 module.exports.addPageLink = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const googleLink = req.body.newLink
         const linkExist = await Pages.findOne({ googleLink })
@@ -64,6 +83,9 @@ module.exports.addPageLink = async (req, res, next) => {
 }
 
 module.exports.getPageLinks = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const pages = await Pages.find()
         return res.json({ status: true, pages })
@@ -73,6 +95,9 @@ module.exports.getPageLinks = async (req, res, next) => {
 }
 
 module.exports.updatePageLink = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         console.log(req.body.id)
         const updatedPage = await Pages.findByIdAndUpdate(
@@ -91,6 +116,9 @@ module.exports.updatePageLink = async (req, res, next) => {
 }
 
 module.exports.deletePageLink = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const updated = await Pages.findByIdAndDelete(req.body.id);
         return res.json({ status: true })
@@ -100,8 +128,12 @@ module.exports.deletePageLink = async (req, res, next) => {
 }
 
 module.exports.getAllPages = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
+
     try {
-        const pages = await Pages.find()
+        const pages = await Pages.find();
         return res.json({ status: true, pages })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
@@ -110,6 +142,9 @@ module.exports.getAllPages = async (req, res, next) => {
 
 
 module.exports.addNewUser = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const email = req.body.email
         const userId = req.body.userId
@@ -137,6 +172,9 @@ module.exports.addNewUser = async (req, res, next) => {
 }
 
 module.exports.addNewTeacher = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const email = req.body.email
         const teacherId = req.body.teacherId
@@ -164,6 +202,9 @@ module.exports.addNewTeacher = async (req, res, next) => {
 }
 
 module.exports.getAllUsers = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const users = await Users.find();
         return res.json({ status: true, users })
@@ -173,6 +214,9 @@ module.exports.getAllUsers = async (req, res, next) => {
 }
 
 module.exports.getAllTeachers = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const teachers = await Teachers.find();
         return res.json({ status: true, teachers })
@@ -183,6 +227,9 @@ module.exports.getAllTeachers = async (req, res, next) => {
 
 
 module.exports.getSinglePage = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     try {
         const page = await Pages.findById(req.params.id);
         if (!page) return res.status(404).json({ msg: "Page not found" });
@@ -194,6 +241,9 @@ module.exports.getSinglePage = async (req, res, next) => {
 }
 
 module.exports.authorizeUser = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     const { pageId, userId } = req.body;
 
     if (!pageId || !userId) {
@@ -217,6 +267,9 @@ module.exports.authorizeUser = async (req, res, next) => {
 }
 
 module.exports.removerUserAccess = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     const { pageId, userId } = req.body;
 
     if (!pageId || !userId) {
@@ -238,6 +291,9 @@ module.exports.removerUserAccess = async (req, res, next) => {
 }
 
 module.exports.authorizeTeacher = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     const { teacherId, userId } = req.body;
 
     if (!teacherId || !userId) {
@@ -262,6 +318,9 @@ module.exports.authorizeTeacher = async (req, res, next) => {
 }
 
 module.exports.unAssignTeacher = async (req, res, next) => {
+     if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
     const { teacherId, userId } = req.body;
 
     if (!teacherId || !userId) {
