@@ -6,6 +6,7 @@ import { IoHome, IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
 import { getDriveFileRoute, getPageDetailsRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 /// === STYLED COMPONENTS === ///
 
@@ -360,6 +361,13 @@ UserId :${userId} `;
   const whatsAppLink = `https://wa.me/${adminNumber}?text=${encodedMessage}`;
 
   useEffect(() => {
+    const token = localStorage.getItem('admin-token') || localStorage.getItem('user-token') || localStorage.getItem('teacher-token');
+
+    if (!token) {
+      toast.info('Login first')
+      navigate('/user-login');
+      return;
+    }
     const storedUser = localStorage.getItem('guitar-app-user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -376,7 +384,17 @@ UserId :${userId} `;
           alert("No file found for this song.");
           return;
         }
-        const res = await axios.post(getDriveFileRoute, { id }, { responseType: "arraybuffer" });
+        const res = await axios.post(
+          getDriveFileRoute,
+          { id },
+          {
+            responseType: "arraybuffer",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         const buffer = res.data;
         if (alphaTabRef.current) {
           alphaTabRef.current.innerHTML = '';
@@ -507,9 +525,14 @@ UserId :${userId} `;
   }, [id]);
 
   useEffect(() => {
+    const token = localStorage.getItem('admin-token') || localStorage.getItem('user-token') || localStorage.getItem('teacher-token');
     const getPageDetails = async () => {
       try {
-        const res = await axios.get(`${getPageDetailsRoute}/${id}`);
+        const res = await axios.get(`${getPageDetailsRoute}/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setPage(res.data.page)
       } catch (err) {
         console.log("Error in fetching page details");

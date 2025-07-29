@@ -1,7 +1,9 @@
 const Teachers = require('../Models/teacherModel');
 const Users = require('../Models/userModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
+const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; /// must be changed later
 
 module.exports.login = async (req, res, next) => {
     try {     
@@ -12,9 +14,22 @@ module.exports.login = async (req, res, next) => {
         const isPasswordValid = await bcrypt.compare(password, teacher.password)
         if (!isPasswordValid)
             return res.json({ msg: "Invalid Password", status: false });
-        const teacherfilter = await Teachers.findOne({teacherId }).select("teacherId name email createdAt");
+
+        const token = jwt.sign(
+              { id: teacher._id, email: teacher.email, role: 'teacher' },
+              JWT_SECRET,
+              { expiresIn: '1d' }
+            )
+        
+            const teacherfilter = {
+              teachername: teacher.name,
+              email: teacher.email,
+              id: teacher._id,
+              teacherId: teacher.teacherId,
+            }
+
         delete teacher.password
-        return res.json({ status: true, teacherfilter })
+        return res.json({ status: true, teacher: teacherfilter, token })
     } catch (err) {
         console.log("An error occured in teacher login", err);
     }

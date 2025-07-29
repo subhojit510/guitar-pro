@@ -6,6 +6,7 @@ const User = require("../Models/userModel");
 const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; // change later to env
 
 module.exports.authenticate = async (req, res, next) => {
+ 
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {

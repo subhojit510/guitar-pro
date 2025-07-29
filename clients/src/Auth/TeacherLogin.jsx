@@ -103,83 +103,86 @@ const TextLink = styled.p`
 
 
 const TeacherLoginPage = () => {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        teacherId: '',
-        email: '',
-        password: '',
-    });
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    teacherId: '',
+    email: '',
+    password: '',
+  });
 
-    useEffect(() => {
-        const teacher = localStorage.getItem("guitar-app-teacher");
-        if (teacher) {
-            navigate('/teacher');
-            return;
-        }
-    })
-    const login = (teacherData) => {
-        localStorage.setItem('guitar-app-teacher', JSON.stringify(teacherData));
-    };
+  useEffect(() => {
+    const teacherToken = localStorage.getItem("teacher-token");
+    const teacherData = JSON.parse(localStorage.getItem('guitar-app-teacher'))
+    if (teacherToken && teacherData) {
+      navigate('/teacher');
+      return;
+    }
+  })
+  const login = (teacherData, token) => {
+    localStorage.setItem('guitar-app-teacher', JSON.stringify(teacherData));
+    localStorage.setItem('teacher-token', token)
+  };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await axios.post(teacherLoginRoute, { formData });
-            if (res.data.status) {
-                login(res.data.teacherfilter);
-                setFormData({
-                    teacherId: '',
-                    email: '',
-                    password: '',
-                });
-                toast.success('Login successful');
-                navigate('/teacher');
-            } else {
-                toast.error(res.data.msg || 'Login failed');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Server error. Please try again later.');
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(teacherLoginRoute, { formData });
+      if (res.data.status) {
+        const { teacher, token } = res.data
+        login(teacher, token);
+        setFormData({
+          teacherId: '',
+          email: '',
+          password: '',
+        });
+        toast.success('Login successful');
+        navigate('/teacher');
+      } else {
+        toast.error(res.data.msg || 'Login failed');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Server error. Please try again later.');
+    }
+  };
 
-    return (
-        <AuthWrapper>
-            <AuthCard>
-                <Title>Teacher Login</Title>
-                <Input
-                    name="teacherId"
-                    value={formData.teacherId}
-                    onChange={handleChange}
-                    type="text"
-                    placeholder="Teacher ID"
-                />
-                <Input
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    type="email"
-                    placeholder="Email"
-                />
-                <Input
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    type="password"
-                    placeholder="Password"
-                />
-                <Button onClick={handleSubmit}>Login</Button>
-                <TextLink onClick={() => { navigate('/admin-login') }}>
-                    Are you the admin? <span>Go to Admin Login</span>
-                </TextLink>
-            </AuthCard>
-        </AuthWrapper>
-    );
+  return (
+    <AuthWrapper>
+      <AuthCard>
+        <Title>Teacher Login</Title>
+        <Input
+          name="teacherId"
+          value={formData.teacherId}
+          onChange={handleChange}
+          type="text"
+          placeholder="Teacher ID"
+        />
+        <Input
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          type="email"
+          placeholder="Email"
+        />
+        <Input
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          type="password"
+          placeholder="Password"
+        />
+        <Button onClick={handleSubmit}>Login</Button>
+        <TextLink onClick={() => { navigate('/admin-login') }}>
+          Are you the admin? <span>Go to Admin Login</span>
+        </TextLink>
+      </AuthCard>
+    </AuthWrapper>
+  );
 };
 
 export default TeacherLoginPage;

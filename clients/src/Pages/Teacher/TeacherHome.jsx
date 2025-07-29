@@ -135,16 +135,22 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const teacherData = JSON.parse(localStorage.getItem('guitar-app-teacher'));
-    if (!teacherData) {
+    const teacherToken = localStorage.getItem('teacher-token')
+    const teacherData = JSON.parse(localStorage.getItem('guitar-app-teacher'))
+    if (!teacherToken || !teacherData) {
       navigate('/teacher-login'); // redirect if not logged in
       return;
     }
+
     setTeacher(teacherData);
 
     const fetchStudents = async () => {
       try {
-        const res = await axios.get(`${getStudentsRoute}/${teacherData.teacherId}`);
+        const res = await axios.get(`${getStudentsRoute}/${teacherData.teacherId}`, {
+          headers: {
+            Authorization: `Bearer ${teacherToken}`,
+          },
+        });
         setStudents(res.data.students);
       } catch (err) {
         console.error('Failed to fetch students', err);
@@ -161,7 +167,7 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
       <TeacherNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
 
       <TopRightActions>
-        <ChordButton onClick={() => navigate('/chords')}><LuListMusic/> Guitar Chords</ChordButton>
+        <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
       </TopRightActions>
 
       <Heading>Teacher Dashboard</Heading>
@@ -177,7 +183,7 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
             <PageCard key={student._id}>
               <PageName>{student.username}</PageName>
               <CardFooter>
-                <ViewButton onClick={() => navigate('/teacher')}>View Lessonns</ViewButton>
+                <ViewButton onClick={() => navigate('/teacher')}>View Lessons</ViewButton>
               </CardFooter>
             </PageCard>
           ))}

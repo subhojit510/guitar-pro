@@ -135,16 +135,28 @@ export default function UserHome({ themeMode, toggleTheme }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('guitar-app-user'));
-    if (!userData) {
+
+    const userToken = localStorage.getItem('user-token')
+    const userData = JSON.parse(localStorage.getItem("guitar-app-user"));
+    if (!userToken || !userData) {
       navigate('/user-login'); // redirect if not logged in
       return;
     }
+
+
+
     setUser(userData);
 
     const fetchPages = async () => {
+      const userToken = localStorage.getItem('user-token')
       try {
-        const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`);
+        const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
         setPages(res.data.pages);
       } catch (err) {
         console.error('Failed to fetch user pages', err);
@@ -154,6 +166,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
     };
 
     fetchPages();
+
   }, [navigate]);
 
   return (
@@ -161,10 +174,10 @@ export default function UserHome({ themeMode, toggleTheme }) {
       <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
 
       <TopRightActions>
-        <ChordButton onClick={() => navigate('/chords')}><LuListMusic/> Guitar Chords</ChordButton>
+        <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
       </TopRightActions>
 
-      <Heading>Welcome to Guitarature pages</Heading>
+      <Heading>Welcome to Guitarature lessons</Heading>
       {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
 
       {loading ? (

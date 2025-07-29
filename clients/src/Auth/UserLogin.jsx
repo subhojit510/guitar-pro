@@ -111,15 +111,17 @@ const UserLoginPage = () => {
   });
 
   useEffect(()=>{
-    const user = localStorage.getItem("guitar-app-user");
-    if(user){
+    const userToken = localStorage.getItem('user-token')
+    const userData = JSON.parse(localStorage.getItem("guitar-app-user"));
+    if(userToken && userData) {
       navigate('/');
       return;
     }
   })
 
-  const login = (userData) => {
-    localStorage.setItem('guitar-app-user', JSON.stringify(userData));
+    const login = (user,token) => {
+    localStorage.setItem('guitar-app-user', JSON.stringify(user));
+    localStorage.setItem('user-token', token);
   };
 
   const handleChange = (e) => {
@@ -132,7 +134,8 @@ const UserLoginPage = () => {
     try {
       const res = await axios.post(userLoginRoute, { formData });
       if (res.data.status) {
-        login(res.data.userfilter);
+        const {user, token} = res.data;
+        login(user, token);
         setFormData({
           userId: '',
           email: '',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { adminLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
@@ -116,6 +116,14 @@ const AuthPage = () => {
     email: '',
     password: ''
   });
+
+  useEffect(()=>{
+    const admin = localStorage.getItem('admin-token')
+    if(admin) {
+      navigate('/admin');
+      return;
+    }
+  })
 
   const login = (adminData,token) => {
     localStorage.setItem('guitar-app-admin', JSON.stringify(adminData));

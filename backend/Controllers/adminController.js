@@ -3,11 +3,11 @@ const Admin = require('../Models/adminModel')
 const Pages = require('../Models/pageModel')
 const Users = require('../Models/userModel')
 const Teachers = require('../Models/teacherModel')
-const { authenticate } = require('../Middleware/authMiddleware')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; /// must be changed later
+
 module.exports.login = async (req, res, next) => {
     try {
 

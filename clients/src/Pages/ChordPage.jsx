@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { chordData } from '../data/chordData';
 import { useReactToPrint } from "react-to-print";
 import Fretboard from '../Components/Chords/Fretboard';
@@ -7,13 +7,24 @@ import UserNavbar from '../Components/UserNavbar';
 import styled from 'styled-components';
 import { LuListMusic } from "react-icons/lu";
 import { HiPrinter } from "react-icons/hi2";
+import {toast }from 'react-toastify'
+import { useNavigate } from 'react-router-dom';
 
 const ChordPage = ({ themeMode, toggleTheme }) => {
   const [selectedChord, setSelectedChord] = useState("C Major");
   const [voicingIndex, setVoicingIndex] = useState(0);
-
+  const navigate = useNavigate();
   const contentRef = useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef });
+
+  useEffect(()=>{
+    const userToken = localStorage.getItem('user-token')
+    if(!userToken){
+      toast.info("Login first")
+      navigate('/user-login');
+      return;
+    }
+  })
 
   return (
     <Container>
