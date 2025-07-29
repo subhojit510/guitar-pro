@@ -349,7 +349,7 @@ export default function Player({ themeMode, toggleTheme }) {
 
   const adminNumber = '918388951121'; // Replace with your admin number
 
-  const pageName = page.name || 'Unknown page'; // `id` comes from URL params
+  const pageName = page?.name || 'Unknown page'; // `id` comes from URL params
   const username = user?.username || 'Unknown User';
   const userId = user?.userId;
 
@@ -363,7 +363,6 @@ UserId :${userId} `;
     const storedUser = localStorage.getItem('guitar-app-user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      
     }
     let api;
     const fetchAndInit = async () => {
@@ -377,7 +376,7 @@ UserId :${userId} `;
           alert("No file found for this song.");
           return;
         }
-        const res = await axios.post(getDriveFileRoute, { id}, { responseType: "arraybuffer" });
+        const res = await axios.post(getDriveFileRoute, { id }, { responseType: "arraybuffer" });
         const buffer = res.data;
         if (alphaTabRef.current) {
           alphaTabRef.current.innerHTML = '';
@@ -510,7 +509,7 @@ UserId :${userId} `;
   useEffect(() => {
     const getPageDetails = async () => {
       try {
-        const res = await axios.post(getPageDetailsRoute,{driveLink : id, userId});
+        const res = await axios.get(`${getPageDetailsRoute}/${id}`);
         setPage(res.data.page)
       } catch (err) {
         console.log("Error in fetching page details");
@@ -552,7 +551,7 @@ UserId :${userId} `;
         </FullPageSpinner>
       )}
       <TopBar>
-        <h1><FaGuitar /> Guitar Tab Player</h1>
+        <h1><FaGuitar /> Live Lesson</h1>
         <TopButtonSection> <button onClick={toggleTheme} aria-label="Toggle Theme">
           {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
         </button>

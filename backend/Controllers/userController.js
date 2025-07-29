@@ -35,10 +35,9 @@ module.exports.getPages = async (req, res, next) => {
 }
 
 module.exports.getPageDetails = async (req, res, next) => {
-    const {driveLink , userId} = req.body;
-    console.log("Call here",driveLink);
+    const driveLink = req.params.id
+    console.log(req.params.id);
     
-        
   try {
     const page = await Pages.findOne({driveLink});
     return res.status(200).json({ status: true, page });
