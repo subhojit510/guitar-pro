@@ -1,5 +1,6 @@
 const Teachers = require('../Models/teacherModel');
 const Users = require('../Models/userModel');
+const Pages = require('../Models/pageModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
@@ -36,12 +37,34 @@ module.exports.login = async (req, res, next) => {
 }
 
 module.exports.getStudents = async (req, res, next) => {
+   if (req.role !== "teacher") {
+        return res.status(403).json({ msg: "Access denied,Teacher's only", status: false });
+    }
     const teacherId = req.params.id;
   try {
     const students = await Users.find({
       teacher: teacherId
     });
     return res.status(200).json({ status: true, students });
+  } catch (err) {
+    console.error("Error fetching user pages:", err);
+    return res.status(500).json({ status: false, msg: "Server error" });
+  }
+}
+
+module.exports.getLessons = async (req, res, next) => {
+   if (req.role !== "teacher") {
+        return res.status(403).json({ msg: "Access denied,Teacher's only", status: false });
+    }
+    
+    const studentId = req.params.id;
+    
+  try {
+    const lessons = await Pages.find({
+      userAccess: studentId,
+    });
+    
+    return res.status(200).json({ status: true, lessons });
   } catch (err) {
     console.error("Error fetching user pages:", err);
     return res.status(500).json({ status: false, msg: "Server error" });

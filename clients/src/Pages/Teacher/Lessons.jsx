@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
-import { getStudentsRoute } from '../../Utils/APIRoutes';
+import { getStudentsLessonRoute } from '../../Utils/APIRoutes';
 
 const Container = styled.div`
   width: 100vw;
@@ -128,51 +128,48 @@ gap: 3px;
 `;
 
 
-export default function TeacherHome({ themeMode, toggleTheme }) {
+export default function Lessons({ themeMode, toggleTheme }) {
   const [loading, setLoading] = useState(true);
-  const [students, setStudents] = useState([]);
+  const [pages, setPages] = useState([]);
   const [teacher, setTeacher] = useState(null);
   const navigate = useNavigate();
 
+  /// === RECIEVING STATE FROM HOME PAGE ===///
+  const location = useLocation();
+  const {studentId} = location.state || {};
+
   useEffect(() => {
+
     const teacherToken = localStorage.getItem('teacher-token')
-    const teacherData = JSON.parse(localStorage.getItem('guitar-app-teacher'))
-    if (!teacherToken || !teacherData) {
+    const teacherData = JSON.parse(localStorage.getItem("guitar-app-teacher"));
+    if (!teacherData || !teacherToken) {
       navigate('/teacher-login'); // redirect if not logged in
       return;
     }
 
     setTeacher(teacherData);
 
-    const fetchStudents = async () => {
+    const fetchLessons = async () => {
+      const teacherToken = localStorage.getItem('teacher-token')
       try {
-        const res = await axios.get(`${getStudentsRoute}/${teacherData.teacherId}`, {
-          headers: {
-            Authorization: `Bearer ${teacherToken}`,
-          },
-        });
-        console.log(res.data.students);
-        
-        setStudents(res.data.students);
+        const res = await axios.get(`${getStudentsLessonRoute}/${studentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${teacherToken}`,
+            },
+          }
+        );
+        setPages(res.data.lessons);
       } catch (err) {
-        console.error('Failed to fetch students', err);
+        console.error('Failed to fetch lessons', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudents();
+    fetchLessons();
+
   }, [navigate]);
-
-  // == REDIRECTING TO LESSONS LIST WITH STUDENT ID === ///
-const handleRedirect =(id)=>{
-  navigate('/teacher/lessons',{
-    state:{
-      studentId: id
-    }
-  })
-}
-
 
   return (
     <Container>
@@ -182,8 +179,8 @@ const handleRedirect =(id)=>{
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
       </TopRightActions>
 
-      <Heading>Teacher Dashboard</Heading>
-      {teacher && <WelcomeText>Hi <strong>{teacher.teachername}</strong>, here are your available students:</WelcomeText>}
+      <Heading>Welcome to Guitarature lessons</Heading>
+      {teacher && <WelcomeText>Hi <strong>{teacher.teachername}</strong>, here are the selected student's lessons:</WelcomeText>}
 
       {loading ? (
         <SpinnerWrapper>
@@ -191,11 +188,11 @@ const handleRedirect =(id)=>{
         </SpinnerWrapper>
       ) : (
         <PageGrid>
-          {students.map((student) => (
-            <PageCard key={student._id}>
-              <PageName>{student.username}</PageName>
+          {pages.map((page) => (
+            <PageCard key={page._id}>
+              <PageName>{page.name}</PageName>
               <CardFooter>
-                <ViewButton onClick={()=>{handleRedirect(student.userId)}}>View Lessons</ViewButton>
+                <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
               </CardFooter>
             </PageCard>
           ))}

@@ -343,6 +343,7 @@ export default function Player({ themeMode, toggleTheme }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [user, setUser] = useState(null);
+  const [role, setRole] = useState('');
 
   const navigate = useNavigate();
 
@@ -525,7 +526,7 @@ UserId :${userId} `;
   }, [id]);
 
   useEffect(() => {
-    const token = localStorage.getItem('admin-token') || localStorage.getItem('user-token') || localStorage.getItem('teacher-token');
+    const token =  localStorage.getItem('user-token') || localStorage.getItem('admin-token') || localStorage.getItem('teacher-token');
     const getPageDetails = async () => {
       try {
         const res = await axios.get(`${getPageDetailsRoute}/${id}`, {
@@ -533,7 +534,10 @@ UserId :${userId} `;
             Authorization: `Bearer ${token}`,
           },
         });
+
+        setRole(res.data.role)
         setPage(res.data.page)
+
       } catch (err) {
         console.log("Error in fetching page details");
       }
@@ -563,6 +567,17 @@ UserId :${userId} `;
     player.stop();
 
   }
+  /// === HANDLING HOME NAVIGATION BASED ON ROLE ===///
+
+  const handleNavigate =()=>{
+    if(role === 'admin'){
+      navigate('/admin')
+    }else if(role === 'user'){
+      navigate('/')
+    }else if(role === 'teacher'){
+      navigate('/teacher');
+    }
+  }
 
   return (
 
@@ -578,7 +593,7 @@ UserId :${userId} `;
         <TopButtonSection> <button onClick={toggleTheme} aria-label="Toggle Theme">
           {themeMode === 'dark' ? <IoSunny /> : <IoMoon />}
         </button>
-          <button onClick={() => { navigate('/') }}>
+          <button onClick={handleNavigate}>
             <IoHome />
           </button></TopButtonSection>
 
@@ -699,15 +714,15 @@ UserId :${userId} `;
 
       </Controls>
 
-
-      <WhatsAppButton
+{role === 'user' && <WhatsAppButton
         href={whatsAppLink}
         target="_blank"
         rel="noopener noreferrer"
       >
         <FaWhatsapp />
         Chat with Admin
-      </WhatsAppButton>
+      </WhatsAppButton>}
+      
       {showInstructions && (
         <InstructionOverlay>
           <div className="instruction-box">

@@ -84,20 +84,25 @@ const Button = styled.button`
     background-color: ${({ theme }) => theme.buttonHover};
   }
 `;
+
+const LinkSection = styled.div`
+  display: flex;
+  gap: 2em;
+  justify-content: center;
+  align-items: center;
+`
 const TextLink = styled.p`
   margin-top: 1rem;
   font-size: 0.9rem;
   color: ${({ theme }) => theme.text};
   cursor: pointer;
+  text-decoration: underline;
+   
 
   a {
     color: ${({ theme }) => theme.buttonBg};
     font-weight: 500;
     text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
@@ -177,9 +182,15 @@ const TeacherLoginPage = () => {
           placeholder="Password"
         />
         <Button onClick={handleSubmit}>Login</Button>
+        <LinkSection>
         <TextLink onClick={() => { navigate('/admin-login') }}>
-          Are you the admin? <span>Go to Admin Login</span>
+           <span>Go to Admin Login</span>
         </TextLink>
+        <TextLink onClick={() => { navigate('/user-login') }}>
+          <span>Go to Student Login</span>
+        </TextLink>
+        </LinkSection>
+        
       </AuthCard>
     </AuthWrapper>
   );

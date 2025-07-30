@@ -109,9 +109,9 @@ export default function TeacherNavbar({ toggleTheme, themeMode }) {
       </MenuButton>
 
       <NavButtons $isOpen={menuOpen}>
-        <NavButton onClick={() => navigate('/')}><IoHome/>Home</NavButton>  
+        <NavButton onClick={() => navigate('/teacher')}><IoHome/>Dashboard</NavButton>  
         <NavButton onClick={() => navigate('#')}><MdOutlineContactSupport />Contact</NavButton>
-        <NavButton  onClick={() => window.location.href = 'https://guitarature.rf.gd'}><RiToolsFill/>Tools</NavButton>
+        <NavButton onClick={() => window.location.href = 'https://guitarature.rf.gd'}><RiToolsFill/>Tools</NavButton>
         <NavButton onClick={() => navigate('/admin')}><GrUserAdmin/>Admin</NavButton>
         <NavButton onClick={handleLogout}><IoLogOut/>Logout</NavButton>
         <NavButton onClick={toggleTheme}>

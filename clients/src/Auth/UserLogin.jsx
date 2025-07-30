@@ -84,20 +84,26 @@ const Button = styled.button`
     background-color: ${({ theme }) => theme.buttonHover};
   }
 `;
+
+const LinkSection = styled.div`
+  display: flex;
+  gap: 2em;
+  justify-content: center;
+  align-items: center;
+`
+
 const TextLink = styled.p`
   margin-top: 1rem;
   font-size: 0.9rem;
   color: ${({ theme }) => theme.text};
   cursor: pointer;
+  text-decoration: underline;
+   
 
   a {
     color: ${({ theme }) => theme.buttonBg};
     font-weight: 500;
     text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
@@ -110,16 +116,16 @@ const UserLoginPage = () => {
     password: '',
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     const userToken = localStorage.getItem('user-token')
     const userData = JSON.parse(localStorage.getItem("guitar-app-user"));
-    if(userToken && userData) {
+    if (userToken && userData) {
       navigate('/');
       return;
     }
   })
 
-    const login = (user,token) => {
+  const login = (user, token) => {
     localStorage.setItem('guitar-app-user', JSON.stringify(user));
     localStorage.setItem('user-token', token);
   };
@@ -134,7 +140,7 @@ const UserLoginPage = () => {
     try {
       const res = await axios.post(userLoginRoute, { formData });
       if (res.data.status) {
-        const {user, token} = res.data;
+        const { user, token } = res.data;
         login(user, token);
         setFormData({
           userId: '',
@@ -178,9 +184,14 @@ const UserLoginPage = () => {
           placeholder="Password"
         />
         <Button onClick={handleSubmit}>Login</Button>
-        <TextLink onClick={()=>{navigate('/admin-login')}}>
-          Are you the admin? <span>Go to Admin Login</span>
-        </TextLink>
+        <LinkSection>
+          <TextLink onClick={() => { navigate('/admin-login') }}>
+            <span>Go to Admin Login</span>
+          </TextLink>
+          <TextLink onClick={() => { navigate('/teacher-login') }}>
+            <span>Go to Teacher Login</span>
+          </TextLink>
+        </LinkSection>
       </AuthCard>
     </AuthWrapper>
   );

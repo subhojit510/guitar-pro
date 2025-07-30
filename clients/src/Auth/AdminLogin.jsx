@@ -119,7 +119,8 @@ const AuthPage = () => {
 
   useEffect(()=>{
     const admin = localStorage.getItem('admin-token')
-    if(admin) {
+    const adminData = JSON.parse(localStorage.getItem('guitar-app-admin'))
+    if(admin && adminData) {
       navigate('/admin');
       return;
     }
