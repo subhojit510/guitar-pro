@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
 import { getStudentsRoute } from '../../Utils/APIRoutes';
+import { toast } from 'react-toastify';
 
 const Container = styled.div`
   width: 100vw;
@@ -155,6 +156,7 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
         
         setStudents(res.data.students);
       } catch (err) {
+        toast.error(err);
         console.error('Failed to fetch students', err);
       } finally {
         setLoading(false);

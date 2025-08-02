@@ -179,7 +179,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
       </TopRightActions>
 
-      <Heading>Welcome to Guitarature lessons</Heading>
+      <Heading>Welcome to your Student's lessons</Heading>
       {teacher && <WelcomeText>Hi <strong>{teacher.teachername}</strong>, here are the selected student's lessons:</WelcomeText>}
 
       {loading ? (

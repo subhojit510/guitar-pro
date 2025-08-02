@@ -18,7 +18,7 @@ module.exports.login = async (req, res, next) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: 'user' },
       JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '7d' }
     )
 
     const userfilter = {
