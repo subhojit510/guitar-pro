@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { userLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
@@ -117,18 +116,18 @@ const UserLoginPage = () => {
     password: '',
   });
 
-  useEffect(()=>{
-    const user = localStorage.getItem('guitar-app-user');
-    if(user){
+  useEffect(() => {
+    const userToken = localStorage.getItem('user-token')
+    const userData = JSON.parse(localStorage.getItem("guitar-app-user"));
+    if (userToken && userData) {
       navigate('/');
+      return;
     }
   })
 
-  const [user, setUser] = useState(null);
-
-  const login = (userData) => {
-    localStorage.setItem('guitar-app-user', JSON.stringify(userData));
-    setUser(userData);
+  const login = (user, token) => {
+    localStorage.setItem('guitar-app-user', JSON.stringify(user));
+    localStorage.setItem('user-token', token);
   };
 
   const handleChange = (e) => {
