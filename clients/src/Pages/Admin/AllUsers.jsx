@@ -31,6 +31,7 @@ const Container = styled.div`
 
 const Title = styled.h2`
   display: flex;
+  gap: 3px;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
@@ -85,6 +86,7 @@ const ButtonRow = styled.div`
 `;
 
 const ActionBtn = styled.button`
+display: flex;
   padding: 6px 12px;
   font-size: 0.85rem;
   border: none;
@@ -150,15 +152,19 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const admin = localStorage.getItem("guitar-app-admin");
-    if (!admin) {
+    const adminToken = localStorage.getItem("admin-token");
+    if (!adminToken) {
       navigate("/admin-login");
       return;
     }
 
     const fetchUsers = async () => {
       try {
-        const userRes = await axios.get(getUsersRoute);
+        const userRes = await axios.get(getUsersRoute, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
         setUsers(userRes.data.users);
       } catch (err) {
         toast.error("Error loading users");
@@ -168,7 +174,11 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
     const fetchPages = async () => {
       try {
-        const res = await axios.get(getPagesRoute);
+        const res = await axios.get(getPagesRoute, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
         setPages(res.data.pages);
       } catch (err) {
         toast.error("Error loading pages");
@@ -178,7 +188,11 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
     const fetchTeachers = async () => {
       try {
-        const res = await axios.get(getTeachersRoute)
+        const res = await axios.get(getTeachersRoute, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`
+          },
+        })
         setTeachers(res.data.teachers);
       } catch (err) {
         console.log("Error loading teachers", err);
@@ -200,34 +214,58 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   };
 
   const toggleUserOnPage = async (pageId, userId, hasAccess) => {
+    const adminToken = localStorage.getItem('admin-token')
     if (hasAccess) {
       await axios.post(removeUserAccessRoute, {
         pageId,
         userId
-      })
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`, 
+          },
+        })
       setTrigger(!trigger)
     } else {
       await axios.post(authorizeUserRoute, {
         pageId,
         userId
-      })
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`, 
+          },
+        })
       setTrigger(!trigger)
     }
 
   };
 
   const toggleUserOnTeacher = async (teacherId, userId, hasAccess) => {
+    const adminToken = localStorage.getItem('admin-token')
     if (hasAccess) {
       await axios.post(unAssignTeacherRoute, {
         teacherId,
         userId
-      })
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`
+          },
+        })
       setTrigger(!trigger)
     } else {
       await axios.post(assignTeacherRoute, {
         teacherId,
         userId
-      })
+      },
+        {
+
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+
+        })
       setTrigger(!trigger)
     }
 

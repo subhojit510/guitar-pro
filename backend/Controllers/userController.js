@@ -1,27 +1,44 @@
 const Users = require('../Models/userModel')
 const Pages = require('../Models/pageModel')
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; /// must be changed later
 
 module.exports.login = async (req, res, next) => {
-    try {     
-        const { userId, email, password } = req.body.formData;
-        const user = await Users.findOne({ userId });
-        if (!user)
-            return res.json({ msg: "Invalid UserId", status: false });
-        const isPasswordValid = await bcrypt.compare(password, user.password)
-        if (!isPasswordValid)
-            return res.json({ msg: "Invalid Password", status: false });
-        const userfilter = await Users.findOne({ userId }).select("userId username email createdAt");
-        delete user.password
-        return res.json({ status: true, userfilter })
-    } catch (err) {
-        console.log("An error occured in user login", err);
+  try {
+    const { userId, email, password } = req.body.formData;
+    const user = await Users.findOne({ userId });
+    if (!user)
+      return res.json({ msg: "Invalid UserId", status: false });
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if (!isPasswordValid)
+      return res.json({ msg: "Invalid Password", status: false });
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: 'user' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    const userfilter = {
+      username: user.username,
+      email: user.email,
+      id: user._id,
+      userId: user.userId,
     }
+    delete user.password
+    return res.json({ status: true, user: userfilter, token })
+  } catch (err) {
+    console.log("An error occured in user login", err);
+  }
 }
 
 module.exports.getPages = async (req, res, next) => {
-    const userId = req.params.id;
+  if (req.role !== "user") {
+    return res.status(403).json({ msg: "Access denied,Users only", status: false });
+  }
+  const userId = req.params.id;
   try {
     const pages = await Pages.find({
       userAccess: userId
@@ -35,10 +52,12 @@ module.exports.getPages = async (req, res, next) => {
 }
 
 module.exports.getPageDetails = async (req, res, next) => {
-    const googleLink = req.params.id;    
+  const googleLink = req.params.id
+  const role = req.role;
+
   try {
-    const page = await Pages.findOne({googleLink});
-    return res.status(200).json({ status: true, page });
+    const page = await Pages.findOne({ googleLink });
+    return res.status(200).json({ status: true, page, role });
   } catch (err) {
     console.error("Error fetching page details:", err);
     return res.status(500).json({ status: false, msg: "Server error" });

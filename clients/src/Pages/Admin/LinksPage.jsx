@@ -257,30 +257,21 @@ export default function LinksPage({ toggleTheme, themeMode }) {
 
   const navigate = useNavigate();
 
-  const fetchLinks = async () => {
-    const res = await axios.get(getLinksRoute);
-    if (res.data.status) {
-      setLinks(res.data.pages);
 
-      // 🛠️ Initialize editMap with fetched data
-      const initialMap = {};
-      res.data.pages.forEach(link => {
-        initialMap[link._id] = {
-          googleLink: link.googleLink,
-          name: link.name
-        };
-      });
-      setEditMap(initialMap);
-    } else {
-      toast.error("Failed to fetch links");
-    }
-  };
 
   const handleAdd = async () => {
+    const adminToken = localStorage.getItem('admin-token');
     if (!newLink || !newName) {
       return toast.warning("Please fill in both name and link.");
     }
-    const res = await axios.post(addLinkRoute, { newLink, newName })
+    const res = await axios.post(addLinkRoute, {
+      newLink, newName
+    },
+      {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      })
     if (res.data.status) {
       toast.success("Link added")
       setNewLink('')
@@ -293,6 +284,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
 
 
   const handleUpdate = async (id) => {
+    const adminToken = localStorage.getItem('admin-token');
     const updated = editMap[id];
     if (!updated?.googleLink || !updated?.name) {
       return toast.warning("Both fields are required.");
@@ -303,7 +295,13 @@ export default function LinksPage({ toggleTheme, themeMode }) {
         id,
         googleLink: updated.googleLink,
         name: updated.name
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
 
       if (res.data.status) {
         toast.success("Link updated successfully");
@@ -318,8 +316,15 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   };
 
   const handleDelete = async (id) => {
+    const adminToken = localStorage.getItem('admin-token')
     try {
-      const res = await axios.post(deleteLinkRoute, { id })
+      const res = await axios.post(deleteLinkRoute, { id }
+        , {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        }
+      )
       if (res.data.status) {
         toast.success("Link deleted successfully")
         fetchLinks();
@@ -334,11 +339,11 @@ export default function LinksPage({ toggleTheme, themeMode }) {
 
   //// ==== FUNCTION TO HANDLE CONTAINER TOGGLE === ///
 
-  const handleTeacherClick = () =>{
+  const handleTeacherClick = () => {
     setShowAddTeacherForm(!showAddTeacherForm)
     setShowAddUserForm(false)
   }
-  const handleUserClick = () =>{
+  const handleUserClick = () => {
     setShowAddUserForm(!showAddUserForm)
     setShowAddTeacherForm(false)
   }
@@ -346,6 +351,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   /// === FUNCTION TO HANDLE ADDING USER === ///
 
   const handleAddUser = async () => {
+    const adminToken = localStorage.getItem('admin-token')
     if (!newUserEmail || !newUserPassword || !username || !userId) {
       toast.warning("User, Email and password are required.");
       return;
@@ -361,7 +367,12 @@ export default function LinksPage({ toggleTheme, themeMode }) {
         username: username,
         email: newUserEmail,
         password: newUserPassword
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
 
       if (res.data.status) {
         toast.success("User added successfully!");
@@ -386,6 +397,11 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   /// === FUNCTION TO HANDLE ADDING TEACHER === ///
 
   const handleAddTeacher = async () => {
+    const adminToken = localStorage.getItem("admin-token");
+    if (!adminToken) {
+      navigate("/admin-login");
+      return;
+    }
     if (!newTeacherEmail || !newTeacherPassword || !teacherName || !teacherId) {
       toast.warning("Teacher's Id, Email and password are required.");
       return;
@@ -401,7 +417,12 @@ export default function LinksPage({ toggleTheme, themeMode }) {
         teacherName: teacherName,
         email: newTeacherEmail,
         password: newTeacherPassword
-      });
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`
+          },
+        });
 
       if (res.data.status) {
         toast.success("Teacher added successfully!");
@@ -424,12 +445,41 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   };
 
 
-  useEffect(() => {
-    if (localStorage.getItem('guitar-app-admin')) {
-      fetchLinks();
-    } else {
-      navigate('/admin-login')
+  const fetchLinks = async () => {
+    const adminToken = localStorage.getItem('admin-token');
+
+    if (!adminToken) {
+      navigate('/admin-login');
+      return;
     }
+    const res = await axios.get(getLinksRoute, {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    });
+    if (res.data.status) {
+      setLinks(res.data.pages);
+
+      // 🛠️ Initialize editMap with fetched data
+      const initialMap = {};
+      res.data.pages.forEach(link => {
+        initialMap[link._id] = {
+          googleLink: link.googleLink,
+          name: link.name
+        };
+      });
+      setEditMap(initialMap);
+    } else {
+      toast.error("Failed to fetch links");
+    }
+  };
+
+
+
+  useEffect(() => {
+
+
+    fetchLinks();
 
   }, [navigate]);
 
@@ -499,7 +549,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
 
         {showAddUserForm && (
           <UserFormPopup>
-            <button className="close" onClick={()=>{setShowAddUserForm(false)}}><IoClose /></button>
+            <button className="close" onClick={() => { setShowAddUserForm(false) }}><IoClose /></button>
             <h3>Create New User</h3>
             <input
               type="text"

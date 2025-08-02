@@ -97,6 +97,7 @@ export default function UserNavbar({ toggleTheme, themeMode }) {
 
   const handleLogout = () => {
     localStorage.removeItem('guitar-app-user');
+    localStorage.removeItem('user-token');
     navigate('/user-login');
   };
   return (

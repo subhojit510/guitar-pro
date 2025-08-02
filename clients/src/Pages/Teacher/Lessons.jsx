@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { getUserPagesRoute } from '../Utils/APIRoutes';
-import UserNavbar from '../Components/UserNavbar';
+import { useLocation, useNavigate } from 'react-router-dom';
+import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
+import { getStudentsLessonRoute } from '../../Utils/APIRoutes';
 
 const Container = styled.div`
   width: 100vw;
@@ -128,57 +128,59 @@ gap: 3px;
 `;
 
 
-export default function UserHome({ themeMode, toggleTheme }) {
+export default function Lessons({ themeMode, toggleTheme }) {
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState([]);
-  const [user, setUser] = useState(null);
+  const [teacher, setTeacher] = useState(null);
   const navigate = useNavigate();
+
+  /// === RECIEVING STATE FROM HOME PAGE ===///
+  const location = useLocation();
+  const {studentId} = location.state || {};
 
   useEffect(() => {
 
-    const userToken = localStorage.getItem('user-token')
-    const userData = JSON.parse(localStorage.getItem("guitar-app-user"));
-    if (!userToken || !userData) {
-      navigate('/user-login'); // redirect if not logged in
+    const teacherToken = localStorage.getItem('teacher-token')
+    const teacherData = JSON.parse(localStorage.getItem("guitar-app-teacher"));
+    if (!teacherData || !teacherToken) {
+      navigate('/teacher-login'); // redirect if not logged in
       return;
     }
 
+    setTeacher(teacherData);
 
-
-    setUser(userData);
-
-    const fetchPages = async () => {
-      const userToken = localStorage.getItem('user-token')
+    const fetchLessons = async () => {
+      const teacherToken = localStorage.getItem('teacher-token')
       try {
-        const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`,
+        const res = await axios.get(`${getStudentsLessonRoute}/${studentId}`,
           {
             headers: {
-              Authorization: `Bearer ${userToken}`,
+              Authorization: `Bearer ${teacherToken}`,
             },
           }
         );
-        setPages(res.data.pages);
+        setPages(res.data.lessons);
       } catch (err) {
-        console.error('Failed to fetch user pages', err);
+        console.error('Failed to fetch lessons', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPages();
+    fetchLessons();
 
   }, [navigate]);
 
   return (
     <Container>
-      <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
+      <TeacherNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
 
       <TopRightActions>
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
       </TopRightActions>
 
-      <Heading>Welcome to Guitarature lessons</Heading>
-      {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
+      <Heading>Welcome to your Student's lessons</Heading>
+      {teacher && <WelcomeText>Hi <strong>{teacher.teachername}</strong>, here are the selected student's lessons:</WelcomeText>}
 
       {loading ? (
         <SpinnerWrapper>

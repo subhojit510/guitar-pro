@@ -5,6 +5,11 @@ export const userLoginRoute = `${host}/api/auth/login`;
 export const getUserPagesRoute  = `${host}/api/auth/get-pages`;
 export const getPageDetailsRoute  = `${host}/api/auth/get-page-details`;
 
+/// === TEACHER ROUTE === ///
+export const teacherLoginRoute = `${host}/api/teacher/login`;
+export const getStudentsRoute = `${host}/api/teacher/get-students`;
+export const getStudentsLessonRoute = `${host}/api/teacher/get-lessons`;
+
 /// ==== ADMIN ROUTES === ////
 export const adminLoginRoute = `${host}/api/admin/login`;
 export const adminRegisterRoute = `${host}/api/admin/register`;

@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { adminLoginRoute } from '../Utils/APIRoutes';
+import { teacherLoginRoute } from '../Utils/APIRoutes';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { PiStudentFill} from "react-icons/pi";
-import { FaChalkboardTeacher } from "react-icons/fa";
 
 /// === STYLED COMPONENTS === ///
 const AuthWrapper = styled.div`
+width: 100vw;
   min-height: 100vh;
-  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +47,6 @@ const AuthCard = styled.div`
   width: 100%;
   max-width: 400px;
   text-align: center;
-  position: relative;
 `;
 
 const Title = styled.h2`
@@ -87,48 +84,48 @@ const Button = styled.button`
     background-color: ${({ theme }) => theme.buttonHover};
   }
 `;
-const OutlineButton = styled.button`
-  display: flex;
-  gap: 3px;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-top: 1rem;
-  padding: 0.9rem;
-  font-size: 1rem;
-  background-color: transparent;
-  color: ${({ theme }) => theme.text};
-  border: 2px solid ${({ theme }) => theme.text};
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
 
-  &:hover {
-    background-color: ${({ theme }) => theme.text};
-    color: ${({ theme }) => theme.background};
+const LinkSection = styled.div`
+  display: flex;
+  gap: 2em;
+  justify-content: center;
+  align-items: center;
+`
+const TextLink = styled.p`
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.text};
+  cursor: pointer;
+  text-decoration: underline;
+   
+
+  a {
+    color: ${({ theme }) => theme.buttonBg};
+    font-weight: 500;
+    text-decoration: none;
   }
 `;
 
 
-const AuthPage = () => {
+const TeacherLoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    teacherId: '',
     email: '',
-    password: ''
+    password: '',
   });
 
-  useEffect(()=>{
-    const admin = localStorage.getItem('admin-token')
-    const adminData = JSON.parse(localStorage.getItem('guitar-app-admin'))
-    if(admin && adminData) {
-      navigate('/admin');
+  useEffect(() => {
+    const teacherToken = localStorage.getItem("teacher-token");
+    const teacherData = JSON.parse(localStorage.getItem('guitar-app-teacher'))
+    if (teacherToken && teacherData) {
+      navigate('/teacher');
       return;
     }
   })
-
-  const login = (adminData,token) => {
-    localStorage.setItem('guitar-app-admin', JSON.stringify(adminData));
-    localStorage.setItem('admin-token', token);
+  const login = (teacherData, token) => {
+    localStorage.setItem('guitar-app-teacher', JSON.stringify(teacherData));
+    localStorage.setItem('teacher-token', token)
   };
 
   const handleChange = (e) => {
@@ -139,26 +136,37 @@ const AuthPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(adminLoginRoute, { formData });
-
+      const res = await axios.post(teacherLoginRoute, { formData });
       if (res.data.status) {
-        const {admin, token} = res.data;
-        login(admin, token);
-        setFormData({ email: '', password: '' });
-        toast.success("Login successful");
-        navigate('/admin');
+        const { teacher, token } = res.data
+        login(teacher, token);
+        setFormData({
+          teacherId: '',
+          email: '',
+          password: '',
+        });
+        toast.success('Login successful');
+        navigate('/teacher');
       } else {
-        toast.error(res.data.msg);
+        toast.error(res.data.msg || 'Login failed');
       }
     } catch (err) {
-      toast.error("Login failed");
+      console.error(err);
+      toast.error('Server error. Please try again later.');
     }
   };
 
   return (
     <AuthWrapper>
       <AuthCard>
-        <Title>Welcome Back</Title>
+        <Title>Teacher Login</Title>
+        <Input
+          name="teacherId"
+          value={formData.teacherId}
+          onChange={handleChange}
+          type="text"
+          placeholder="Teacher ID"
+        />
         <Input
           name="email"
           value={formData.email}
@@ -174,15 +182,18 @@ const AuthPage = () => {
           placeholder="Password"
         />
         <Button onClick={handleSubmit}>Login</Button>
-        <OutlineButton onClick={() => navigate('/')}><PiStudentFill/>
-Go to students page
-</OutlineButton>
-<OutlineButton onClick={() => navigate('/teacher')}><FaChalkboardTeacher/>
-Go to Teachers page
-</OutlineButton>
+        <LinkSection>
+        <TextLink onClick={() => { navigate('/admin-login') }}>
+           <span>Go to Admin Login</span>
+        </TextLink>
+        <TextLink onClick={() => { navigate('/user-login') }}>
+          <span>Go to Student Login</span>
+        </TextLink>
+        </LinkSection>
+        
       </AuthCard>
     </AuthWrapper>
   );
 };
 
-export default AuthPage;
+export default TeacherLoginPage;

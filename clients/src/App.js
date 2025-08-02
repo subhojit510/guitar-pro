@@ -7,10 +7,13 @@ import ViewPages from './Pages/Admin/viewPages';
 import AllUsers from './Pages/Admin/AllUsers';
 import UserLoginPage from './Auth/UserLogin';
 import UserHome from './Pages/Home';
+import TeacherLoginPage from './Auth/TeacherLogin';
 import Player from './Pages/Player';
 import ChordPage from './Pages/ChordPage';
 import { ToastContainer } from 'react-toastify';
 import styled, { ThemeProvider } from 'styled-components';
+import TeacherHome from './Pages/Teacher/TeacherHome';
+import Lessons from './Pages/Teacher/Lessons';
 
 
 function App() {
@@ -41,10 +44,15 @@ function App() {
               element={<AllUsers toggleTheme={toggleTheme} themeMode={themeMode} />}
             />
             <Route path="/admin/all-users/:pageId" element={<AdminUserAccess toggleTheme={toggleTheme} themeMode={themeMode} />} />
+
             <Route path="/" element={<UserHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/user-login" element={<UserLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/chords" element={<ChordPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
+
+            <Route path="/teacher" element={<TeacherHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/teacher/lessons" element={<Lessons toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/teacher-login" element={<TeacherLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
           </Routes>
         </Router>

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { getUserPagesRoute } from '../Utils/APIRoutes';
-import UserNavbar from '../Components/UserNavbar';
+import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
+import { getStudentsRoute } from '../../Utils/APIRoutes';
+import { toast } from 'react-toastify';
 
 const Container = styled.div`
   width: 100vw;
@@ -128,57 +129,63 @@ gap: 3px;
 `;
 
 
-export default function UserHome({ themeMode, toggleTheme }) {
+export default function TeacherHome({ themeMode, toggleTheme }) {
   const [loading, setLoading] = useState(true);
-  const [pages, setPages] = useState([]);
-  const [user, setUser] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [teacher, setTeacher] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-
-    const userToken = localStorage.getItem('user-token')
-    const userData = JSON.parse(localStorage.getItem("guitar-app-user"));
-    if (!userToken || !userData) {
-      navigate('/user-login'); // redirect if not logged in
+    const teacherToken = localStorage.getItem('teacher-token')
+    const teacherData = JSON.parse(localStorage.getItem('guitar-app-teacher'))
+    if (!teacherToken || !teacherData) {
+      navigate('/teacher-login'); // redirect if not logged in
       return;
     }
 
+    setTeacher(teacherData);
 
-
-    setUser(userData);
-
-    const fetchPages = async () => {
-      const userToken = localStorage.getItem('user-token')
+    const fetchStudents = async () => {
       try {
-        const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
-        );
-        setPages(res.data.pages);
+        const res = await axios.get(`${getStudentsRoute}/${teacherData.teacherId}`, {
+          headers: {
+            Authorization: `Bearer ${teacherToken}`,
+          },
+        });
+        console.log(res.data.students);
+        
+        setStudents(res.data.students);
       } catch (err) {
-        console.error('Failed to fetch user pages', err);
+        toast.error(err);
+        console.error('Failed to fetch students', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPages();
-
+    fetchStudents();
   }, [navigate]);
+
+  // == REDIRECTING TO LESSONS LIST WITH STUDENT ID === ///
+const handleRedirect =(id)=>{
+  navigate('/teacher/lessons',{
+    state:{
+      studentId: id
+    }
+  })
+}
+
 
   return (
     <Container>
-      <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
+      <TeacherNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
 
       <TopRightActions>
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
       </TopRightActions>
 
-      <Heading>Welcome to Guitarature lessons</Heading>
-      {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
+      <Heading>Teacher Dashboard</Heading>
+      {teacher && <WelcomeText>Hi <strong>{teacher.teachername}</strong>, here are your available students:</WelcomeText>}
 
       {loading ? (
         <SpinnerWrapper>
@@ -186,11 +193,11 @@ export default function UserHome({ themeMode, toggleTheme }) {
         </SpinnerWrapper>
       ) : (
         <PageGrid>
-          {pages.map((page) => (
-            <PageCard key={page._id}>
-              <PageName>{page.name}</PageName>
+          {students.map((student) => (
+            <PageCard key={student._id}>
+              <PageName>{student.username}</PageName>
               <CardFooter>
-                <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
+                <ViewButton onClick={()=>{handleRedirect(student.userId)}}>View Lessons</ViewButton>
               </CardFooter>
             </PageCard>
           ))}

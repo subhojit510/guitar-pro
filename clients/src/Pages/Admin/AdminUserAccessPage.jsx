@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import {FaCheckCircle, FaUsers } from "react-icons/fa";
+import { FaCheckCircle, FaUsers } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
@@ -103,19 +103,28 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   const navigate = useNavigate();
   const { pageId } = useParams();
 
+  const adminToken = localStorage.getItem("admin-token");
   useEffect(() => {
-    const admin = localStorage.getItem("guitar-app-admin");
-    if (!admin) {
+
+    if (!adminToken) {
       navigate("/admin-login");
       return;
     }
 
     const fetchData = async () => {
       try {
-        const userRes = await axios.get(getUsersRoute);
+        const userRes = await axios.get(getUsersRoute, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
         setUsers(userRes.data.users);
 
-        const pageRes = await axios.get(`${getSinglePageRoute}/${pageId}`);
+        const pageRes = await axios.get(`${getSinglePageRoute}/${pageId}`, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
         setPageName(pageRes.data.page.name)
         setAccessList(pageRes.data.page.userAccess || []);
       } catch (err) {
@@ -128,8 +137,18 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   }, [navigate, pageId]);
 
   const handleAuthorize = async (userId) => {
+    const adminToken = localStorage.getItem('admin-token');
     try {
-      const res = await axios.post(authorizeUserRoute, { pageId, userId });
+      const res = await axios.post(authorizeUserRoute,
+        {
+          pageId, userId
+
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
       if (res.data.status) {
         toast.success("User authorized");
         setAccessList((prev) => [...prev, userId]);
@@ -140,8 +159,16 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   };
 
   const handleRemove = async (userId) => {
+    const adminToken = localStorage.getItem('admin-token')
     try {
-      const res = await axios.post(removeUserAccessRoute, { pageId, userId });
+      const res = await axios.post(removeUserAccessRoute, {
+        pageId, userId
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
       if (res.data.status) {
         toast.success(res.data.msg);
         setAccessList((prev) => prev.filter((id) => id !== userId));
@@ -154,7 +181,7 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   return (
     <Container>
       <AdminNavbar themeMode={themeMode} toggleTheme={toggleTheme} />
-      <Title><FaUsers/> User Access for: {pageName}</Title>
+      <Title><FaUsers /> User Access for: {pageName}</Title>
       <CardGrid>
         {users.map((user, idx) => {
           const hasAccess = accessList.includes(user.userId);

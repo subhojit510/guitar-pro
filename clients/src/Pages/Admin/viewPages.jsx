@@ -6,6 +6,7 @@ import { GiGuitar } from "react-icons/gi";
 import axios from 'axios';
 import { getPagesRoute } from '../../Utils/APIRoutes';
 import AdminNavbar from '../../Components/AdminNavbar';
+import { toast } from 'react-toastify';
 
 const Container = styled.div`
   width: 100vw;
@@ -132,25 +133,38 @@ export default function ViewPages({ toggleTheme, themeMode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const admin = localStorage.getItem('guitar-app-admin')
-    if(!admin){
-      navigate('/admin-login')
+    const adminToken = localStorage.getItem('admin-token');
+
+    if (!adminToken) {
+      navigate('/admin-login');
       return;
     }
-    const fetchSongs = async () => {
+
+    const fetchLessons = async () => {
       try {
-        const res = await axios.get(getPagesRoute);
-        setSongs(res.data.pages);
-        setFilteredSongs(res.data.pages);
+        const res = await axios.get(getPagesRoute, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
+        if (res.data.status) {
+          setSongs(res.data.pages);
+          setFilteredSongs(res.data.pages);
+        }else{
+          toast.error(res.data.msg);
+        }
+
       } catch (err) {
-        console.error("Failed to fetch songs", err);
+        console.error("Access denied or failed to fetch lessons", err);
+        navigate('/admin-login');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSongs();
+    fetchLessons();
   }, [navigate]);
+
 
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -167,43 +181,43 @@ export default function ViewPages({ toggleTheme, themeMode }) {
   };
 
   const handleViewUsers = (pageId) => {
-  navigate(`/admin/all-users/${pageId}`);
+    navigate(`/admin/all-users/${pageId}`);
   };
 
   return (
     <Container>
-      <AdminNavbar themeMode={themeMode} toggleTheme={toggleTheme}/>
+      <AdminNavbar themeMode={themeMode} toggleTheme={toggleTheme} />
       <Section><TopSection>
         <Heading><GiGuitar /> All pages</Heading>
       </TopSection>
 
-      <SearchInput
-        type="text"
-        placeholder="Search Pages..."
-        value={searchTerm}
-        onChange={handleSearch}
-      />
+        <SearchInput
+          type="text"
+          placeholder="Search Pages..."
+          value={searchTerm}
+          onChange={handleSearch}
+        />
 
-      {loading ? (
-        <Loading>Loading pages...</Loading>
-      ) : (
-        <SongList>
-          {filteredSongs.length === 0 && <p>No songs found.</p>}
-          {filteredSongs.map(song => (
-            <SongItem key={song._id}>
-              <SongHeader>
-                <SongName onClick={() => handleSelect(song)}>
-                   <GiGuitarHead/>{song.name}
-                </SongName>
-                <SmallButton onClick={() => handleViewUsers(song._id)}>
-                  View User Access
-                </SmallButton>
-              </SongHeader>
-            </SongItem>
-          ))}
-        </SongList>
-      )}</Section>
-      
+        {loading ? (
+          <Loading>Loading pages...</Loading>
+        ) : (
+          <SongList>
+            {filteredSongs.length === 0 && <p>No songs found.</p>}
+            {filteredSongs.map(song => (
+              <SongItem key={song._id}>
+                <SongHeader>
+                  <SongName onClick={() => handleSelect(song)}>
+                    <GiGuitarHead />{song.name}
+                  </SongName>
+                  <SmallButton onClick={() => handleViewUsers(song._id)}>
+                    View User Access
+                  </SmallButton>
+                </SongHeader>
+              </SongItem>
+            ))}
+          </SongList>
+        )}</Section>
+
     </Container>
   );
 }
