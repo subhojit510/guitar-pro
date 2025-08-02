@@ -5,8 +5,8 @@ import { FaPlay, FaPause, FaGuitar, FaStop, FaPrint, FaVolumeHigh, FaWhatsapp } 
 import { IoHome, IoMoon, IoSunny } from "react-icons/io5";
 import { MdLoop } from "react-icons/md"
 import { getDriveFileRoute, getPageDetailsRoute } from '../Utils/APIRoutes';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import axiosInstance from '../Utils/api';
 
 /// === STYLED COMPONENTS === ///
 
@@ -385,7 +385,7 @@ UserId :${userId} `;
           alert("No file found for this song.");
           return;
         }
-        const res = await axios.post(
+        const res = await axiosInstance.post(
           getDriveFileRoute,
           { id },
           {
@@ -517,19 +517,18 @@ UserId :${userId} `;
           console.warn("Error while cleaning up AlphaTab:", e);
         }
       }
-
       if (alphaTabRef.current) {
         alphaTabRef.current.innerHTML = '';
       }
     };
 
-  }, [id]);
+  }, [id,navigate]);
 
   useEffect(() => {
     const token =  localStorage.getItem('user-token') || localStorage.getItem('admin-token') || localStorage.getItem('teacher-token');
     const getPageDetails = async () => {
       try {
-        const res = await axios.get(`${getPageDetailsRoute}/${id}`, {
+        const res = await axiosInstance.get(`${getPageDetailsRoute}/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -543,7 +542,7 @@ UserId :${userId} `;
       }
     }
     getPageDetails();
-  }, [])
+  }, [id])
 
 
   /// === PLAY/PAUSE HANDLER === ///

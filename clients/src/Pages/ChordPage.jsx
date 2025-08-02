@@ -18,8 +18,8 @@ const ChordPage = ({ themeMode, toggleTheme }) => {
   const reactToPrintFn = useReactToPrint({ contentRef });
 
   useEffect(()=>{
-    const userToken = localStorage.getItem('user-token')
-    if(!userToken){
+    const token = localStorage.getItem('user-token') || localStorage.getItem('teacher-token')
+    if(!token){
       toast.info("Login first")
       navigate('/user-login');
       return;

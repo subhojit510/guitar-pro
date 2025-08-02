@@ -19,7 +19,7 @@ module.exports.login = async (req, res, next) => {
         const token = jwt.sign(
               { id: teacher._id, email: teacher.email, role: 'teacher' },
               JWT_SECRET,
-              { expiresIn: '7d' }
+              { expiresIn: '1d' }
             )
         
             const teacherfilter = {

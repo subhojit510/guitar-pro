@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
 import { FaCheckCircle, FaUsers } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
+import api from "../../Utils/api";
 import {
   getUsersRoute,
   getSinglePageRoute,
   authorizeUserRoute,
   removeUserAccessRoute,
 } from "../../Utils/APIRoutes";
+
 
 const Container = styled.div`
   width: 100vw;
@@ -103,9 +104,9 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   const navigate = useNavigate();
   const { pageId } = useParams();
 
-  const adminToken = localStorage.getItem("admin-token");
-  useEffect(() => {
 
+  useEffect(() => {
+    const adminToken = localStorage.getItem("admin-token");
     if (!adminToken) {
       navigate("/admin-login");
       return;
@@ -113,14 +114,14 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
 
     const fetchData = async () => {
       try {
-        const userRes = await axios.get(getUsersRoute, {
+        const userRes = await api.get(getUsersRoute, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
         });
         setUsers(userRes.data.users);
 
-        const pageRes = await axios.get(`${getSinglePageRoute}/${pageId}`, {
+        const pageRes = await api.get(`${getSinglePageRoute}/${pageId}`, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
@@ -139,10 +140,9 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   const handleAuthorize = async (userId) => {
     const adminToken = localStorage.getItem('admin-token');
     try {
-      const res = await axios.post(authorizeUserRoute,
+      const res = await api.post(authorizeUserRoute,
         {
           pageId, userId
-
         },
         {
           headers: {
@@ -161,7 +161,7 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
   const handleRemove = async (userId) => {
     const adminToken = localStorage.getItem('admin-token')
     try {
-      const res = await axios.post(removeUserAccessRoute, {
+      const res = await api.post(removeUserAccessRoute, {
         pageId, userId
       },
         {

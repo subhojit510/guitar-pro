@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
 import { getStudentsLessonRoute } from '../../Utils/APIRoutes';
+import api from '../../Utils/api';
 
 const Container = styled.div`
   width: 100vw;
@@ -152,7 +152,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
     const fetchLessons = async () => {
       const teacherToken = localStorage.getItem('teacher-token')
       try {
-        const res = await axios.get(`${getStudentsLessonRoute}/${studentId}`,
+        const res = await api.get(`${getStudentsLessonRoute}/${studentId}`,
           {
             headers: {
               Authorization: `Bearer ${teacherToken}`,

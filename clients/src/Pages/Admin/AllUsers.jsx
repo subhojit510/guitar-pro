@@ -1,7 +1,6 @@
 // Same imports as before
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
 import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher } from "react-icons/fa";
 import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
@@ -16,6 +15,7 @@ import {
   assignTeacherRoute,
   unAssignTeacherRoute
 } from "../../Utils/APIRoutes";
+import api from "../../Utils/api";
 
 // Styled Components
 const Container = styled.div`
@@ -160,7 +160,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
     const fetchUsers = async () => {
       try {
-        const userRes = await axios.get(getUsersRoute, {
+        const userRes = await api.get(getUsersRoute, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
@@ -174,7 +174,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
     const fetchPages = async () => {
       try {
-        const res = await axios.get(getPagesRoute, {
+        const res = await api.get(getPagesRoute, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },
@@ -188,7 +188,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
     const fetchTeachers = async () => {
       try {
-        const res = await axios.get(getTeachersRoute, {
+        const res = await api.get(getTeachersRoute, {
           headers: {
             Authorization: `Bearer ${adminToken}`
           },
@@ -216,7 +216,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   const toggleUserOnPage = async (pageId, userId, hasAccess) => {
     const adminToken = localStorage.getItem('admin-token')
     if (hasAccess) {
-      await axios.post(removeUserAccessRoute, {
+      await api.post(removeUserAccessRoute, {
         pageId,
         userId
       },
@@ -227,7 +227,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
         })
       setTrigger(!trigger)
     } else {
-      await axios.post(authorizeUserRoute, {
+      await api.post(authorizeUserRoute, {
         pageId,
         userId
       },
@@ -244,7 +244,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   const toggleUserOnTeacher = async (teacherId, userId, hasAccess) => {
     const adminToken = localStorage.getItem('admin-token')
     if (hasAccess) {
-      await axios.post(unAssignTeacherRoute, {
+      await api.post(unAssignTeacherRoute, {
         teacherId,
         userId
       },
@@ -255,7 +255,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
         })
       setTrigger(!trigger)
     } else {
-      await axios.post(assignTeacherRoute, {
+      await api.post(assignTeacherRoute, {
         teacherId,
         userId
       },

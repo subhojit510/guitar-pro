@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import AdminNavbar from '../../Components/AdminNavbar';
 import { GiGuitar } from "react-icons/gi";
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { addLinkRoute, addTeacherRoute, addUserRoute, deleteLinkRoute, getLinksRoute, updateLinkRoute } from '../../Utils/APIRoutes';
 import { IoAdd, IoClose } from 'react-icons/io5';
+import api from '../../Utils/api';
 
 const Container = styled.div`
   width: 100vw;
@@ -264,7 +264,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
     if (!newLink || !newName) {
       return toast.warning("Please fill in both name and link.");
     }
-    const res = await axios.post(addLinkRoute, {
+    const res = await api.post(addLinkRoute, {
       newLink, newName
     },
       {
@@ -291,7 +291,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
     }
 
     try {
-      const res = await axios.post(updateLinkRoute, {
+      const res = await api.post(updateLinkRoute, {
         id,
         googleLink: updated.googleLink,
         name: updated.name
@@ -318,7 +318,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   const handleDelete = async (id) => {
     const adminToken = localStorage.getItem('admin-token')
     try {
-      const res = await axios.post(deleteLinkRoute, { id }
+      const res = await api.post(deleteLinkRoute, { id }
         , {
           headers: {
             Authorization: `Bearer ${adminToken}`,
@@ -362,7 +362,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
     }
 
     try {
-      const res = await axios.post(addUserRoute, {
+      const res = await api.post(addUserRoute, {
         userId: userId,
         username: username,
         email: newUserEmail,
@@ -412,7 +412,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
     }
 
     try {
-      const res = await axios.post(addTeacherRoute, {
+      const res = await api.post(addTeacherRoute, {
         teacherId: teacherId,
         teacherName: teacherName,
         email: newTeacherEmail,
@@ -452,7 +452,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       navigate('/admin-login');
       return;
     }
-    const res = await axios.get(getLinksRoute, {
+    const res = await api.get(getLinksRoute, {
       headers: {
         Authorization: `Bearer ${adminToken}`,
       },
