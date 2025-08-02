@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import api from '../Utils/api';
 import { useNavigate } from 'react-router-dom';
 import { getUserPagesRoute } from '../Utils/APIRoutes';
 import UserNavbar from '../Components/UserNavbar';
@@ -143,14 +143,12 @@ export default function UserHome({ themeMode, toggleTheme }) {
       return;
     }
 
-
-
     setUser(userData);
 
     const fetchPages = async () => {
       const userToken = localStorage.getItem('user-token')
       try {
-        const res = await axios.get(`${getUserPagesRoute}/${userData.userId}`,
+        const res = await api.get(`${getUserPagesRoute}/${userData.userId}`,
           {
             headers: {
               Authorization: `Bearer ${userToken}`,

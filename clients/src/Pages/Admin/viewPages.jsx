@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { GiGuitarHead } from "react-icons/gi";
 import { GiGuitar } from "react-icons/gi";
-import axios from 'axios';
 import { getPagesRoute } from '../../Utils/APIRoutes';
 import AdminNavbar from '../../Components/AdminNavbar';
 import { toast } from 'react-toastify';
+import api from '../../Utils/api';
 
 const Container = styled.div`
   width: 100vw;
@@ -142,7 +142,7 @@ export default function ViewPages({ toggleTheme, themeMode }) {
 
     const fetchLessons = async () => {
       try {
-        const res = await axios.get(getPagesRoute, {
+        const res = await api.get(getPagesRoute, {
           headers: {
             Authorization: `Bearer ${adminToken}`,
           },

@@ -7,7 +7,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; ///
 
 module.exports.login = async (req, res, next) => {
   try {
+    
     const { userId, email, password } = req.body.formData;
+    
     const user = await Users.findOne({ userId });
     if (!user)
       return res.json({ msg: "Invalid UserId", status: false });
@@ -18,7 +20,7 @@ module.exports.login = async (req, res, next) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: 'user' },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '1d' }
     )
 
     const userfilter = {

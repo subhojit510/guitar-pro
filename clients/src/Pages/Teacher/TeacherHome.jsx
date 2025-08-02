@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
 import { getStudentsRoute } from '../../Utils/APIRoutes';
 import { toast } from 'react-toastify';
+import api from '../../Utils/api';
 
 const Container = styled.div`
   width: 100vw;
@@ -147,14 +147,14 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
 
     const fetchStudents = async () => {
       try {
-        const res = await axios.get(`${getStudentsRoute}/${teacherData.teacherId}`, {
+        const res = await api.get(`${getStudentsRoute}/${teacherData.teacherId}`, {
           headers: {
             Authorization: `Bearer ${teacherToken}`,
           },
         });
-        console.log(res.data.students);
         
         setStudents(res.data.students);
+        
       } catch (err) {
         toast.error(err);
         console.error('Failed to fetch students', err);
