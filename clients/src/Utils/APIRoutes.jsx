@@ -9,6 +9,7 @@ export const getPageDetailsRoute  = `${host}/api/auth/get-page-details`;
 export const teacherLoginRoute = `${host}/api/teacher/login`;
 export const getStudentsRoute = `${host}/api/teacher/get-students`;
 export const getStudentsLessonRoute = `${host}/api/teacher/get-lessons`;
+export const updateProgress = `${host}/api/teacher/update-progress`;
 
 /// ==== ADMIN ROUTES === ////
 export const adminLoginRoute = `${host}/api/admin/login`;

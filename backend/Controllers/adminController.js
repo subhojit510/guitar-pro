@@ -3,6 +3,7 @@ const Admin = require('../Models/adminModel')
 const Pages = require('../Models/pageModel')
 const Users = require('../Models/userModel')
 const Teachers = require('../Models/teacherModel')
+const Progress = require('../Models/progressModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -280,6 +281,11 @@ module.exports.removerUserAccess = async (req, res, next) => {
 
         page.userAccess = page.userAccess.filter(id => id !== userId);
         await page.save();
+
+        await Progress.deleteOne({
+            studentId: userId,
+            lessonId: pageId
+        })
 
         res.json({ status: true, msg: "Access removed" });
     } catch (err) {

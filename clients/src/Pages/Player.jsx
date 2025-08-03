@@ -525,7 +525,7 @@ UserId :${userId} `;
   }, [id,navigate]);
 
   useEffect(() => {
-    const token =  localStorage.getItem('user-token') || localStorage.getItem('admin-token') || localStorage.getItem('teacher-token');
+    const token =  localStorage.getItem('user-token') || localStorage.getItem('teacher-token') ||  localStorage.getItem('admin-token') 
     const getPageDetails = async () => {
       try {
         const res = await axiosInstance.get(`${getPageDetailsRoute}/${id}`, {

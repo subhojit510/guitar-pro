@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from "styled-components";
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import TeacherNavbar from '../../Components/TeacherNavbar';
 import { LuListMusic } from "react-icons/lu";
 import { getStudentsRoute } from '../../Utils/APIRoutes';
 import { toast } from 'react-toastify';
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import 'react-circular-progressbar/dist/styles.css';
 import api from '../../Utils/api';
 
 const Container = styled.div`
@@ -77,6 +80,17 @@ const PageName = styled.h4`
   margin: 0 0 12px;
 `;
 
+const LeftSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
+const ProgressSection = styled.div`
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const CardFooter = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -130,6 +144,9 @@ gap: 3px;
 
 
 export default function TeacherHome({ themeMode, toggleTheme }) {
+
+  const theme = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState([]);
   const [teacher, setTeacher] = useState(null);
@@ -152,9 +169,9 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
             Authorization: `Bearer ${teacherToken}`,
           },
         });
-        
+
         setStudents(res.data.students);
-        
+
       } catch (err) {
         toast.error(err);
         console.error('Failed to fetch students', err);
@@ -167,13 +184,13 @@ export default function TeacherHome({ themeMode, toggleTheme }) {
   }, [navigate]);
 
   // == REDIRECTING TO LESSONS LIST WITH STUDENT ID === ///
-const handleRedirect =(id)=>{
-  navigate('/teacher/lessons',{
-    state:{
-      studentId: id
-    }
-  })
-}
+  const handleRedirect = (id) => {
+    navigate('/teacher/lessons', {
+      state: {
+        studentId: id
+      }
+    })
+  }
 
 
   return (
@@ -195,10 +212,23 @@ const handleRedirect =(id)=>{
         <PageGrid>
           {students.map((student) => (
             <PageCard key={student._id}>
-              <PageName>{student.username}</PageName>
-              <CardFooter>
-                <ViewButton onClick={()=>{handleRedirect(student.userId)}}>View Lessons</ViewButton>
-              </CardFooter>
+              <LeftSection>
+                <PageName>{student.username}</PageName>
+                <CardFooter>
+                  <ViewButton onClick={() => { handleRedirect(student.userId) }}>View Lessons</ViewButton>
+                </CardFooter></LeftSection>
+              <ProgressSection>
+                <CircularProgressbar
+                  value={student.averageProgress}
+                  text={`${student.averageProgress}%`}
+                  styles={buildStyles({
+                    textSize: '25px',
+                    pathColor: `#4caf50`,
+                    textColor: theme.text,
+                    trailColor: '#eee',
+                  })}
+                />
+              </ProgressSection>
             </PageCard>
           ))}
         </PageGrid>
