@@ -27,7 +27,9 @@ const PORT = process.env.PORT
 // MongoDB connection and server start
 const startServer = async () => {
   try {
-    await mongoose.connect(uri);
+    await mongoose.connect(uri,{
+      autoIndex: true
+    });
     console.log("DB Connection Successful");
 
     // Routes

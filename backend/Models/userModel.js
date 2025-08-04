@@ -7,6 +7,7 @@ const UserSchema = new mongoose.Schema({
         min: 6,
         max: 6,
         unique: true,
+        index: true,
     },
     username :{
         type: String,
@@ -31,7 +32,8 @@ const UserSchema = new mongoose.Schema({
 teacher:{
     type: String,
     default: null,
-    required: false
+    required: false,
+    index: true,
 },
 createdAt: {
     type: Date, 

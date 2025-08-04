@@ -7,6 +7,7 @@ const TeacherSchema = new mongoose.Schema({
         min: 6,
         max: 6,
         unique: true,
+        index: true
     },
     name: {
         type: String,

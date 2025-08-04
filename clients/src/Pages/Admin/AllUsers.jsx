@@ -1,9 +1,11 @@
 // Same imports as before
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef} from "react";
 import styled from "styled-components";
-import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher } from "react-icons/fa";
+import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher, FaCalendarAlt } from "react-icons/fa";
 import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import {
@@ -142,13 +144,76 @@ const LessonItem = styled.button`
   }
 `;
 
+
+const ClassContainer = styled.div`
+position: absolute;
+ z-index: 9999;
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.cardBorder || "#ccc"};
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 500px;
+  min-width: 180px;
+  border-radius: 8px;
+  margin: 0 auto;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  border: 1px solid ${({ theme }) => theme.heading};
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+`;
+
+const StyledDatePicker = styled(DatePicker)`
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+`;
+
+const IconButton = styled.button`
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.cardBorder || "#ccc"};
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: ${({ theme }) => theme.text};
+
+  &:hover {
+    background-color: ${({ theme }) => theme.hoverBg || "#f0f0f0"};
+  }
+`;
+
 // Component
+
+
+
+const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
+  <IconButton onClick={onClick} ref={ref}>
+    <FaCalendarAlt />
+    {value || "Select date & time"}
+  </IconButton>
+));
 export default function AllUsers({ themeMode, toggleTheme }) {
+
   const [users, setUsers] = useState([]);
   const [pages, setPages] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [openDropdown, setOpenDropdown] = useState({ type: null, index: null });
   const [trigger, setTrigger] = useState(false);
+  const [title, setTitle] = useState("");
+  const [dateTime, setDateTime] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -222,7 +287,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
       },
         {
           headers: {
-            Authorization: `Bearer ${adminToken}`, 
+            Authorization: `Bearer ${adminToken}`,
           },
         })
       setTrigger(!trigger)
@@ -233,7 +298,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
       },
         {
           headers: {
-            Authorization: `Bearer ${adminToken}`, 
+            Authorization: `Bearer ${adminToken}`,
           },
         })
       setTrigger(!trigger)
@@ -344,6 +409,40 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                       );
                     })}
                   </LessonList>
+                )}
+              </DropdownWrapper>
+
+              <DropdownWrapper>
+                <ToggleBtn
+                  onClick={() =>
+                    setOpenDropdown(prev =>
+                      prev.type === 'class' && prev.index === idx
+                        ? { type: null, index: null }
+                        : { type: 'class', index: idx }
+                    )
+                  }
+                >
+                  <FaChalkboardTeacher /> Schedule class
+                </ToggleBtn>
+
+                {openDropdown.type === 'class' && openDropdown.index === idx && (
+                  <ClassContainer>
+                    <Input
+                      type="text"
+                      placeholder="Title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                     <StyledDatePicker
+         selected={dateTime}
+        onChange={(date) => setDateTime(date)}
+        showTimeSelect
+        dateFormat="Pp"
+        timeFormat="HH:mm"
+        timeIntervals={15}
+        customInput={<CustomDateInput />}
+      />
+                  </ClassContainer>
                 )}
               </DropdownWrapper>
 

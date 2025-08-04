@@ -8,7 +8,8 @@ const PagesSchema = new mongoose.Schema({
     googleLink: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index: true,
     },
     userAccess: [ {
     type: String,
