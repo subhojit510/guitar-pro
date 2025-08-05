@@ -1,11 +1,9 @@
 // Same imports as before
-import React, { useEffect, useState, forwardRef} from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher, FaCalendarAlt } from "react-icons/fa";
+import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher, FaRegCalendarTimes } from "react-icons/fa";
 import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import {
@@ -15,7 +13,8 @@ import {
   removeUserAccessRoute,
   getTeachersRoute,
   assignTeacherRoute,
-  unAssignTeacherRoute
+  unAssignTeacherRoute,
+  scheduleClassRoute
 } from "../../Utils/APIRoutes";
 import api from "../../Utils/api";
 
@@ -164,46 +163,28 @@ position: absolute;
 const Input = styled.input`
   width: 100%;
   border: 1px solid ${({ theme }) => theme.heading};
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 1rem;
   outline: none;
+  color: ${({ theme }) => theme.buttonBg};
 `;
 
-const StyledDatePicker = styled(DatePicker)`
-  padding: 0.7rem;
-  border: 1px solid #ccc;
+const SubmitButton = styled.button`
+  background-color: ${({ theme }) => theme.buttonBg};
+  border: none;
   border-radius: 8px;
-  font-size: 1rem;
-  width: 100%;
-`;
-
-const IconButton = styled.button`
-  background: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.cardBorder || "#ccc"};
-  border-radius: 8px;
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  color: #fff;
+  padding: 0.7em;
   cursor: pointer;
-  color: ${({ theme }) => theme.text};
 
-  &:hover {
-    background-color: ${({ theme }) => theme.hoverBg || "#f0f0f0"};
+  &:hover{
+    background: ${({ theme }) => theme.buttonHover};
   }
-`;
+`
+
 
 // Component
 
-
-
-const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
-  <IconButton onClick={onClick} ref={ref}>
-    <FaCalendarAlt />
-    {value || "Select date & time"}
-  </IconButton>
-));
 export default function AllUsers({ themeMode, toggleTheme }) {
 
   const [users, setUsers] = useState([]);
@@ -212,7 +193,8 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   const [openDropdown, setOpenDropdown] = useState({ type: null, index: null });
   const [trigger, setTrigger] = useState(false);
   const [title, setTitle] = useState("");
-  const [dateTime, setDateTime] = useState(null);
+  const [date, setDate] = useState("");
+  const [timeValue, setTimeValue] = useState("");
 
   const navigate = useNavigate();
 
@@ -276,7 +258,50 @@ export default function AllUsers({ themeMode, toggleTheme }) {
     } catch (err) {
       toast.error("Error deleting user");
     }
-  };
+  }; 
+
+  // === HANDLING CLASS FORM SUBMISSION === ///
+
+  const handleClassSubmit = async (studentId, teacherId) => {
+    console.log(studentId,teacherId);
+    
+    if(!teacherId){
+      toast.error("Assign a teacher to the student");
+      return;
+    }
+    if(!title || !date || !timeValue){
+      toast.warning("Fill all the required fields")
+      return;
+    }
+    const time = convertTo12Hour(timeValue);
+    const adminToken = localStorage.getItem('admin-token');
+    const res = await api.post(scheduleClassRoute, {
+      title,
+      studentId,
+      teacherId,
+      date,
+      time
+    },
+      {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      })
+      if(res.data.status){
+        toast.success(res.data.msg);
+        setDate('')
+        setTimeValue('');
+        setTitle('');
+      }
+  }
+/// === FUNCTION TO CONVERT TIME TO 12 hr format === ///
+  function convertTo12Hour(time24) {
+  const [hour, minute] = time24.split(":");
+  const h = parseInt(hour, 10);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 || 12; // convert 0 to 12
+  return `${hour12}:${minute} ${ampm}`;
+}
 
   const toggleUserOnPage = async (pageId, userId, hasAccess) => {
     const adminToken = localStorage.getItem('admin-token')
@@ -422,7 +447,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                     )
                   }
                 >
-                  <FaChalkboardTeacher /> Schedule class
+                  <FaRegCalendarTimes /> Schedule class
                 </ToggleBtn>
 
                 {openDropdown.type === 'class' && openDropdown.index === idx && (
@@ -433,15 +458,13 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                     />
-                     <StyledDatePicker
-         selected={dateTime}
-        onChange={(date) => setDateTime(date)}
-        showTimeSelect
-        dateFormat="Pp"
-        timeFormat="HH:mm"
-        timeIntervals={15}
-        customInput={<CustomDateInput />}
-      />
+                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                    <Input
+                      type="time"
+                      value={timeValue}
+                      onChange={(e) => setTimeValue(e.target.value)}
+                    />
+                    <SubmitButton onClick={()=>{handleClassSubmit(user.userId, user.teacher)}}>Submit</SubmitButton>
                   </ClassContainer>
                 )}
               </DropdownWrapper>

@@ -28,6 +28,7 @@ export const authorizeUserRoute = `${host}/api/admin/authorize`;
 export const removeUserAccessRoute = `${host}/api/admin/remove-user-access`;
 export const assignTeacherRoute = `${host}/api/admin/assign-teacher`;
 export const unAssignTeacherRoute = `${host}/api/admin/unassign-teacher`;
+export const scheduleClassRoute = `${host}/api/admin/schedule-class`;
 
 
 // === GOOGLE DRIVE FETCH ROUTE === ///

@@ -4,6 +4,7 @@ const Pages = require('../Models/pageModel')
 const Users = require('../Models/userModel')
 const Teachers = require('../Models/teacherModel')
 const Progress = require('../Models/progressModel')
+const Class = require('../Models/classesModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -62,7 +63,7 @@ module.exports.register = async (req, res, next) => {
 }
 
 module.exports.addPageLink = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -95,7 +96,7 @@ module.exports.getPageLinks = async (req, res, next) => {
 }
 
 module.exports.updatePageLink = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -115,7 +116,7 @@ module.exports.updatePageLink = async (req, res, next) => {
 }
 
 module.exports.deletePageLink = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -141,7 +142,7 @@ module.exports.getAllPages = async (req, res, next) => {
 
 
 module.exports.addNewUser = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -171,7 +172,7 @@ module.exports.addNewUser = async (req, res, next) => {
 }
 
 module.exports.addNewTeacher = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -201,7 +202,7 @@ module.exports.addNewTeacher = async (req, res, next) => {
 }
 
 module.exports.getAllUsers = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -213,7 +214,7 @@ module.exports.getAllUsers = async (req, res, next) => {
 }
 
 module.exports.getAllTeachers = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -226,7 +227,7 @@ module.exports.getAllTeachers = async (req, res, next) => {
 
 
 module.exports.getSinglePage = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
@@ -240,7 +241,7 @@ module.exports.getSinglePage = async (req, res, next) => {
 }
 
 module.exports.authorizeUser = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     const { pageId, userId } = req.body;
@@ -266,7 +267,7 @@ module.exports.authorizeUser = async (req, res, next) => {
 }
 
 module.exports.removerUserAccess = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     const { pageId, userId } = req.body;
@@ -295,7 +296,7 @@ module.exports.removerUserAccess = async (req, res, next) => {
 }
 
 module.exports.authorizeTeacher = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     const { teacherId, userId } = req.body;
@@ -322,7 +323,7 @@ module.exports.authorizeTeacher = async (req, res, next) => {
 }
 
 module.exports.unAssignTeacher = async (req, res, next) => {
-     if (req.role !== "admin") {
+    if (req.role !== "admin") {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     const { teacherId, userId } = req.body;
@@ -342,6 +343,28 @@ module.exports.unAssignTeacher = async (req, res, next) => {
         }
 
         res.json({ status: true, msg: "Teacher unassigned" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
+
+module.exports.scheduleClass = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
+    try {
+        const { title, date, time, studentId, teacherId } = req.body;
+
+        await Class.create({
+            title,
+            studentId,
+            teacherId,
+            date,
+            time
+        })
+
+        return res.status(200).json({ status: true, msg: "Class scheduled" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: false, msg: "Server error" });

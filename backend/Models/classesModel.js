@@ -22,13 +22,17 @@ const classSchema = new mongoose.Schema({
         required: true,
     },
     date:{
-        type: Date,
+        type: String,
         required: true
     },
+    time:{
+        type: String,
+        required: true,
+    }
 }, {
     timestamps: true
 });
 
-ProgressSchema.index({studentId: 1, teacherId: 1}) // one entry per student per lesson
+classSchema.index({studentId: 1, teacherId: 1})
 
 module.exports = mongoose.model("Classes", classSchema);
