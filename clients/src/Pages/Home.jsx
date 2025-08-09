@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import api from '../Utils/api';
 import { useNavigate } from 'react-router-dom';
 import { getUserPagesRoute } from '../Utils/APIRoutes';
 import UserNavbar from '../Components/UserNavbar';
 import { LuListMusic } from "react-icons/lu";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import 'react-circular-progressbar/dist/styles.css';
 
 const Container = styled.div`
   width: 100vw;
@@ -39,13 +41,18 @@ const Spinner = styled.div`
 `;
 
 const Heading = styled.h2`
-  text-align: center;
+  text-align: start;
   color: ${({ theme }) => theme.heading};
   font-size: 2rem;
-  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2rem;
 `;
 
 const PageGrid = styled.div`
+  overflow: auto;
+  max-height: 500px;
   display: grid;
   padding: 1em;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -59,9 +66,7 @@ const PageCard = styled.div`
   padding: 1rem 1.2rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   transition: 0.3s ease;
-
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
 
   &:hover {
@@ -69,6 +74,10 @@ const PageCard = styled.div`
     border-color: ${({ theme }) => theme.buttonBg};
   }
 `;
+
+const LeftSection = styled.div`
+  
+`
 
 const PageName = styled.h4`
   color: ${({ theme }) => theme.heading};
@@ -96,6 +105,14 @@ const ViewButton = styled.button`
   }
 `;
 
+const ProgressSection = styled.div`
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+
 
 const WelcomeText = styled.p`
   font-size: 16px;
@@ -103,6 +120,39 @@ const WelcomeText = styled.p`
   color: ${({ theme }) => theme.text};
   margin-bottom: 1rem;
 `;
+
+const TopLeftActions = styled.div`
+  display: flex;
+  box-shadow: 0px 0px 6px #ab47bc, 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: white;
+  width: 50%;
+  max-width: 500px;
+  border-radius: 15px;
+  padding: 2em;
+  align-items: flex-start;
+  gap: 2rem;
+  margin: 1em;
+
+@media (max-width: 560px) {
+  width: calc(100% - 3em); 
+  margin: 1em;  
+  box-sizing: border-box;  
+}
+`;
+
+const Contents = styled.div`
+  display: flex;
+  flex-direction: column;
+
+`
+
+const NextPayment = styled.div`
+  font-size: 16px;
+  margin-top: 8px;
+  text-align: center;
+  color: #555;  
+`
+
 const TopRightActions = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -129,9 +179,13 @@ gap: 3px;
 
 
 export default function UserHome({ themeMode, toggleTheme }) {
+
+  const theme = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState([]);
   const [user, setUser] = useState(null);
+  const [progress, setProgress] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -155,7 +209,8 @@ export default function UserHome({ themeMode, toggleTheme }) {
             },
           }
         );
-        setPages(res.data.pages);
+        setPages(res.data.lessons);
+        setProgress(res.data.averageProgress);
       } catch (err) {
         console.error('Failed to fetch user pages', err);
       } finally {
@@ -171,12 +226,42 @@ export default function UserHome({ themeMode, toggleTheme }) {
     <Container>
       <UserNavbar toggleTheme={toggleTheme} themeMode={themeMode} />
 
-      <TopRightActions>
-        <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
-      </TopRightActions>
+      <TopLeftActions>
+        <Contents>
+          {user && (
+            <WelcomeText>
+              Hi <strong>{user.username}</strong>, Welcome to Guitarature
+            </WelcomeText>
+          )}
 
-      <Heading>Welcome to Guitarature lessons</Heading>
-      {user && <WelcomeText>Hi <strong>{user.username}</strong>, here are your available pages:</WelcomeText>}
+          {user && (
+            <NextPayment>
+              Next Payment: <strong>{user.nextPayment}</strong>
+            </NextPayment>
+          )}
+        </Contents>
+
+
+        <ProgressSection style={{ width: '140px', height: '140px' }}>
+          <CircularProgressbar
+            value={80}
+            text={`80%`}
+            styles={buildStyles({
+              textSize: '25px',
+              pathColor: `#4caf50`,
+              textColor: theme.text,
+              trailColor: '#eee',
+            })}
+          />
+        </ProgressSection>
+      </TopLeftActions>
+
+
+
+      <Heading>Available Lessons<TopRightActions>
+        <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
+      </TopRightActions></Heading>
+
 
       {loading ? (
         <SpinnerWrapper>
@@ -186,16 +271,30 @@ export default function UserHome({ themeMode, toggleTheme }) {
         <PageGrid>
           {pages.map((page) => (
             <PageCard key={page._id}>
-              <PageName>{page.name}</PageName>
-              <CardFooter>
-                <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
-              </CardFooter>
+              <LeftSection>
+                <PageName>{page.name}</PageName>
+                <CardFooter>
+                  <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
+                </CardFooter>
+              </LeftSection>
+              <ProgressSection>
+                <CircularProgressbar
+                  value={page.progress}
+                  text={`${page.progress}%`}
+                  styles={buildStyles({
+                    textSize: '25px',
+                    pathColor: `#4caf50`,
+                    textColor: theme.text,
+                    trailColor: '#eee',
+                  })}
+                />
+              </ProgressSection>
+
             </PageCard>
           ))}
         </PageGrid>
       )}
     </Container>
   );
-
 
 }

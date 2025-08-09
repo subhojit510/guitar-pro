@@ -35,6 +35,11 @@ teacher:{
     required: false,
     index: true,
 },
+nextPayment: {
+    type: String,
+    default: null,
+    required: false,
+},
 createdAt: {
     type: Date, 
     default: Date.now 

@@ -52,7 +52,7 @@ const Heading = styled.h2`
 const PageGrid = styled.div`
   display: grid;
   padding: 1em;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 1.5rem;
 `;
 
@@ -103,8 +103,8 @@ height: 25px;
 align-items: center;
 justify-content: center;
 background: none;
-border: solid 1px ${({theme})=> theme.heading};
-color: ${({theme})=> theme.heading};
+border: solid 1px ${({ theme }) => theme.heading};
+color: ${({ theme }) => theme.heading};
 border-radius: 25px;
 outline: none;
 `
@@ -139,24 +139,85 @@ const ViewButton = styled.button`
 
 const MarkButton = styled.button`
   display: flex;
+  background: transparent;
   gap : 3px;
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
-  background: #4caf50;
-  color: ${({ theme }) => theme.buttonText};
-  font-weight: 500;
+  border:solid 1px #4caf50 ;
+  color: #4caf50;
+  font-weight: 600;
   font-size: 13px;
   cursor: pointer;
 
   svg{
     font-size: 15px;
+    font-weight: 700;
   }
 
   &:hover {
-    background: #4caf4fcf;
+    color: #4caf4fd8;
   }
 `;
+
+const RemarkButton = styled.button`
+    padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  border:solid 1px ${({ theme }) => theme.heading};
+  color: ${({ theme }) => theme.heading};
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+   color: ${({ theme }) => theme.buttonHover};
+  }
+`
+
+const DropdownWrapper = styled.div`
+  position: relative;
+`;
+
+const ClassContainer = styled.div`
+position: absolute;
+ z-index: 9999;
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.cardBorder || "#ccc"};
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 500px;
+  min-width: 180px;
+  border-radius: 8px;
+  margin: 0 auto;
+`;
+
+
+const Input = styled.input`
+  width: 100%;
+  border: 1px solid ${({ theme }) => theme.heading};
+  border-radius: 4px;
+  font-size: 1rem;
+  outline: none;
+  color: ${({ theme }) => theme.buttonBg};
+`;
+
+const SubmitButton = styled.button`
+  background-color: ${({ theme }) => theme.buttonBg};
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.7em;
+  cursor: pointer;
+
+  &:hover{
+    background: ${({ theme }) => theme.buttonHover};
+  }
+`
 
 
 const WelcomeText = styled.p`
@@ -200,6 +261,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState([]);
   const [teacher, setTeacher] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState({ type: null, index: null });
 
   /// === RECIEVING STATE FROM HOME PAGE ===///
   const location = useLocation();
@@ -246,6 +308,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
   /// === PROGRESS CONTROLLER === //
 
   const increaseProgress = async (id, value) => {
+    setOpenDropdown({ type: null, index: null })
     const progress = Math.min(value + 10, 100);
     const teacherToken = localStorage.getItem('teacher-token');
 
@@ -265,6 +328,8 @@ export default function Lessons({ themeMode, toggleTheme }) {
   };
 
   const decreaseProgress = async (id, value) => {
+
+    setOpenDropdown({ type: null, index: null })
 
     const teacherToken = localStorage.getItem('teacher-token');
     const progress = Math.max(value - 10, 0);
@@ -301,7 +366,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
         </SpinnerWrapper>
       ) : (
         <PageGrid>
-          {pages.map((page) => (
+          {pages.map((page, idx) => (
             <PageCard key={page._id}>
               <LeftSection>
                 <PageName>{page.name}</PageName>
@@ -310,6 +375,30 @@ export default function Lessons({ themeMode, toggleTheme }) {
                   <MarkButton onClick={() => { increaseProgress(page._id, 100) }}>
                     <IoCheckmarkDoneOutline />Mark as Done
                   </MarkButton>
+                  <DropdownWrapper>
+                    {page.progress === 100 && (
+                      <RemarkButton
+                        onClick={() =>
+                          setOpenDropdown(prev =>
+                            prev.type === 'class' && prev.index === idx
+                              ? { type: null, index: null }
+                              : { type: 'class', index: idx }
+                          )
+                        }
+                      >
+                        Add remark
+                      </RemarkButton>
+                    )}
+                    {openDropdown.type === 'class' && openDropdown.index === idx && (
+                      <ClassContainer>
+                        <Input
+                          type="text"
+                          placeholder="Title"
+                        />
+                        <SubmitButton>Submit</SubmitButton>
+                      </ClassContainer>
+                    )}
+                  </DropdownWrapper>
                 </CardFooter>
               </LeftSection>
 

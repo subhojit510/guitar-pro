@@ -15,7 +15,8 @@ const { login,
     getAllTeachers,
     authorizeTeacher,
     unAssignTeacher,
-    scheduleClass
+    scheduleClass,
+    updateNextPayment
 } = require('../Controllers/adminController');
 const { authenticate } = require('../Middleware/authMiddleware');
 const router = require('express').Router();
@@ -37,6 +38,7 @@ router.post('/remove-user-access',authenticate, removerUserAccess)
 router.post('/assign-teacher',authenticate, authorizeTeacher)
 router.post('/unassign-teacher',authenticate, unAssignTeacher)
 router.post('/schedule-class', authenticate, scheduleClass)
+router.post('/update-next-payment', authenticate, updateNextPayment)
 
 
 module.exports = router;

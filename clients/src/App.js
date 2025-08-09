@@ -70,6 +70,7 @@ export default App;
 
 const Container = styled.div`
   display: flex;
+  font-family: Inter;
   overflow: auto;
   width: 100vw;
   font-family: Inter;

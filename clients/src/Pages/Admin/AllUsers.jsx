@@ -6,6 +6,7 @@ import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
+import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 import {
   getUsersRoute,
   getPagesRoute,
@@ -14,7 +15,8 @@ import {
   getTeachersRoute,
   assignTeacherRoute,
   unAssignTeacherRoute,
-  scheduleClassRoute
+  scheduleClassRoute,
+  updateNextPaymentRoute
 } from "../../Utils/APIRoutes";
 import api from "../../Utils/api";
 
@@ -195,6 +197,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [timeValue, setTimeValue] = useState("");
+  const [nextPayment, setNextPayment] = useState("");
 
   const navigate = useNavigate();
 
@@ -258,18 +261,18 @@ export default function AllUsers({ themeMode, toggleTheme }) {
     } catch (err) {
       toast.error("Error deleting user");
     }
-  }; 
+  };
 
   // === HANDLING CLASS FORM SUBMISSION === ///
 
   const handleClassSubmit = async (studentId, teacherId) => {
-    console.log(studentId,teacherId);
-    
-    if(!teacherId){
+    console.log(studentId, teacherId);
+
+    if (!teacherId) {
       toast.error("Assign a teacher to the student");
       return;
     }
-    if(!title || !date || !timeValue){
+    if (!title || !date || !timeValue) {
       toast.warning("Fill all the required fields")
       return;
     }
@@ -287,21 +290,37 @@ export default function AllUsers({ themeMode, toggleTheme }) {
           Authorization: `Bearer ${adminToken}`,
         },
       })
-      if(res.data.status){
-        toast.success(res.data.msg);
-        setDate('')
-        setTimeValue('');
-        setTitle('');
-      }
+    if (res.data.status) {
+      toast.success(res.data.msg);
+      setDate('')
+      setTimeValue('');
+      setTitle('');
+    }
   }
-/// === FUNCTION TO CONVERT TIME TO 12 hr format === ///
+
+  const handleNextPaymentSubmit = async (id) =>{
+    const adminToken = localStorage.getItem('admin-token');
+    const res = await api.post(updateNextPaymentRoute, {
+      studentId: id,
+      date: nextPayment
+    },{
+      headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+    })
+    if(res.data.status){
+      toast.success(res.data.msg);
+      setNextPayment("");
+    }
+  }
+  /// === FUNCTION TO CONVERT TIME TO 12 hr format === ///
   function convertTo12Hour(time24) {
-  const [hour, minute] = time24.split(":");
-  const h = parseInt(hour, 10);
-  const ampm = h >= 12 ? "PM" : "AM";
-  const hour12 = h % 12 || 12; // convert 0 to 12
-  return `${hour12}:${minute} ${ampm}`;
-}
+    const [hour, minute] = time24.split(":");
+    const h = parseInt(hour, 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 || 12; // convert 0 to 12
+    return `${hour12}:${minute} ${ampm}`;
+  }
 
   const toggleUserOnPage = async (pageId, userId, hasAccess) => {
     const adminToken = localStorage.getItem('admin-token')
@@ -464,13 +483,33 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                       value={timeValue}
                       onChange={(e) => setTimeValue(e.target.value)}
                     />
-                    <SubmitButton onClick={()=>{handleClassSubmit(user.userId, user.teacher)}}>Submit</SubmitButton>
+                    <SubmitButton onClick={() => { handleClassSubmit(user.userId, user.teacher) }}>Submit</SubmitButton>
+                  </ClassContainer>
+                )}
+              </DropdownWrapper>
+              <DropdownWrapper>
+                <ToggleBtn
+                  onClick={() =>
+                    setOpenDropdown(prev =>
+                      prev.type === 'payment' && prev.index === idx
+                        ? { type: null, index: null }
+                        : { type: 'payment', index: idx }
+                    )
+                  }
+                >
+                  <RiMoneyRupeeCircleLine style={{fontSize: '15px'}}/> Next payment
+                </ToggleBtn>
+
+                {openDropdown.type === 'payment' && openDropdown.index === idx && (
+                  <ClassContainer>
+                    <Input type="date" value={nextPayment} onChange={(e) => setNextPayment(e.target.value)} />
+                    <SubmitButton onClick={() => { handleNextPaymentSubmit(user.userId) }}>Submit</SubmitButton>
                   </ClassContainer>
                 )}
               </DropdownWrapper>
 
               <ActionBtn onClick={() => handleDeleteUser(user.userId)}>
-                <FaTrash style={{ marginRight: "5px" }} /> Delete
+                <FaTrash />
               </ActionBtn>
             </ButtonRow>
           </UserCard>

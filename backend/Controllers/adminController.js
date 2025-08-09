@@ -351,7 +351,7 @@ module.exports.unAssignTeacher = async (req, res, next) => {
 
 module.exports.scheduleClass = async (req, res, next) => {
     if (req.role !== "admin") {
-        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+        return res.status(403).json({ msg: "Access denied, Admins only", status: false });
     }
     try {
         const { title, date, time, studentId, teacherId } = req.body;
@@ -370,3 +370,22 @@ module.exports.scheduleClass = async (req, res, next) => {
         res.status(500).json({ status: false, msg: "Server error" });
     }
 }
+
+module.exports.updateNextPayment = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied, Admins only", status: false });
+    }
+    try {
+        const { studentId, date } = req.body;
+
+        await Users.findOneAndUpdate({ userId: studentId },
+            { nextPayment: date }
+        )
+
+        return res.status(200).json({ status: true, msg: "Next payment date updated" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
+
