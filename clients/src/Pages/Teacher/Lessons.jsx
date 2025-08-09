@@ -376,7 +376,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
                     <IoCheckmarkDoneOutline />Mark as Done
                   </MarkButton>
                   <DropdownWrapper>
-                    {page.progress === 100 && (
+                    {/* {page.progress === 100 && (
                       <RemarkButton
                         onClick={() =>
                           setOpenDropdown(prev =>
@@ -388,7 +388,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
                       >
                         Add remark
                       </RemarkButton>
-                    )}
+                    )} */}
                     {openDropdown.type === 'class' && openDropdown.index === idx && (
                       <ClassContainer>
                         <Input

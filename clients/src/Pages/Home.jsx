@@ -124,12 +124,13 @@ const WelcomeText = styled.p`
 const TopLeftActions = styled.div`
   display: flex;
   box-shadow: 0px 0px 6px #ab47bc, 0 1px 3px rgba(0, 0, 0, 0.08);
-  background: white;
+  background: ${({ theme }) => theme.background};
   width: 50%;
-  max-width: 500px;
+  max-width: 300px;
   border-radius: 15px;
   padding: 2em;
   align-items: flex-start;
+  color: ${({ theme }) => theme.text};
   gap: 2rem;
   margin: 1em;
 
@@ -242,7 +243,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
         </Contents>
 
 
-        <ProgressSection style={{ width: '140px', height: '140px' }}>
+        {/* <ProgressSection style={{ width: '140px', height: '140px' }}>
           <CircularProgressbar
             value={80}
             text={`80%`}
@@ -253,7 +254,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
               trailColor: '#eee',
             })}
           />
-        </ProgressSection>
+        </ProgressSection> */}
       </TopLeftActions>
 
 

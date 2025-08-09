@@ -115,6 +115,8 @@ gap: 3px;
 `;
 
 const LessonList = styled.div`
+max-height: 200px;
+overflow: auto;
   position: absolute;
   top: 120%;
   left: 0;
@@ -457,7 +459,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
               </DropdownWrapper>
 
               <DropdownWrapper>
-                <ToggleBtn
+                {/* <ToggleBtn
                   onClick={() =>
                     setOpenDropdown(prev =>
                       prev.type === 'class' && prev.index === idx
@@ -467,7 +469,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                   }
                 >
                   <FaRegCalendarTimes /> Schedule class
-                </ToggleBtn>
+                </ToggleBtn> */}
 
                 {openDropdown.type === 'class' && openDropdown.index === idx && (
                   <ClassContainer>
