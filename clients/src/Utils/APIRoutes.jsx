@@ -10,6 +10,7 @@ export const teacherLoginRoute = `${host}/api/teacher/login`;
 export const getStudentsRoute = `${host}/api/teacher/get-students`;
 export const getStudentsLessonRoute = `${host}/api/teacher/get-lessons`;
 export const updateProgress = `${host}/api/teacher/update-progress`;
+export const submitRemarkRoute = `${host}/api/teacher/submit-remark`;
 
 /// ==== ADMIN ROUTES === ////
 export const adminLoginRoute = `${host}/api/admin/login`;
@@ -19,6 +20,7 @@ export const getLinksRoute = `${host}/api/admin/get-links`;
 export const updateLinkRoute = `${host}/api/admin/update-links`;
 export const deleteLinkRoute = `${host}/api/admin/delete-link`;
 export const getPagesRoute = `${host}/api/admin/get-pages`;
+export const getAssignedLessonsRoute = `${host}/api/admin/get-assigned-lessons`;
 export const getTeachersRoute = `${host}/api/admin/get-teachers`;
 export const addUserRoute = `${host}/api/admin/add-user`;
 export const addTeacherRoute = `${host}/api/admin/add-teacher`;

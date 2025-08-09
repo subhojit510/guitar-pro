@@ -16,7 +16,8 @@ import {
   assignTeacherRoute,
   unAssignTeacherRoute,
   scheduleClassRoute,
-  updateNextPaymentRoute
+  updateNextPaymentRoute,
+  getAssignedLessonsRoute
 } from "../../Utils/APIRoutes";
 import api from "../../Utils/api";
 
@@ -193,6 +194,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
 
   const [users, setUsers] = useState([]);
   const [pages, setPages] = useState([]);
+  const [assignedLessons, setAssignedLessons] = useState([])
   const [teachers, setTeachers] = useState([]);
   const [openDropdown, setOpenDropdown] = useState({ type: null, index: null });
   const [trigger, setTrigger] = useState(false);
@@ -237,6 +239,21 @@ export default function AllUsers({ themeMode, toggleTheme }) {
         console.error(err);
       }
     };
+    const fetchAssignedLessons = async () => {
+      const adminToken = localStorage.getItem('admin-token')
+      try {
+        const res = await api.get(getAssignedLessonsRoute, {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+        });
+        setAssignedLessons(res.data.assignedLessons);
+        console.log(res.data.assignedLessons);
+      } catch (err) {
+        toast.error("Error loading assigned lessons");
+        console.error(err);
+      }
+    };
 
     const fetchTeachers = async () => {
       try {
@@ -252,8 +269,12 @@ export default function AllUsers({ themeMode, toggleTheme }) {
       }
     }
 
+
+
+
     fetchUsers();
     fetchPages();
+    fetchAssignedLessons();
     fetchTeachers();
   }, [navigate, trigger]);
 
@@ -300,17 +321,17 @@ export default function AllUsers({ themeMode, toggleTheme }) {
     }
   }
 
-  const handleNextPaymentSubmit = async (id) =>{
+  const handleNextPaymentSubmit = async (id) => {
     const adminToken = localStorage.getItem('admin-token');
     const res = await api.post(updateNextPaymentRoute, {
       studentId: id,
       date: nextPayment
-    },{
+    }, {
       headers: {
-          Authorization: `Bearer ${adminToken}`,
-        },
+        Authorization: `Bearer ${adminToken}`,
+      },
     })
-    if(res.data.status){
+    if (res.data.status) {
       toast.success(res.data.msg);
       setNextPayment("");
     }
@@ -412,7 +433,11 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                 {openDropdown.type === 'lesson' && openDropdown.index === idx && (
                   <LessonList>
                     {pages.map(page => {
-                      const hasAccess = page.userAccess.includes(user.userId);
+
+                      const hasAccess = Array.isArray(assignedLessons) &&
+                        assignedLessons.some(
+                          al => al.studentId === user.userId && al.lessonId === page._id
+                        );
                       return (
                         <LessonItem
                           key={page._id}
@@ -499,7 +524,7 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                     )
                   }
                 >
-                  <RiMoneyRupeeCircleLine style={{fontSize: '15px'}}/> Next payment
+                  <RiMoneyRupeeCircleLine style={{ fontSize: '15px' }} /> Next payment
                 </ToggleBtn>
 
                 {openDropdown.type === 'payment' && openDropdown.index === idx && (

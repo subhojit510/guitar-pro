@@ -6,7 +6,7 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 import { LuListMusic } from "react-icons/lu";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import { getStudentsLessonRoute, updateProgress } from '../../Utils/APIRoutes';
+import { getStudentsLessonRoute, submitRemarkRoute, updateProgress } from '../../Utils/APIRoutes';
 import { toast } from 'react-toastify'
 import api from '../../Utils/api';
 
@@ -68,7 +68,6 @@ const PageCard = styled.div`
   align-items: center;
 
   &:hover {
-    transform: scale(1.01);
     border-color: ${({ theme }) => theme.buttonBg};
   }
 `;
@@ -170,10 +169,6 @@ const RemarkButton = styled.button`
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-
-  &:hover {
-   color: ${({ theme }) => theme.buttonHover};
-  }
 `
 
 const DropdownWrapper = styled.div`
@@ -190,20 +185,28 @@ position: absolute;
   box-shadow: 0 2px 10px rgba(0,0,0,0.15);
   gap: 1rem;
   padding: 1rem;
-  max-width: 500px;
-  min-width: 180px;
+  max-width: 800px;
+  min-width: 300px;
   border-radius: 8px;
   margin: 0 auto;
+  box-sizing: border-box;
+  top: 3em;
+  left: -192px;
+  right: 0;
 `;
 
 
-const Input = styled.input`
+const Input = styled.textarea`
   width: 100%;
   border: 1px solid ${({ theme }) => theme.heading};
   border-radius: 4px;
+  padding: 2rem 0rem;
   font-size: 1rem;
   outline: none;
   color: ${({ theme }) => theme.buttonBg};
+  resize: vertical; /* Let user resize vertically but not horizontally */
+  white-space: pre-wrap; /* Keep line breaks and wrap text */
+  overflow-wrap: break-word; /* Break long words if needed */
 `;
 
 const SubmitButton = styled.button`
@@ -259,9 +262,10 @@ export default function Lessons({ themeMode, toggleTheme }) {
 
   const [trigger, setTrigger] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [pages, setPages] = useState([]);
+  const [lessons, setLessons] = useState([]);
   const [teacher, setTeacher] = useState(null);
   const [openDropdown, setOpenDropdown] = useState({ type: null, index: null });
+  const [remark, setRemark] = useState("");
 
   /// === RECIEVING STATE FROM HOME PAGE ===///
   const location = useLocation();
@@ -291,7 +295,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
           }
         );
 
-        setPages(res.data.lessons);
+        setLessons(res.data.lessons);
 
       } catch (err) {
         console.error('Failed to fetch lessons', err);
@@ -302,52 +306,83 @@ export default function Lessons({ themeMode, toggleTheme }) {
 
     fetchLessons();
 
-  }, [navigate, trigger, studentId]);
+  }, [navigate, trigger]);
 
 
   /// === PROGRESS CONTROLLER === //
 
   const increaseProgress = async (id, value) => {
-    setOpenDropdown({ type: null, index: null })
     const progress = Math.min(value + 10, 100);
     const teacherToken = localStorage.getItem('teacher-token');
+    try {
+      const res = await api.post(updateProgress, {
+        studentId: studentId,
+        lessonId: id,
+        progress: progress
+      }, {
+        headers: {
+          Authorization: `Bearer ${teacherToken}`,
+        },
+      })
 
-    const res = await api.post(updateProgress, {
-      studentId: studentId,
-      lessonId: id,
-      progress: progress
-    }, {
-      headers: {
-        Authorization: `Bearer ${teacherToken}`,
-      },
-    })
-
-    if (res.data.status) {
-      setTrigger(!trigger);
+      if (res.data.status) {
+        setTrigger(!trigger);
+      }
+    } catch (err) {
+      toast.error("Failed to update progress");
+      console.log("An error occured in updating progress");
     }
   };
 
   const decreaseProgress = async (id, value) => {
 
-    setOpenDropdown({ type: null, index: null })
-
     const teacherToken = localStorage.getItem('teacher-token');
     const progress = Math.max(value - 10, 0);
-
-    const res = await api.post(updateProgress, {
-      studentId: studentId,
-      lessonId: id,
-      progress: progress
-    }, {
-      headers: {
-        Authorization: `Bearer ${teacherToken}`,
-      },
-    })
-
-    if (res.data.status) {
-      setTrigger(!trigger);
+    try {
+      const res = await api.post(updateProgress, {
+        studentId: studentId,
+        lessonId: id,
+        progress: progress
+      }, {
+        headers: {
+          Authorization: `Bearer ${teacherToken}`,
+        },
+      })
+      if (res.data.status) {
+        setTrigger(!trigger);
+      }
+    } catch (err) {
+      toast.error("Failed to update progress");
+      console.log("An error occured in updating progress");
     }
+
   };
+
+  /// === HANDLING REMARK SUBMISSION === ///
+
+  const handleRemarkSubmit = async (id) => {
+    const teacherToken = localStorage.getItem('teacher-token');
+    try {
+      const res = await api.post(submitRemarkRoute, {
+        lessonId: id,
+        studentId,
+        remark
+      }, {
+        headers: {
+          Authorization: `Bearer ${teacherToken}`,
+        },
+      })
+      if (res.data.status) {
+        setRemark("");
+        toast.success(res.data.msg)
+      }
+    } catch (err) {
+      console.log("An error occured in submiting remark", err);
+      toast.error("An error occured, Please try again!!")
+
+    }
+
+  }
 
   return (
     <Container>
@@ -366,36 +401,39 @@ export default function Lessons({ themeMode, toggleTheme }) {
         </SpinnerWrapper>
       ) : (
         <PageGrid>
-          {pages.map((page, idx) => (
-            <PageCard key={page._id}>
+          {lessons.map((lesson, idx) => (
+            <PageCard key={lesson.lessonDetails._id}>
               <LeftSection>
-                <PageName>{page.name}</PageName>
+                <PageName>{lesson.lessonDetails.name}</PageName>
                 <CardFooter>
-                  <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
-                  <MarkButton onClick={() => { increaseProgress(page._id, 100) }}>
+                  <ViewButton onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>View</ViewButton>
+                  <MarkButton onClick={() => { increaseProgress(lesson.lessonDetails._id, 100) }}>
                     <IoCheckmarkDoneOutline />Mark as Done
                   </MarkButton>
                   <DropdownWrapper>
-                    {/* {page.progress === 100 && (
-                      <RemarkButton
-                        onClick={() =>
-                          setOpenDropdown(prev =>
-                            prev.type === 'class' && prev.index === idx
-                              ? { type: null, index: null }
-                              : { type: 'class', index: idx }
-                          )
-                        }
-                      >
-                        Add remark
-                      </RemarkButton>
-                    )} */}
-                    {openDropdown.type === 'class' && openDropdown.index === idx && (
+
+                    <RemarkButton
+                      onClick={() =>
+                        setOpenDropdown(prev =>
+                          prev.type === 'remark' && prev.index === idx
+                            ? { type: null, index: null }
+                            : { type: 'remark', index: idx }
+                        )
+                      }
+                    >
+                      Add remark
+                    </RemarkButton>
+
+                    {openDropdown.type === 'remark' && openDropdown.index === idx && (
                       <ClassContainer>
                         <Input
+                          value={remark}
+                          maxLength={100}
                           type="text"
-                          placeholder="Title"
+                          placeholder="Enter remark here.."
+                          onChange={(e) => setRemark(e.target.value)}
                         />
-                        <SubmitButton>Submit</SubmitButton>
+                        <SubmitButton onClick={()=>{handleRemarkSubmit(lesson.lessonDetails._id)}}>Submit</SubmitButton>
                       </ClassContainer>
                     )}
                   </DropdownWrapper>
@@ -404,8 +442,8 @@ export default function Lessons({ themeMode, toggleTheme }) {
 
               <ProgressSection>
                 <CircularProgressbar
-                  value={page.progress}
-                  text={`${page.progress}%`}
+                  value={lesson.progress}
+                  text={`${lesson.progress}%`}
                   styles={buildStyles({
                     textSize: '25px',
                     pathColor: `#4caf50`,
@@ -414,8 +452,8 @@ export default function Lessons({ themeMode, toggleTheme }) {
                   })}
                 />
                 <ControlButtons>
-                  <UpdateButton onClick={() => { decreaseProgress(page._id, page.progress) }}>-</UpdateButton>
-                  <UpdateButton onClick={() => { increaseProgress(page._id, page.progress) }}>+</UpdateButton>
+                  <UpdateButton onClick={() => {decreaseProgress(lesson.lessonDetails._id, lesson.progress)}}>-</UpdateButton>
+                  <UpdateButton onClick={() => {increaseProgress(lesson.lessonDetails._id, lesson.progress)}}>+</UpdateButton>
                 </ControlButtons>
               </ProgressSection>
             </PageCard>

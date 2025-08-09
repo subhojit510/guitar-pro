@@ -3,7 +3,8 @@ const Users = require('../Models/userModel');
 const Pages = require('../Models/pageModel')
 const Progress = require('../Models/progressModel')
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const AssignedLessons = require('../Models/assignedLessons');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; /// must be changed later
 
@@ -47,7 +48,7 @@ module.exports.getStudents = async (req, res, next) => {
       { $match: { teacher: teacherId } },
       {
         $lookup: {
-          from: "progresses",
+          from: "assignedlessons",
           let: { student_id: "$userId" },
           pipeline: [
             {
@@ -88,6 +89,7 @@ module.exports.getStudents = async (req, res, next) => {
         }
       }
     ]);
+    
     return res.status(200).json({ status: true, students });
   } catch (err) {
     console.error("Error fetching user pages:", err);
@@ -95,58 +97,54 @@ module.exports.getStudents = async (req, res, next) => {
   }
 }
 
+
 module.exports.getLessonsWithProgress = async (req, res, next) => {
   if (req.role !== "teacher") {
-    return res.status(403).json({ msg: "Access denied,Teacher's only", status: false });
+    return res
+      .status(403)
+      .json({ msg: "Access denied, Teacher's only", status: false });
   }
 
   const studentId = req.params.id;
 
   try {
-    const lessons = await Pages.aggregate([
-      // Step 1: Match lessons accessible by this student
-      { $match: { userAccess: studentId } },
-
-      // Step 2: Lookup progress from Progress collection
+    const lessons = await AssignedLessons.aggregate([
+      {
+        $match: { studentId : studentId }
+      },
       {
         $lookup: {
-          from: 'progresses', // note: MongoDB collection name (not model name)
-          let: { lessonId: '$_id' },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ['$lessonId', '$$lessonId'] },
-                    { $eq: ['$studentId', studentId] }
-                  ]
-                }
-              }
-            },
-            { $project: { progress: 1, _id: 0 } }
-          ],
-          as: 'studentProgress'
+          from: "pages",                // collection name for your lessons/pages
+          localField: "lessonId",       // field in AssignedLessons
+          foreignField: "_id",          // field in pages collection
+          as: "lessonDetails"
         }
       },
-
-      // Step 3: Flatten progress if exists, or set to 0
       {
-        $addFields: {
-          progress: {
-            $ifNull: [{ $arrayElemAt: ['$studentProgress.progress', 0] }, 0]
-          }
-        }
+        $unwind: "$lessonDetails" // flatten the array from $lookup
       },
-
-      { $project: { studentProgress: 0 } } // Clean up
+      {
+        $project: {
+          _id: 0,                // remove the AssignedLessons doc _id if you don't need it
+          studentId: 1,
+          lessonId: 1,
+          progress: 1,
+          teacherRemark: 1,
+          // Include fields from lessonDetails you want to return:
+          "lessonDetails._id": 1,
+          "lessonDetails.googleLink": 1,
+          "lessonDetails.name": 1,
+        }
+      }
     ]);
-
     res.status(200).json({ lessons });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching lessons with progress', error });
+    res.status(500).json({
+      message: "Error fetching lessons with progress",
+      error
+    });
   }
-
-}
+};
 
 module.exports.updateProgress = async (req, res, next) => {
 
@@ -155,12 +153,12 @@ module.exports.updateProgress = async (req, res, next) => {
   }
 
   const { studentId, lessonId, progress } = req.body;
-
+  
   try {
-    const progressUpdate = await Progress.updateOne(
+    const progressUpdate = await AssignedLessons.updateOne(
       { studentId, lessonId }
       , { $set: { progress } },
-      { upsert: true }
+      { upsert: false }
     )
 
     return res.status(200).json({ status: true, msg: "Progress updated", progressUpdate });
@@ -170,3 +168,24 @@ module.exports.updateProgress = async (req, res, next) => {
   }
 }
 
+module.exports.submitRemark = async (req, res, next) => {
+
+  if (req.role !== "teacher") {
+    return res.status(403).json({ msg: "Access denied,Teacher's only", status: false });
+  }
+
+  const {lessonId, studentId, remark } = req.body;
+  
+  try {
+    await AssignedLessons.updateOne(
+      { studentId, lessonId }
+      , { $set: { teacherRemark: remark } },
+      { upsert: false }
+    )
+
+    return res.status(200).json({ status: true, msg: "Remark submited"});
+  } catch (err) {
+    console.error("Error updating progress", err);
+    return res.status(500).json({ status: false, msg: "Server error" });
+  }
+}

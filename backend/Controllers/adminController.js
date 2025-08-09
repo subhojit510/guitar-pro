@@ -7,6 +7,7 @@ const Progress = require('../Models/progressModel')
 const Class = require('../Models/classesModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const AssignedLessons = require('../Models/assignedLessons')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hP1@A#s8kL3!zYx7R$9wUeVmTq2N'; /// must be changed later
 
@@ -120,7 +121,8 @@ module.exports.deletePageLink = async (req, res, next) => {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
-        const updated = await Pages.findByIdAndDelete(req.body.id);
+        await Pages.findByIdAndDelete(req.body.id);
+        await AssignedLessons.deleteMany({lessonId: req.body.id});
         return res.json({ status: true })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
@@ -135,6 +137,20 @@ module.exports.getAllPages = async (req, res, next) => {
     try {
         const pages = await Pages.find();
         return res.json({ status: true, pages })
+    } catch (err) {
+        console.log("An error occured in deleting page/link", err);
+    }
+}
+
+module.exports.getAssignedLessons = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied,Admins only", status: false });
+    }
+
+    try {
+        const assignedLessons = await AssignedLessons.find();
+        
+        return res.json({ status: true, assignedLessons })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
     }
@@ -253,11 +269,18 @@ module.exports.authorizeUser = async (req, res, next) => {
     try {
         const page = await Pages.findById(pageId);
         if (!page) return res.status(404).json({ status: false, msg: "Page not found" });
-
-        if (!page.userAccess.includes(userId)) {
-            page.userAccess.push(userId);
-            await page.save();
+        if (!pageId || !userId) {
+            return res.status(400).json({ status: false, msg: "Missing parameters" });
         }
+
+        // if (!page.userAccess.includes(userId)) {
+        //     page.userAccess.push(userId);
+        //     await page.save();
+        // }
+        await AssignedLessons.create({
+            studentId: userId,
+            lessonId: pageId,
+        })
 
         res.json({ status: true, msg: "User authorized" });
     } catch (err) {
@@ -280,12 +303,8 @@ module.exports.removerUserAccess = async (req, res, next) => {
         const page = await Pages.findById(pageId);
         if (!page) return res.status(404).json({ status: false, msg: "Page not found" });
 
-        page.userAccess = page.userAccess.filter(id => id !== userId);
-        await page.save();
-
-        await Progress.deleteOne({
-            studentId: userId,
-            lessonId: pageId
+        await AssignedLessons.deleteOne({
+            studentId: userId, lessonId: pageId
         })
 
         res.json({ status: true, msg: "Access removed" });

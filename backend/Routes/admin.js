@@ -16,7 +16,8 @@ const { login,
     authorizeTeacher,
     unAssignTeacher,
     scheduleClass,
-    updateNextPayment
+    updateNextPayment,
+    getAssignedLessons
 } = require('../Controllers/adminController');
 const { authenticate } = require('../Middleware/authMiddleware');
 const router = require('express').Router();
@@ -28,6 +29,7 @@ router.get('/get-links',authenticate, getPageLinks)
 router.post('/update-links',authenticate, updatePageLink)
 router.post('/delete-link',authenticate, deletePageLink)
 router.get('/get-pages',authenticate, getAllPages)
+router.get('/get-assigned-lessons',authenticate, getAssignedLessons)
 router.post('/add-user',authenticate, addNewUser)
 router.post('/add-teacher',authenticate, addNewTeacher)
 router.get('/get-users',authenticate, getAllUsers)

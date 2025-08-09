@@ -76,14 +76,23 @@ const PageCard = styled.div`
 `;
 
 const LeftSection = styled.div`
-  
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2em;
 `
 
 const PageName = styled.h4`
   color: ${({ theme }) => theme.heading};
   font-size: 16px;
-  margin: 0 0 12px;
+  margin: 0 0 0px;
 `;
+
+const Remark = styled.div`
+    font-size: 16px;
+  text-align: center;
+  color: #555;  
+`
 
 const CardFooter = styled.div`
   display: flex;
@@ -126,7 +135,7 @@ const TopLeftActions = styled.div`
   box-shadow: 0px 0px 6px #ab47bc, 0 1px 3px rgba(0, 0, 0, 0.08);
   background: ${({ theme }) => theme.background};
   width: 50%;
-  max-width: 300px;
+  max-width: 362px;
   border-radius: 15px;
   padding: 2em;
   align-items: flex-start;
@@ -135,6 +144,7 @@ const TopLeftActions = styled.div`
   margin: 1em;
 
 @media (max-width: 560px) {
+  min-width: 0px;
   width: calc(100% - 3em); 
   margin: 1em;  
   box-sizing: border-box;  
@@ -184,9 +194,10 @@ export default function UserHome({ themeMode, toggleTheme }) {
   const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
-  const [pages, setPages] = useState([]);
+  const [lessons, setLessons] = useState([]);
   const [user, setUser] = useState(null);
   const [progress, setProgress] = useState(null);
+  const [nextPayment, setNextPayment] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -200,7 +211,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
 
     setUser(userData);
 
-    const fetchPages = async () => {
+    const fetchLessons = async () => {
       const userToken = localStorage.getItem('user-token')
       try {
         const res = await api.get(`${getUserPagesRoute}/${userData.userId}`,
@@ -210,16 +221,17 @@ export default function UserHome({ themeMode, toggleTheme }) {
             },
           }
         );
-        setPages(res.data.lessons);
-        setProgress(res.data.averageProgress);
+        setLessons(res.data.lessons);
+        setProgress(res.data.avgProgress);
+        setNextPayment(res.data.nextPayment)
       } catch (err) {
-        console.error('Failed to fetch user pages', err);
+        console.error('Failed to fetch student lessons', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPages();
+    fetchLessons();
 
   }, [navigate]);
 
@@ -237,16 +249,16 @@ export default function UserHome({ themeMode, toggleTheme }) {
 
           {user && (
             <NextPayment>
-              Next Payment: <strong>{user.nextPayment}</strong>
+              Next Payment: <strong>{nextPayment}</strong>
             </NextPayment>
           )}
         </Contents>
 
 
-        {/* <ProgressSection style={{ width: '140px', height: '140px' }}>
+        <ProgressSection style={{ width: '140px', height: '140px' }}>
           <CircularProgressbar
-            value={80}
-            text={`80%`}
+            value={progress}
+            text={`${progress}%`}
             styles={buildStyles({
               textSize: '25px',
               pathColor: `#4caf50`,
@@ -254,7 +266,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
               trailColor: '#eee',
             })}
           />
-        </ProgressSection> */}
+        </ProgressSection>
       </TopLeftActions>
 
 
@@ -270,18 +282,19 @@ export default function UserHome({ themeMode, toggleTheme }) {
         </SpinnerWrapper>
       ) : (
         <PageGrid>
-          {pages.map((page) => (
-            <PageCard key={page._id}>
+          {lessons.map((lesson) => (
+            <PageCard key={lesson.lessonDetails._id}>
               <LeftSection>
-                <PageName>{page.name}</PageName>
+                <PageName>{lesson.lessonDetails.name}</PageName>
+              <Remark>Teacher remark: {lesson.teacherRemark}</Remark>
                 <CardFooter>
-                  <ViewButton onClick={() => navigate(`/player/${page.googleLink}`)}>View</ViewButton>
+                  <ViewButton onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>View</ViewButton>
                 </CardFooter>
               </LeftSection>
               <ProgressSection>
                 <CircularProgressbar
-                  value={page.progress}
-                  text={`${page.progress}%`}
+                  value={lesson.progress}
+                  text={`${lesson.progress}%`}
                   styles={buildStyles({
                     textSize: '25px',
                     pathColor: `#4caf50`,
