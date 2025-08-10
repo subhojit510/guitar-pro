@@ -32,6 +32,8 @@ export const assignTeacherRoute = `${host}/api/admin/assign-teacher`;
 export const unAssignTeacherRoute = `${host}/api/admin/unassign-teacher`;
 export const scheduleClassRoute = `${host}/api/admin/schedule-class`;
 export const updateNextPaymentRoute = `${host}/api/admin/update-next-payment`;
+export const deleteStudentRoute  = `${host}/api/admin/delete-student`;
+export const deleteTeacherRoute  = `${host}/api/admin/delete-teacher`;
 
 
 // === GOOGLE DRIVE FETCH ROUTE === ///

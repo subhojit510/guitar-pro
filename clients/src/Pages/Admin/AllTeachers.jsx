@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import {
+  deleteTeacherRoute,
   getTeachersRoute,
 } from "../../Utils/APIRoutes";
 import api from "../../Utils/api";
@@ -99,6 +100,7 @@ display: flex;
 export default function AllTeachers({ themeMode, toggleTheme }) {
 
   const [teachers, setTeachers] = useState([]);
+  const [trigger, setTrigger] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -125,14 +127,27 @@ export default function AllTeachers({ themeMode, toggleTheme }) {
 
     fetchTeachers();
 
-  }, [navigate]);
+  }, [navigate, trigger]);
 
-  const handleDeleteTeacher = async (userId) => {
+  const handleDeleteTeacher = async (teacherId) => {
+
+    const adminToken = localStorage.getItem('admin-token');
     try {
-      // delete logic here
+      const res = await api.post(deleteTeacherRoute, {
+        teacherId
+      }, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`
+        }
+      })
+      if (res.data.status) {
+        toast.success(res.data.msg)
+        setTrigger(!trigger);
+      }
     } catch (err) {
       toast.error("Error deleting user");
     }
+
   };
 
 

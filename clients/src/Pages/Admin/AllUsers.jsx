@@ -1,7 +1,7 @@
 // Same imports as before
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher} from "react-icons/fa";
+import { FaUsers, FaCheck, FaPlus, FaChalkboardTeacher, FaTrashAlt } from "react-icons/fa";
 import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +17,8 @@ import {
   unAssignTeacherRoute,
   scheduleClassRoute,
   updateNextPaymentRoute,
-  getAssignedLessonsRoute
+  getAssignedLessonsRoute,
+  deleteStudentRoute
 } from "../../Utils/APIRoutes";
 import api from "../../Utils/api";
 
@@ -90,11 +91,14 @@ const ButtonRow = styled.div`
 `;
 
 const ActionBtn = styled.button`
-display: flex;
-  padding: 6px 12px;
+  display: flex;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  padding: 12px 12px;
   font-size: 0.85rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 18px;
   cursor: pointer;
   color: ${({ theme }) => theme.buttonText};
   background: #ef4444;
@@ -109,10 +113,20 @@ const DropdownWrapper = styled.div`
   position: relative;
 `;
 
-const ToggleBtn = styled(ActionBtn)`
-display: flex;
-gap: 3px;
+const ToggleBtn = styled.button`
+  display: flex;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.buttonText};
   background: ${({ theme }) => theme.buttonBg};
+
+  &:hover {
+    opacity: 0.9;
+  }
+  
 `;
 
 const LessonList = styled.div`
@@ -268,20 +282,28 @@ export default function AllUsers({ themeMode, toggleTheme }) {
       }
     }
 
-
-
-
     fetchUsers();
     fetchPages();
     fetchAssignedLessons();
     fetchTeachers();
   }, [navigate, trigger]);
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteStudent = async (studentId) => {
+    const adminToken = localStorage.getItem('admin-token');
     try {
-      // delete logic here
+      const res = await api.post(deleteStudentRoute, {
+        studentId
+      }, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`
+        }
+      })
+      if(res.data.status){
+        toast.success(res.data.msg)
+        setTrigger(!trigger);
+      }
     } catch (err) {
-      toast.error("Error deleting user");
+      toast.error("Error deleting student");
     }
   };
 
@@ -533,8 +555,8 @@ export default function AllUsers({ themeMode, toggleTheme }) {
                 )}
               </DropdownWrapper>
 
-              <ActionBtn onClick={() => handleDeleteUser(user.userId)}>
-                <FaTrash />
+              <ActionBtn onClick={() => handleDeleteStudent(user.userId)}>
+                <FaTrashAlt />
               </ActionBtn>
             </ButtonRow>
           </UserCard>

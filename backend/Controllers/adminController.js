@@ -410,3 +410,43 @@ module.exports.updateNextPayment = async (req, res, next) => {
     }
 }
 
+module.exports.deleteStudent = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied, Admins only", status: false });
+    }
+    try {
+        const { studentId } = req.body;
+        console.log("Working",studentId);
+
+        await AssignedLessons.deleteMany({studentId})
+        await Class.deleteMany({studentId})
+        await Users.findOneAndDelete({userId: studentId})
+
+        return res.status(200).json({ status: true, msg: "User deleted" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
+
+module.exports.deleteTeacher = async (req, res, next) => {
+    if (req.role !== "admin") {
+        return res.status(403).json({ msg: "Access denied, Admins only", status: false });
+    }
+    try {
+        const { teacherId } = req.body;
+
+        await Class.deleteMany({teacherId})
+        await Users.updateMany(
+            {teacher: teacherId},
+            {teacher: null}
+        )
+        await Teachers.deleteOne({teacherId});
+
+        return res.status(200).json({ status: true, msg: "Teacher deleted" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, msg: "Server error" });
+    }
+}
+
