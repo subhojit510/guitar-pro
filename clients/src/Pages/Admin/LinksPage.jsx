@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import AdminNavbar from '../../Components/AdminNavbar';
@@ -215,11 +215,11 @@ const UserFormPopup = styled.div`
   }
 
   .close {
-    position: absolute;
+    position: relative;
     top: 0em;
     width: 1px;
     height: 1px;
-    right: 26px;
+    left: 14em;
     background: transparent;
     border: none;
     font-size: 1.2rem;
@@ -230,10 +230,6 @@ const UserFormPopup = styled.div`
       color: red;
       background: transparent;
     }
-
-    @media (max-width: 400px) {
-      left: 130px;
-    }
   }
 `;
 
@@ -243,6 +239,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   const [links, setLinks] = useState([]);
   const [newLink, setNewLink] = useState('');
   const [newName, setNewName] = useState('');
+  const [newAbout, setNewAbout] = useState('');
   const [editMap, setEditMap] = useState({});
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showAddTeacherForm, setShowAddTeacherForm] = useState(false);
@@ -265,7 +262,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       return toast.warning("Please fill in both name and link.");
     }
     const res = await api.post(addLinkRoute, {
-      newLink, newName
+      newLink, newName, newAbout
     },
       {
         headers: {
@@ -276,6 +273,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       toast.success("Link added")
       setNewLink('')
       setNewName('')
+      setNewAbout('')
       fetchLinks();
     } else {
       toast.error(res.data.msg || "Failed to add link")
@@ -294,7 +292,8 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       const res = await api.post(updateLinkRoute, {
         id,
         googleLink: updated.googleLink,
-        name: updated.name
+        name: updated.name,
+        about: updated.about
       },
         {
           headers: {
@@ -445,8 +444,8 @@ export default function LinksPage({ toggleTheme, themeMode }) {
   };
 
 
-  const fetchLinks = async () => {
-    const adminToken = localStorage.getItem('admin-token');
+  const fetchLinks = useCallback(async() => {
+  const adminToken = localStorage.getItem('admin-token');
 
     if (!adminToken) {
       navigate('/admin-login');
@@ -465,23 +464,23 @@ export default function LinksPage({ toggleTheme, themeMode }) {
       res.data.pages.forEach(link => {
         initialMap[link._id] = {
           googleLink: link.googleLink,
-          name: link.name
+          name: link.name,
+          about: link.about
         };
       });
       setEditMap(initialMap);
     } else {
       toast.error("Failed to fetch links");
     }
-  };
+}, [navigate]);
 
 
 
   useEffect(() => {
 
-
     fetchLinks();
 
-  }, [navigate]);
+  }, [fetchLinks]);
 
   return (
 
@@ -503,15 +502,24 @@ export default function LinksPage({ toggleTheme, themeMode }) {
         <InputRow>
           <input
             type="text"
+            maxLength={100}
             value={newLink}
             placeholder="Enter Google Drive File ID"
             onChange={e => setNewLink(e.target.value)}
           />
           <input
             type="text"
+            maxLength={20}
             value={newName}
             placeholder="Enter Page Name"
             onChange={e => setNewName(e.target.value)}
+          />
+           <input
+            type="text"
+            maxLength={100}
+            value={newAbout}
+            placeholder="About"
+            onChange={e => setNewAbout(e.target.value)}
           />
           <button onClick={handleAdd}>Add</button>
         </InputRow>
@@ -520,6 +528,7 @@ export default function LinksPage({ toggleTheme, themeMode }) {
           <ListItem key={item._id}>
             <input
               value={editMap[item._id]?.googleLink || ''}
+              maxLength={100}
               onChange={(e) =>
                 setEditMap({
                   ...editMap,
@@ -532,12 +541,27 @@ export default function LinksPage({ toggleTheme, themeMode }) {
             />
             <input
               value={editMap[item._id]?.name || ''}
+              maxLength={20}
               onChange={(e) =>
                 setEditMap({
                   ...editMap,
                   [item._id]: {
                     ...editMap[item._id],
                     name: e.target.value,
+                  }
+                })
+              }
+            />
+             <input
+              value={editMap[item._id]?.about || ''}
+              maxLength={100}
+              placeholder='Enter about here..'
+              onChange={(e) =>
+                setEditMap({
+                  ...editMap,
+                  [item._id]: {
+                    ...editMap[item._id],
+                    about: e.target.value,
                   }
                 })
               }

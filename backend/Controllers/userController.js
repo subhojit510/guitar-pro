@@ -72,6 +72,7 @@ module.exports.getPages = async (req, res, next) => {
           "lessonDetails._id": 1,
           "lessonDetails.googleLink": 1,
           "lessonDetails.name": 1,
+          "lessonDetails.about": 1
         }
       }
     ]);

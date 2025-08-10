@@ -3,7 +3,6 @@ const Admin = require('../Models/adminModel')
 const Pages = require('../Models/pageModel')
 const Users = require('../Models/userModel')
 const Teachers = require('../Models/teacherModel')
-const Progress = require('../Models/progressModel')
 const Class = require('../Models/classesModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -69,13 +68,15 @@ module.exports.addPageLink = async (req, res, next) => {
     }
     try {
         const googleLink = req.body.newLink
+        const about = req.body.newAbout
         const linkExist = await Pages.findOne({ googleLink })
         if (linkExist) {
             return res.json({ status: false, msg: "Link already exist" })
         }
         const page = await Pages.create({
             name: req.body.newName,
-            googleLink
+            googleLink,
+            about
         });
 
         return res.json({ status: true, page })
@@ -101,11 +102,12 @@ module.exports.updatePageLink = async (req, res, next) => {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
-        const updatedPage = await Pages.findByIdAndUpdate(
+       await Pages.findByIdAndUpdate(
             req.body.id,
             {
                 name: req.body.name,
-                googleLink: req.body.googleLink
+                googleLink: req.body.googleLink,
+                about: req.body.about
             },
             { new: true } // returns updated doc
         );

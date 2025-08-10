@@ -68,6 +68,7 @@ const PageCard = styled.div`
   transition: 0.3s ease;
   display: flex;
   justify-content: space-between;
+  overflow-wrap: break-word;
 
   &:hover {
     transform: scale(1.01);
@@ -78,8 +79,9 @@ const PageCard = styled.div`
 const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2em;
+  align-items: flex-start;
+  overflow-wrap: break-word;
 `
 
 const PageName = styled.h4`
@@ -90,8 +92,10 @@ const PageName = styled.h4`
 
 const Remark = styled.div`
     font-size: 16px;
-  text-align: center;
   color: #555;  
+`
+const About = styled.div`
+color: ${({ theme }) => theme.heading};
 `
 
 const CardFooter = styled.div`
@@ -99,29 +103,21 @@ const CardFooter = styled.div`
   justify-content: flex-end;
 `;
 
-const ViewButton = styled.button`
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  background: ${({ theme }) => theme.buttonBg};
-  color: ${({ theme }) => theme.buttonText};
-  font-weight: 500;
-  font-size: 13px;
-  cursor: pointer;
-
-  &:hover {
-    background: ${({ theme }) => theme.buttonHover};
-  }
-`;
-
 const ProgressSection = styled.div`
-  width: 50px;
+  min-width: 50px;
+  max-width: 110px;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
 
-
+const PageProgressSection = styled.div`
+  min-width: 50px;
+  max-width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
 const WelcomeText = styled.p`
   font-size: 16px;
@@ -283,15 +279,15 @@ export default function UserHome({ themeMode, toggleTheme }) {
       ) : (
         <PageGrid>
           {lessons.map((lesson) => (
-            <PageCard key={lesson.lessonDetails._id}>
+            <PageCard key={lesson.lessonDetails._id} onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>
               <LeftSection>
                 <PageName>{lesson.lessonDetails.name}</PageName>
-              <Remark>Teacher remark: {lesson.teacherRemark}</Remark>
+                <Remark>Teacher remark: {lesson.teacherRemark}</Remark>
+                <About>About the lesson: {lesson.lessonDetails.about}</About>
                 <CardFooter>
-                  <ViewButton onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>View</ViewButton>
                 </CardFooter>
               </LeftSection>
-              <ProgressSection>
+              <PageProgressSection>
                 <CircularProgressbar
                   value={lesson.progress}
                   text={`${lesson.progress}%`}
@@ -302,7 +298,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
                     trailColor: '#eee',
                   })}
                 />
-              </ProgressSection>
+              </PageProgressSection>
 
             </PageCard>
           ))}

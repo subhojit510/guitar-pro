@@ -10,6 +10,7 @@ import {
   getSinglePageRoute,
   authorizeUserRoute,
   removeUserAccessRoute,
+  getAssignedLessonsRoute,
 } from "../../Utils/APIRoutes";
 
 
@@ -99,8 +100,9 @@ const GreenDot = styled.span`
 
 export default function AdminUserAccess({ themeMode, toggleTheme }) {
   const [users, setUsers] = useState([]);
-  const [accessList, setAccessList] = useState([]);
+  const [assignedLessons, setAssignedLessons] = useState([]);
   const [pageName, setPageName] = useState('');
+  const [trigger, setTrigger] = useState(false);
   const navigate = useNavigate();
   const { pageId } = useParams();
 
@@ -127,15 +129,31 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
           },
         });
         setPageName(pageRes.data.page.name)
-        setAccessList(pageRes.data.page.userAccess || []);
       } catch (err) {
         toast.error("Error loading data");
         console.error(err);
       }
     };
+      const fetchAssignedLessons = async () => {
+          const adminToken = localStorage.getItem('admin-token')
+          try {
+            const res = await api.get(getAssignedLessonsRoute, {
+              headers: {
+                Authorization: `Bearer ${adminToken}`,
+              },
+            });
+            setAssignedLessons(res.data.assignedLessons);
+            console.log(res.data.assignedLessons);
+          } catch (err) {
+            toast.error("Error loading assigned lessons");
+            console.error(err);
+          }
+        };
 
     fetchData();
-  }, [navigate, pageId]);
+    fetchAssignedLessons();
+
+  }, [navigate, pageId, trigger]);
 
   const handleAuthorize = async (userId) => {
     const adminToken = localStorage.getItem('admin-token');
@@ -150,8 +168,8 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
           },
         });
       if (res.data.status) {
-        toast.success("User authorized");
-        setAccessList((prev) => [...prev, userId]);
+        setTrigger(!trigger);
+        toast.success(res.data.msg);
       } else toast.error("Authorization failed");
     } catch (err) {
       toast.error("Error authorizing");
@@ -170,8 +188,8 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
           },
         });
       if (res.data.status) {
+        setTrigger(!trigger);
         toast.success(res.data.msg);
-        setAccessList((prev) => prev.filter((id) => id !== userId));
       } else toast.error("Failed to remove access");
     } catch (err) {
       toast.error("Error removing access");
@@ -184,7 +202,10 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
       <Title><FaUsers /> User Access for: {pageName}</Title>
       <CardGrid>
         {users.map((user, idx) => {
-          const hasAccess = accessList.includes(user.userId);
+          const hasAccess = Array.isArray(assignedLessons) &&
+            assignedLessons.some(
+              al => al.studentId === user.userId && al.lessonId === pageId
+            );
           return (
             <UserCard key={user._id}>
               {hasAccess && <GreenDot><FaCheckCircle /></GreenDot>}

@@ -1,7 +1,7 @@
 // Same imports as before
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher, FaRegCalendarTimes } from "react-icons/fa";
+import { FaUsers, FaTrash, FaCheck, FaPlus, FaChalkboardTeacher} from "react-icons/fa";
 import { MdOutlinePlayLesson } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";

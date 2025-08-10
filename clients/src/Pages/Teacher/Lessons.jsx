@@ -5,7 +5,7 @@ import TeacherNavbar from '../../Components/TeacherNavbar';
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 import { LuListMusic } from "react-icons/lu";
-import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { getStudentsLessonRoute, submitRemarkRoute, updateProgress } from '../../Utils/APIRoutes';
 import { toast } from 'react-toastify'
 import api from '../../Utils/api';
@@ -52,7 +52,7 @@ const Heading = styled.h2`
 const PageGrid = styled.div`
   display: grid;
   padding: 1em;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(344px, 1fr));
   gap: 1.5rem;
 `;
 
@@ -138,24 +138,22 @@ const ViewButton = styled.button`
 
 const MarkButton = styled.button`
   display: flex;
-  background: transparent;
+  background: #4caf50;
   gap : 3px;
-  padding: 8px 14px;
+  padding: 10px 10px;
   border: none;
-  border-radius: 6px;
+  border-radius: 18px;
   border:solid 1px #4caf50 ;
-  color: #4caf50;
-  font-weight: 600;
-  font-size: 13px;
+  color: #fff;
   cursor: pointer;
 
   svg{
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 800;
   }
 
   &:hover {
-    color: #4caf4fd8;
+   background: #4caf4fce;
   }
 `;
 
@@ -191,7 +189,7 @@ position: absolute;
   margin: 0 auto;
   box-sizing: border-box;
   top: 3em;
-  left: -192px;
+  left: -77px;
   right: 0;
 `;
 
@@ -306,7 +304,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
 
     fetchLessons();
 
-  }, [navigate, trigger]);
+  }, [navigate, trigger, studentId]);
 
 
   /// === PROGRESS CONTROLLER === //
@@ -407,9 +405,7 @@ export default function Lessons({ themeMode, toggleTheme }) {
                 <PageName>{lesson.lessonDetails.name}</PageName>
                 <CardFooter>
                   <ViewButton onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>View</ViewButton>
-                  <MarkButton onClick={() => { increaseProgress(lesson.lessonDetails._id, 100) }}>
-                    <IoCheckmarkDoneOutline />Mark as Done
-                  </MarkButton>
+
                   <DropdownWrapper>
 
                     <RemarkButton
@@ -428,15 +424,18 @@ export default function Lessons({ themeMode, toggleTheme }) {
                       <ClassContainer>
                         <Input
                           value={remark}
-                          maxLength={100}
+                          maxLength={40}
                           type="text"
                           placeholder="Enter remark here.."
                           onChange={(e) => setRemark(e.target.value)}
                         />
-                        <SubmitButton onClick={()=>{handleRemarkSubmit(lesson.lessonDetails._id)}}>Submit</SubmitButton>
+                        <SubmitButton onClick={() => { handleRemarkSubmit(lesson.lessonDetails._id) }}>Submit</SubmitButton>
                       </ClassContainer>
                     )}
                   </DropdownWrapper>
+                  <MarkButton onClick={() => { increaseProgress(lesson.lessonDetails._id, 100) }}>
+                    <IoCheckmarkDoneSharp/>
+                  </MarkButton>
                 </CardFooter>
               </LeftSection>
 
@@ -452,8 +451,8 @@ export default function Lessons({ themeMode, toggleTheme }) {
                   })}
                 />
                 <ControlButtons>
-                  <UpdateButton onClick={() => {decreaseProgress(lesson.lessonDetails._id, lesson.progress)}}>-</UpdateButton>
-                  <UpdateButton onClick={() => {increaseProgress(lesson.lessonDetails._id, lesson.progress)}}>+</UpdateButton>
+                  <UpdateButton onClick={() => { decreaseProgress(lesson.lessonDetails._id, lesson.progress) }}>-</UpdateButton>
+                  <UpdateButton onClick={() => { increaseProgress(lesson.lessonDetails._id, lesson.progress) }}>+</UpdateButton>
                 </ControlButtons>
               </ProgressSection>
             </PageCard>

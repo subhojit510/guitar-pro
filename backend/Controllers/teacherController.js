@@ -1,7 +1,6 @@
 const Teachers = require('../Models/teacherModel');
 const Users = require('../Models/userModel');
 const Pages = require('../Models/pageModel')
-const Progress = require('../Models/progressModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const AssignedLessons = require('../Models/assignedLessons');

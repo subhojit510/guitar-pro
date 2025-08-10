@@ -11,6 +11,10 @@ const PagesSchema = new mongoose.Schema({
         unique: true,
         index: true,
     },
+    about:{
+        type: String,
+        required: false
+    },
     userAccess: [ {
     type: String,
     match: /^[0-9]{6}$/, // 6-digit number strings only
