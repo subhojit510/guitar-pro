@@ -248,7 +248,6 @@ export default function AllUsers({ themeMode, toggleTheme }) {
           },
         });
         setAssignedLessons(res.data.assignedLessons);
-        console.log(res.data.assignedLessons);
       } catch (err) {
         toast.error("Error loading assigned lessons");
         console.error(err);
@@ -289,7 +288,6 @@ export default function AllUsers({ themeMode, toggleTheme }) {
   // === HANDLING CLASS FORM SUBMISSION === ///
 
   const handleClassSubmit = async (studentId, teacherId) => {
-    console.log(studentId, teacherId);
 
     if (!teacherId) {
       toast.error("Assign a teacher to the student");

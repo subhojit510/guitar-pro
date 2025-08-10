@@ -83,7 +83,6 @@ const ActionBtn = styled.button`
   border-radius: 6px;
   cursor: pointer;
   color: ${({ theme }) => theme.buttonText};
-  background: ${({ bg }) => bg || "#333"};
 
   &:hover {
     opacity: 0.9;
@@ -143,7 +142,6 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
               },
             });
             setAssignedLessons(res.data.assignedLessons);
-            console.log(res.data.assignedLessons);
           } catch (err) {
             toast.error("Error loading assigned lessons");
             console.error(err);
@@ -216,9 +214,9 @@ export default function AdminUserAccess({ themeMode, toggleTheme }) {
               <Info><Label>Role:</Label><Value>{user.role || "user"}</Value></Info>
               <ButtonRow>
                 {!hasAccess ? (
-                  <ActionBtn bg="#10b981" onClick={() => handleAuthorize(user.userId)}>Authorize Access</ActionBtn>
+                  <ActionBtn style={{background: '#10b981'}} onClick={() => handleAuthorize(user.userId)}>Authorize Access</ActionBtn>
                 ) : (
-                  <ActionBtn bg="#f43f5e" onClick={() => handleRemove(user.userId)}>Remove Access</ActionBtn>
+                  <ActionBtn style={{background: '#f43f5e'}} onClick={() => handleRemove(user.userId)}>Remove Access</ActionBtn>
                 )}
               </ButtonRow>
             </UserCard>
