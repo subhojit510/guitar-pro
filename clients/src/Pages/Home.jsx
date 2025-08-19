@@ -47,7 +47,7 @@ const Heading = styled.h2`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 2rem;
+  margin: 1.5rem;
 `;
 
 const PageGrid = styled.div`
@@ -164,6 +164,7 @@ const TopRightActions = styled.div`
   display: flex;
   justify-content: flex-end;
   margin: 1rem 2rem 0 0;
+  gap: 5px;
 `;
 
 const ChordButton = styled.button`
@@ -269,6 +270,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
 
       <Heading>Available Lessons<TopRightActions>
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
+        <ChordButton onClick={() => navigate('/scales')}><LuListMusic /> Guitar Scales</ChordButton>
       </TopRightActions></Heading>
 
 

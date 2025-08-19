@@ -15,6 +15,7 @@ import { ToastContainer } from 'react-toastify';
 import styled, { ThemeProvider } from 'styled-components';
 import TeacherHome from './Pages/Teacher/TeacherHome';
 import Lessons from './Pages/Teacher/Lessons';
+import ScalesPage from './Pages/ScalesPage';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
             <Route path="/user-login" element={<UserLoginPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/player/:id" element={<Player toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/chords" element={<ChordPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/scales" element={<ScalesPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
 
             <Route path="/teacher" element={<TeacherHome toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/teacher/lessons" element={<Lessons toggleTheme={toggleTheme} themeMode={themeMode} />} />
