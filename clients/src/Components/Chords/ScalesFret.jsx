@@ -31,8 +31,9 @@ const StringLabel = styled.div`
 
 const FretLabels = styled.div`
   display: flex;
-  margin-left: 18px;
+  margin-left: 24px;
   height: 24px;
+  width: 73.5em;
 
   & > div:first-child {
     width: 28px; /* Match half width of first fret */
@@ -50,7 +51,7 @@ const FretLabel = styled.div`
 
 const FretboardGrid = styled.div`
   display: grid;
-  grid-template-columns: 33px repeat(15, 55px); /* First fret = half-width */
+  grid-template-columns: 33px repeat(21, 55px); /* First fret = half-width */
   grid-template-rows: repeat(6, 37px);
   background-color: #1f1f1f;
   position: relative;
@@ -120,22 +121,12 @@ const DoubleFretMarker = styled.div`
   z-index: 0;
 `;
 
-const Muted = styled.div`
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  font-weight: bold;
-  font-size: x-large;
-  color: red;
-  z-index: 2;
-`;
-
 const FingerNumber = styled.div`
   width: 28px;
   height: 28px;
-  background-color: ${({ theme }) => theme.buttonBg};
+  background-color: ${({ theme }) => theme.heading};
   border-radius: 50%;
-  color: ${({ theme }) => theme.buttonText};
+  color: ${({ theme }) => theme.fretText};
   font-size: 13px;
   font-weight: bold;
   display: flex;
@@ -147,30 +138,15 @@ const FingerNumber = styled.div`
   z-index: 2; /* Ensure it's above the string line */
 `;
 
-const Open = styled.div`
-  width: 25px;
-  height: 25px;
-  background-color: #ff9100;
-  border-radius: 50%;
-  margin: auto;
-  margin-top: 8px;
-  position: relative;
-  z-index: 2; /* Bring on top of string */
-`;
-
-
 const strings = [1, 2, 3, 4, 5, 6]; // High E to Low E
 const stringNames = ['E', 'B', 'G', 'D', 'A', 'E'];
-const frets = Array.from({ length: 16 }, (_, i) => i);
+const frets = Array.from({ length: 22 }, (_, i) => i);
 
 const ScalesFret = ({ chordNotes }) => {
   if (!Array.isArray(chordNotes)) return null;
 
   const findNote = (stringNo, fretNo) =>
     chordNotes.find((note) => note.string === stringNo && note.fret === fretNo);
-
-  const isMuted = (stringNo) =>
-    chordNotes.some((note) => note.string === stringNo && note.fret === 'x');
 
   return (
     <Wrapper>
@@ -205,8 +181,6 @@ const ScalesFret = ({ chordNotes }) => {
                   style={{ '--string-thickness': `${thickness}px` }}
                 >
                   {note && note.finger && <FingerNumber>{note.finger}</FingerNumber>}
-                  {note && note.fret === 0 && <Open />}
-                  {fretNo === 0 && isMuted(stringNo) && <Muted>X</Muted>}
                   {showMarker && <FretMarker />}
                   {showDoubleMarker && <DoubleFretMarker />}
                 </Fret>

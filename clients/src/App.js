@@ -90,6 +90,7 @@ const black = '#000000';
 const lightTheme = {
   background: white,
   text: black,
+  fretText: white,
   loginBg: '#e8cfeb',
   cardBg: '#fff7ec',
   cardBorder: muted,
@@ -107,6 +108,7 @@ const lightTheme = {
 const darkTheme = {
   background: '#121212',
   text: white,
+  fretText: black,
   loginBg: '#1e1e1e',
   cardBg: '#1f1f1f',
   cardBorder: muted,

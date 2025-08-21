@@ -69,6 +69,9 @@ const ContentWrapper = styled.div`
   padding: 2rem;
   width: 100%;
   max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Title = styled.h2`
