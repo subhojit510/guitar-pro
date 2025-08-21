@@ -270,7 +270,7 @@ export default function UserHome({ themeMode, toggleTheme }) {
 
       <Heading>Available Lessons<TopRightActions>
         <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
-        <ChordButton onClick={() => navigate('/scales')}><LuListMusic /> Guitar Scales</ChordButton>
+        {/* <ChordButton onClick={() => navigate('/scales')}><LuListMusic /> Guitar Scales</ChordButton> */}
       </TopRightActions></Heading>
 
 
