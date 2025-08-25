@@ -16,6 +16,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import TeacherHome from './Pages/Teacher/TeacherHome';
 import Lessons from './Pages/Teacher/Lessons';
 import ScalesPage from './Pages/ScalesPage';
+import RegisterPage from './Auth/AdminRegister';
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Routes>
             <Route path="/admin" element={<ViewPages toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route path="/admin-login" element={<AuthPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
+            <Route path="/admin-register" element={<RegisterPage toggleTheme={toggleTheme} themeMode={themeMode} />} />
             <Route
               path="/admin/view-links"
               element={<LinksPage toggleTheme={toggleTheme} themeMode={themeMode} />}

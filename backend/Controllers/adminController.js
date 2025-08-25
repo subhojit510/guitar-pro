@@ -44,21 +44,22 @@ module.exports.login = async (req, res, next) => {
 
 module.exports.register = async (req, res, next) => {
     try {
-        const { name, email, password } = req.body.formData;
+        const {email, oldPassword, newPassword } = req.body.formData;
 
-        const emailCheck = await Admin.findOne({ name, email });
-        if (emailCheck)
-            return res.json({ msg: "Email already exist", status: false });
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await Admin.create({
-            name,
-            email,
-            password: hashedPassword
-        });
-        delete user.password;
-        return res.json({ status: true, user })
+        const admin = await Admin.findOne({ email });
+        if (!admin)
+            return res.json({ msg: "Invalid Email", status: false });
+        const isPasswordValid = await bcrypt.compare(oldPassword, admin.password)
+        if (!isPasswordValid)
+            return res.json({ msg: "Wrong Old Password", status: false })
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await Admin.updateOne({email: email},
+            {password: hashedPassword}
+        );
+        delete admin.password
+        return res.json({ status: true, msg: "Password updated" })
     } catch (err) {
-        console.log("An error occured in admin register", err);
+        console.log("An error occured in changing admin pass", err);
     }
 }
 
@@ -102,7 +103,7 @@ module.exports.updatePageLink = async (req, res, next) => {
         return res.status(403).json({ msg: "Access denied,Admins only", status: false });
     }
     try {
-       await Pages.findByIdAndUpdate(
+        await Pages.findByIdAndUpdate(
             req.body.id,
             {
                 name: req.body.name,
@@ -124,7 +125,7 @@ module.exports.deletePageLink = async (req, res, next) => {
     }
     try {
         await Pages.findByIdAndDelete(req.body.id);
-        await AssignedLessons.deleteMany({lessonId: req.body.id});
+        await AssignedLessons.deleteMany({ lessonId: req.body.id });
         return res.json({ status: true })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
@@ -151,7 +152,7 @@ module.exports.getAssignedLessons = async (req, res, next) => {
 
     try {
         const assignedLessons = await AssignedLessons.find();
-        
+
         return res.json({ status: true, assignedLessons })
     } catch (err) {
         console.log("An error occured in deleting page/link", err);
@@ -416,11 +417,11 @@ module.exports.deleteStudent = async (req, res, next) => {
     }
     try {
         const { studentId } = req.body;
-        console.log("Working",studentId);
+        console.log("Working", studentId);
 
-        await AssignedLessons.deleteMany({studentId})
-        await Class.deleteMany({studentId})
-        await Users.findOneAndDelete({userId: studentId})
+        await AssignedLessons.deleteMany({ studentId })
+        await Class.deleteMany({ studentId })
+        await Users.findOneAndDelete({ userId: studentId })
 
         return res.status(200).json({ status: true, msg: "User deleted" });
     } catch (err) {
@@ -436,12 +437,12 @@ module.exports.deleteTeacher = async (req, res, next) => {
     try {
         const { teacherId } = req.body;
 
-        await Class.deleteMany({teacherId})
+        await Class.deleteMany({ teacherId })
         await Users.updateMany(
-            {teacher: teacherId},
-            {teacher: null}
+            { teacher: teacherId },
+            { teacher: null }
         )
-        await Teachers.deleteOne({teacherId});
+        await Teachers.deleteOne({ teacherId });
 
         return res.status(200).json({ status: true, msg: "Teacher deleted" });
     } catch (err) {
