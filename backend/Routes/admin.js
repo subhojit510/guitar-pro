@@ -25,7 +25,7 @@ const { authenticate } = require('../Middleware/authMiddleware');
 const router = require('express').Router();
 
 router.post("/login", login);
-router.post('/register', register);
+// router.post('/register', register);
 router.post('/add-link',authenticate, addPageLink)
 router.get('/get-links',authenticate, getPageLinks)
 router.post('/update-links',authenticate, updatePageLink)
