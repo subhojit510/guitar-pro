@@ -4,7 +4,6 @@ import api from '../Utils/api';
 import { useNavigate } from 'react-router-dom';
 import { getUserPagesRoute } from '../Utils/APIRoutes';
 import UserNavbar from '../Components/UserNavbar';
-import { LuListMusic } from "react-icons/lu";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 
@@ -59,6 +58,37 @@ const PageGrid = styled.div`
   gap: 1.5rem;
 `;
 
+const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+`
+
+const LessonSection = styled.div`
+  display: grid;
+  grid-template-columns: 50% 50%;
+  padding-right: 1em;
+  gap: 1em;
+  margin: 1em;
+`
+
+const LessonCard = styled.div`
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.cardBorder};
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  overflow-wrap: break-word;
+
+  &:hover {
+    transform: scale(1.01);
+    border-color: ${({ theme }) => theme.buttonBg};
+  }
+`
+
 const PageCard = styled.div`
   background: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.cardBorder};
@@ -97,11 +127,6 @@ const Remark = styled.div`
 const About = styled.div`
 color: ${({ theme }) => theme.heading};
 `
-
-const CardFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`;
 
 const ProgressSection = styled.div`
   min-width: 50px;
@@ -159,32 +184,6 @@ const NextPayment = styled.div`
   text-align: center;
   color: #555;  
 `
-
-const TopRightActions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin: 1rem 2rem 0 0;
-  gap: 5px;
-`;
-
-const ChordButton = styled.button`
-display: flex;
-gap: 3px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  background: ${({ theme }) => theme.buttonBg};
-  color: ${({ theme }) => theme.buttonText};
-  font-weight: 500;
-  font-size: 13px;
-  cursor: pointer;
-  transition: 0.2s;
-
-  &:hover {
-    background: ${({ theme }) => theme.buttonHover};
-  }
-`;
-
 
 export default function UserHome({ themeMode, toggleTheme }) {
 
@@ -265,46 +264,56 @@ export default function UserHome({ themeMode, toggleTheme }) {
           />
         </ProgressSection>
       </TopLeftActions>
-
-
-
-      <Heading>Available Lessons<TopRightActions>
-        <ChordButton onClick={() => navigate('/chords')}><LuListMusic /> Guitar Chords</ChordButton>
-        {/* <ChordButton onClick={() => navigate('/scales')}><LuListMusic /> Guitar Scales</ChordButton> */}
-      </TopRightActions></Heading>
-
-
+      <Heading>Available Lessons</Heading>
       {loading ? (
         <SpinnerWrapper>
           <Spinner />
         </SpinnerWrapper>
       ) : (
-        <PageGrid>
-          {lessons.map((lesson) => (
-            <PageCard key={lesson.lessonDetails._id} onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>
+        <Section>
+          <LessonSection>
+            <LessonCard onClick={()=>navigate('/chords')}>
               <LeftSection>
-                <PageName>{lesson.lessonDetails.name}</PageName>
-                <Remark>Teacher remark: {lesson.teacherRemark}</Remark>
-                <About>About the lesson: {lesson.lessonDetails.about}</About>
-                <CardFooter>
-                </CardFooter>
+                <PageName>Guitar Chords</PageName>
+                <About><strong>About the lesson: </strong> Chords are groups of notes played together to create harmony and rhythm in music.</About>
               </LeftSection>
-              <PageProgressSection>
-                <CircularProgressbar
-                  value={lesson.progress}
-                  text={`${lesson.progress}%`}
-                  styles={buildStyles({
-                    textSize: '25px',
-                    pathColor: `#4caf50`,
-                    textColor: theme.text,
-                    trailColor: '#eee',
-                  })}
-                />
-              </PageProgressSection>
+            </LessonCard>
+            <LessonCard onClick={()=>navigate('/scales')}>
+              <LeftSection>
+                <PageName>Guitar Scales</PageName>
+                <About><strong>About the lesson: </strong>Scales are sequences of notes that form the foundation for solos, melodies, and improvisation.</About>
+              </LeftSection>
 
-            </PageCard>
-          ))}
-        </PageGrid>
+            </LessonCard>
+          </LessonSection>
+
+          <PageGrid>
+
+            {lessons.map((lesson) => (
+              <PageCard key={lesson.lessonDetails._id} onClick={() => navigate(`/player/${lesson.lessonDetails.googleLink}`)}>
+                <LeftSection>
+                  <PageName>{lesson.lessonDetails.name}</PageName>
+                  <Remark>Teacher remark: {lesson.teacherRemark}</Remark>
+                  <About>About the lesson: {lesson.lessonDetails.about}</About>
+                </LeftSection>
+                <PageProgressSection>
+                  <CircularProgressbar
+                    value={lesson.progress}
+                    text={`${lesson.progress}%`}
+                    styles={buildStyles({
+                      textSize: '25px',
+                      pathColor: `#4caf50`,
+                      textColor: theme.text,
+                      trailColor: '#eee',
+                    })}
+                  />
+                </PageProgressSection>
+
+              </PageCard>
+            ))}
+          </PageGrid>
+        </Section>
+
       )}
     </Container>
   );
