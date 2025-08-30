@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { scalesData } from '../data/scalesData';
 import { useReactToPrint } from "react-to-print";
-import Fretboard from '../Components/Chords/Fretboard';
 import ScalesControls from '../Components/Chords/ScalesControls';
 import UserNavbar from '../Components/UserNavbar';
 import styled from 'styled-components';
@@ -32,7 +31,7 @@ const ScalesPage = ({ themeMode, toggleTheme }) => {
       <UserNavbar themeMode={themeMode} toggleTheme={toggleTheme} />
       <div style={{width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center' }} ref={contentRef}>
         <ContentWrapper>
-          <Title><LuListMusic /> Chord Visualizer</Title>
+          <Title><LuListMusic /> Scales Visualizer</Title>
 
           <ScalesControls
             selectedChord={selectedChord}

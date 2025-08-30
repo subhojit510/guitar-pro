@@ -67,7 +67,7 @@ const ScalesControls = ({
 
   return (
     <div>
-      <SectionTitle>Chord Root</SectionTitle>
+      <SectionTitle>Scales root</SectionTitle>
       <ButtonGroup>
         {rootNotes.map((root) => (
           <Button
@@ -80,7 +80,7 @@ const ScalesControls = ({
         ))}
       </ButtonGroup>
 
-      <SectionTitle>Chord Type</SectionTitle>
+      <SectionTitle>Scales Type</SectionTitle>
       <ButtonGroup>
         {chordTypes.map((type) => (
           <Button
